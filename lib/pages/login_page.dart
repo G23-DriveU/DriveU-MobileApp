@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/widgets/credential_form.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -14,7 +15,8 @@ class LoginPage extends StatelessWidget {
         children: [
           // TODO: Place some logo or image here
           const Text("Login Page"),
-          ElevatedButton(onPressed: () {}, child: const Text("Login")),
+          // Form which takes in user credentials and then logs them in
+          const CredentialForm(),
           Row(
             children: [
               const Text("Don't have an Account? "),
@@ -22,7 +24,7 @@ class LoginPage extends StatelessWidget {
                 onTap: () {},
                 child: const Text("Join"),
               ),
-              const Text(" DriveU-nation for FREE")
+              const Text(" DriveU-nation for FREE!")
             ],
           )
         ],

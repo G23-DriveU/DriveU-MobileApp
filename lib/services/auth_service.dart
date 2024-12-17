@@ -21,7 +21,7 @@ class AuthService {
         print('The account already exists for that email.');
       }
     } catch (e) {
-      print(e);
+      print("Debugging error $e");
     }
   }
 
@@ -30,14 +30,9 @@ class AuthService {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        // TODO: Show a dialog or toast to let user know error
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        // TODO: Show a dialog or toast to let user know error
-        print('Wrong password provided for that user.');
-      }
+      print("Debugging: $credential");
+    } catch (e) {
+      print("Debugging error $e");
     }
   }
 
