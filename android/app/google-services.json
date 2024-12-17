@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "129646501678",
+    "project_id": "driveu-ee379",
+    "storage_bucket": "driveu-ee379.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:129646501678:android:0947533cfe4aa5ddeb24bf",
+        "android_client_info": {
+          "package_name": "com.example.driveu_mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB42mIHHLkoAMJzJRYoEO-DO4u5EkQeyAU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

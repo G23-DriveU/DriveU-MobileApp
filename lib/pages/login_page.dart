@@ -1,22 +1,32 @@
-import 'package:driveu_mobile_app/pages/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
-
-  final User? user = Auth().currentUser;
-
-  Future<void> _signOut() async {
-    await Auth().signOut();
-  }
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Hello world"),
-      ),
+    return Scaffold(
+      body: SafeArea(
+          child: SingleChildScrollView(
+              child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // TODO: Place some logo or image here
+          const Text("Login Page"),
+          ElevatedButton(onPressed: () {}, child: const Text("Login")),
+          Row(
+            children: [
+              const Text("Don't have an Account? "),
+              GestureDetector(
+                onTap: () {},
+                child: const Text("Join"),
+              ),
+              const Text(" DriveU-nation for FREE")
+            ],
+          )
+        ],
+      ))),
     );
   }
 }
