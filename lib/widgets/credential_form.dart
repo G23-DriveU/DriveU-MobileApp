@@ -26,6 +26,7 @@ class _CredentialFormState extends State<CredentialForm> {
             validator: (value) {
               if (value == null ||
                   value.isEmpty ||
+                  // TODO: ensure a .edu domain name in future
                   !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                 return 'Please enter a valid email address';
               }

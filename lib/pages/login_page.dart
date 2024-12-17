@@ -14,9 +14,9 @@ class LoginPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // TODO: Place some logo or image here
-          const Text("Login Page"),
+          const Text("Welcome to DriveU!"),
           // Form which takes in user credentials and then logs them in
-          const CredentialForm(),
+          const LoginForm(),
           Row(
             children: [
               const Text("Don't have an Account? "),
