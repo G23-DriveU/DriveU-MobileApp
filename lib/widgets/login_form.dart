@@ -1,17 +1,18 @@
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
-class CredentialForm extends StatefulWidget {
-  const CredentialForm({super.key});
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
 
   @override
-  State<CredentialForm> createState() => _CredentialFormState();
+  State<LoginForm> createState() => _LoginFormState();
 }
 
-class _CredentialFormState extends State<CredentialForm> {
+class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   String? _email;
   String? _password;
+  String? _error;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +31,7 @@ class _CredentialFormState extends State<CredentialForm> {
                   !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                 return 'Please enter a valid email address';
               }
+              if (_error != null) return 'Invalid email or password';
               return null;
             },
             onSaved: (value) => _email = value,
@@ -46,6 +48,7 @@ class _CredentialFormState extends State<CredentialForm> {
               if (value == null || value.isEmpty) {
                 return 'Please enter your password';
               }
+              if (_error != null) return 'Invalid email or password';
               return null;
             },
             onSaved: (value) => _password = value,
@@ -57,7 +60,17 @@ class _CredentialFormState extends State<CredentialForm> {
                 // Save the form fields into the variables
                 _formKey.currentState!.save();
                 // Implement the login logic here
-                await AuthService().login(_email!, _password!);
+                final response = await AuthService().login(_email!, _password!);
+                print("Debugging: $response");
+                // There was an error that needs to be handled
+                if (response != null) {
+                  setState(() {
+                    _error = "Invalid email or password";
+                  });
+                } else
+                  setState(() {
+                    _error = null;
+                  });
               }
             },
             child: const Text('Submit'),

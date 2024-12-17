@@ -1,6 +1,6 @@
-import 'package:driveu_mobile_app/widgets/credential_form.dart';
+import 'package:driveu_mobile_app/widgets/login_form.dart';
+import 'package:driveu_mobile_app/widgets/register_form.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -21,7 +21,11 @@ class LoginPage extends StatelessWidget {
             children: [
               const Text("Don't have an Account? "),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const RegisterForm();
+                  }));
+                },
                 child: const Text("Join"),
               ),
               const Text(" DriveU-nation for FREE!")

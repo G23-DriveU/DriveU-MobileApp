@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthService {
   // Enable the user to create an account with our application
   // Majority of code from the Firebase documentation: https://firebase.google.com/docs/auth/flutter/password-auth
-  Future<void> register(String emailAddress, String password) async {
+  Future<String?> register(String emailAddress, String password) async {
     // Implement the registration logic here
     try {
       final credential =
@@ -12,27 +12,36 @@ class AuthService {
         email: emailAddress,
         password: password,
       );
+      // Successful register, now onto email verification
+      return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         // TODO: Show a dialog or toast to let user know error
         print('The password provided is too weak.');
+        return e.code.toString();
       } else if (e.code == 'email-already-in-use') {
         // TODO: Show a dialog or toast to let user know error
         print('The account already exists for that email.');
+        return e.code.toString();
       }
     } catch (e) {
       print("Debugging error $e");
+      return e.toString();
     }
+    return null;
   }
 
   // Majority of code from the Firebase documentation: https://firebase.google.com/docs/auth/flutter/password-auth
-  Future<void> login(String emailAddress, String password) async {
+  Future<String?> login(String emailAddress, String password) async {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
-      print("Debugging: $credential");
+      print("Debugging: ${credential.user?.uid}");
+      // return credential.user?.uid;
+      return null;
     } catch (e) {
       print("Debugging error $e");
+      return e.toString();
     }
   }
 
