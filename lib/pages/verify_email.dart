@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:driveu_mobile_app/pages/home_page.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,22 +15,45 @@ class VerifyEmail extends StatefulWidget {
 
 class _VerifyEmailState extends State<VerifyEmail> {
   // TODO: We can use this timer to recheck the email verification status
-  Timer? _timer;
+  Timer? timer;
+  // Keep track of when the 'resend' button can be clicked
+  bool canResend = false;
+  // Has the users email been verified?
+  bool isEmailVerified = false;
   // Call Firebase to send the email verification
-  Future _sendEmailVerification() async {
+  Future sendEmailVerification() async {
     await FirebaseAuth.instance.currentUser?.sendEmailVerification();
+    // User can't resend the email until the timer is done
+    setState(() {
+      canResend = false;
+    });
   }
 
-  bool checkEmailVerification() {
-    return FirebaseAuth.instance.currentUser!.emailVerified;
+  // Check the current verification status
+  Future checkEmailVerification() async {
+    // Reload the user since the email verification status may have changed
+    await FirebaseAuth.instance.currentUser?.reload();
+    // Update the flag
+    setState(() {
+      isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+    });
+
+    if (isEmailVerified) {
+      timer?.cancel();
+    }
   }
 
   @override
   void initState() {
     super.initState();
+
+    isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     // Send the email verification
-    if (!checkEmailVerification()) {
-      _sendEmailVerification();
+    if (!isEmailVerified) {
+      sendEmailVerification();
+
+      timer = Timer.periodic(
+          const Duration(seconds: 3), (_) => checkEmailVerification());
     }
   }
 
@@ -39,13 +61,13 @@ class _VerifyEmailState extends State<VerifyEmail> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    _timer?.cancel();
+    timer?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     return FirebaseAuth.instance.currentUser!.emailVerified
-        ? const HomePage()
+        ? HomePage()
         : Scaffold(
             body: Center(
               child: Column(
@@ -57,8 +79,19 @@ class _VerifyEmailState extends State<VerifyEmail> {
                     height: 20,
                   ),
                   ElevatedButton(
-                      onPressed: () => AuthService().signOut(),
-                      child: const Text('Cancel'))
+                    onPressed: canResend ? sendEmailVerification : null,
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor:
+                          canResend ? Colors.white : Colors.black54,
+                      backgroundColor: canResend
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey, // Text color
+                    ),
+                    child: const Text("Send Verification Again"),
+                  ),
+                  ElevatedButton(
+                      onPressed: AuthService().signOut,
+                      child: const Text("Sign out"))
                 ],
               ),
             ),

@@ -96,6 +96,9 @@ class _RegisterFormState extends State<RegisterForm> {
                 // Everything went fine
                 if (response == null) {
                   _error = null;
+                  // Go back to the first screen
+                  Navigator.of(context).pop();
+                  // TODO: make a toast to tell them to verify their email address
                 }
                 // The password was too weak (by default Firebase requires a password of length 6)
                 else if (response == 'weak-password') {
