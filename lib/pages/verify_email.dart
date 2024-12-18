@@ -15,6 +15,7 @@ class VerifyEmail extends StatefulWidget {
 }
 
 class _VerifyEmailState extends State<VerifyEmail> {
+  // TODO: We can use this timer to recheck the email verification status
   Timer? _timer;
   // Call Firebase to send the email verification
   Future _sendEmailVerification() async {
