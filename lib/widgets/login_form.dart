@@ -67,10 +67,11 @@ class _LoginFormState extends State<LoginForm> {
                   setState(() {
                     _error = "Invalid email or password";
                   });
-                } else
+                } else {
                   setState(() {
                     _error = null;
                   });
+                }
               }
             },
             child: const Text('Submit'),

@@ -13,6 +13,8 @@ class _RegisterFormState extends State<RegisterForm> {
   String? _email;
   String? _password;
   String? _confirmPassword;
+  bool _passwordsMatch = true;
+  String? _error;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,9 @@ class _RegisterFormState extends State<RegisterForm> {
                   !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                 return 'Please enter a valid email address';
               }
+              if (_error != null && _error!.contains('email-already-in-use')) {
+                return 'Email is already in use';
+              }
               return null;
             },
             onSaved: (value) => _email = value,
@@ -45,10 +50,17 @@ class _RegisterFormState extends State<RegisterForm> {
               labelText: 'Password',
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
+              if (_error != null && _error!.contains('weak-password')) {
+                return 'Your password is too weak';
+              }
+              if (!_passwordsMatch) {
+                return 'Ensure that both passwords match';
               }
               return null;
+            },
+            onChanged: (value) {
+              _password = value;
+              _passwordsMatch = _password == _confirmPassword;
             },
             onSaved: (value) => _password = value,
           ),
@@ -58,10 +70,17 @@ class _RegisterFormState extends State<RegisterForm> {
               labelText: 'Confirm Password',
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
+              if (_error != null && _error!.contains('too weak')) {
+                return 'Ensure your password is strong enough';
+              }
+              if (!_passwordsMatch) {
+                return 'Ensure that both passwords match';
               }
               return null;
+            },
+            onChanged: (value) {
+              _confirmPassword = value;
+              _passwordsMatch = _password == _confirmPassword;
             },
             onSaved: (value) => _confirmPassword = value,
           ),
@@ -72,7 +91,22 @@ class _RegisterFormState extends State<RegisterForm> {
                 // Save the form fields into the variables
                 _formKey.currentState!.save();
                 // Implement the register the user with firebase
-                await AuthService().register(_email!, _password!);
+                final response =
+                    await AuthService().register(_email!, _password!);
+                // Everything went fine
+                if (response == null) {
+                  _error = null;
+                }
+                // The password was too weak (by default Firebase requires a password of length 6)
+                else if (response == 'weak-password') {
+                  setState(() {
+                    _error = 'weak-password';
+                  });
+                } else if (response == 'email-already-in-use') {
+                  setState(() {
+                    _error = 'email-already-in-use';
+                  });
+                }
               }
             },
             child: const Text('Submit'),
