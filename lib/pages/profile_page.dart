@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +20,11 @@ class ProfilePage extends StatelessWidget {
             ),
             const Text("Name"),
             const Text("Phone"),
-            const Text("Email")
+            const Text("Email"),
+            ElevatedButton(
+              onPressed: () => AuthService().signOut(),
+              child: const Text("Sign Out"),
+            )
           ],
         ),
       ),
