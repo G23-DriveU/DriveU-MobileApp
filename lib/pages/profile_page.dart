@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -5,9 +6,22 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text("Profile Page"),
+        child: Column(
+          children: [
+            Text("${FirebaseAuth.instance.currentUser?.email}"),
+            const Image(
+              // TODO: idk how best to store this so we don't make eronius api calls and
+              image: AssetImage('assets/images/JacobTBPsmall.jpg'),
+              width: 200,
+              height: 200,
+            ),
+            const Text("Name"),
+            const Text("Phone"),
+            const Text("Email")
+          ],
+        ),
       ),
     );
   }

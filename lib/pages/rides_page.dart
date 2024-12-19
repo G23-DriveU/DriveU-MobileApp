@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Display all of the rides for a user. Either requests, or past rides
 class RidesPage extends StatelessWidget {
   const RidesPage({super.key});
 
