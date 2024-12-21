@@ -1,5 +1,5 @@
 import 'package:driveu_mobile_app/widgets/login_form.dart';
-import 'package:driveu_mobile_app/widgets/register_form.dart';
+import 'package:driveu_mobile_app/widgets/register_form_firebase.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -23,7 +23,7 @@ class LoginPage extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const RegisterForm();
+                    return const RegisterFormFirebase();
                   }));
                 },
                 child: const Text("Join"),

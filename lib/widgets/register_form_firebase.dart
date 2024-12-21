@@ -1,14 +1,16 @@
 import 'package:driveu_mobile_app/services/auth_service.dart';
+import 'package:driveu_mobile_app/widgets/register_form_driveu.dart';
 import 'package:flutter/material.dart';
 
-class RegisterForm extends StatefulWidget {
-  const RegisterForm({super.key});
+// This portion of the register page consists of adding information which will be stored on Firebase
+class RegisterFormFirebase extends StatefulWidget {
+  const RegisterFormFirebase({super.key});
 
   @override
-  State<RegisterForm> createState() => _RegisterFormState();
+  State<RegisterFormFirebase> createState() => _RegisterFormFirebaseState();
 }
 
-class _RegisterFormState extends State<RegisterForm> {
+class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
   final _formKey = GlobalKey<FormState>();
   String? _email;
   String? _password;
@@ -90,29 +92,15 @@ class _RegisterFormState extends State<RegisterForm> {
               if (_formKey.currentState!.validate()) {
                 // Save the form fields into the variables
                 _formKey.currentState!.save();
-                // Implement the register the user with firebase
-                final response =
-                    await AuthService().register(_email!, _password!);
-                // Everything went fine
-                if (response == null) {
-                  _error = null;
-                  // Go back to the first screen
-                  Navigator.of(context).pop();
-                  // TODO: make a toast to tell them to verify their email address
-                }
-                // The password was too weak (by default Firebase requires a password of length 6)
-                else if (response == 'weak-password') {
-                  setState(() {
-                    _error = 'weak-password';
-                  });
-                } else if (response == 'email-already-in-use') {
-                  setState(() {
-                    _error = 'email-already-in-use';
-                  });
-                }
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => RegisterFormDriveU(
+                        email: _email!, password: _password!),
+                  ),
+                );
               }
             },
-            child: const Text('Submit'),
+            child: const Text('Next'),
           ),
         ],
       ),
