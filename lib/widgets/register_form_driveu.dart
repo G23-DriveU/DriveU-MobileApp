@@ -58,14 +58,12 @@ class _RegisterFormDriveUState extends State<RegisterFormDriveU> {
             height: 20,
           ),
           TextFormField(
-            obscureText: true,
             decoration: const InputDecoration(
               labelText: 'Your Phone Number',
             ),
             // TODO: We are only matching US based phone numbers, maybe we consider international numbers in the future
             validator: (value) {
-              if (!RegExp(
-                      r'/^\\(?([0-9]{3})\\)?[-.\\s]?([0-9]{3})[-.\\s]?([0-9]{4})$/')
+              if (!RegExp(r'^(1\s?)?(\d{3}|\(\d{3}\))[\s\-]?\d{3}[\s\-]?\d{4}$')
                   .hasMatch(value!)) {
                 return 'Please Enter a Valid Phone Number';
               }
@@ -147,6 +145,7 @@ class _RegisterFormDriveUState extends State<RegisterFormDriveU> {
                   onSaved: (value) => _carColor = value,
                 ),
                 TextFormField(
+                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: 'Car MPG',
                   ),

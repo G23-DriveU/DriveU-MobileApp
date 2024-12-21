@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+// NOTE: Firebase uid and FCM tokens are set to null since they are not immediately
+// received upon the user registering first with Firebase. Because of this, they are
+// delayed in getting them until we can ping Firebase for those things.
+
 // Get a singular user
 User userFromJson(String str) => User.fromJson(json.decode(str));
 String userToJson(User data) => json.encode(data.toJson());
@@ -11,13 +15,13 @@ String usersToJson(List<User> data) =>
 
 // https://app.quicktype.io/ was used to generate the model class from the JSON response
 class User {
-  String firebaseUid;
+  String? firebaseUid;
   dynamic profileImage;
   String name;
   String email;
   String phoneNumber;
   String school;
-  dynamic fcmToken;
+  String? fcmToken;
   bool driver;
   // Note that if the user IN NOT driving then capturing this information in the database is not necessary
   int? id;
@@ -32,13 +36,13 @@ class User {
   int? carMpg;
 
   User({
-    required this.firebaseUid,
+    this.firebaseUid,
     required this.profileImage,
     required this.name,
     required this.email,
     required this.phoneNumber,
     required this.school,
-    required this.fcmToken,
+    this.fcmToken,
     required this.driver,
     this.id,
     this.driverRating,

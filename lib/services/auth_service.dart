@@ -49,4 +49,16 @@ class AuthService {
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
   }
+
+  // Check to see if an entered email is already in use
+  Future<bool> checkEmail(String email) async {
+    try {
+      final user =
+          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+      return user.isNotEmpty;
+    } catch (e) {
+      print("Debugging error $e");
+      return false;
+    }
+  }
 }
