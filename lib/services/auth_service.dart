@@ -12,6 +12,8 @@ class AuthService {
         email: emailAddress,
         password: password,
       );
+
+      print("Successfully registered user: and returning null");
       // Successful register, now onto email verification
       return null;
     } on FirebaseAuthException catch (e) {
@@ -36,9 +38,7 @@ class AuthService {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
-      print("Debugging: ${credential.user?.uid}");
-      // return credential.user?.uid;
-      return null;
+      return credential.user?.uid;
     } catch (e) {
       print("Debugging error $e");
       return e.toString();

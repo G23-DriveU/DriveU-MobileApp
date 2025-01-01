@@ -5,16 +5,16 @@ import 'dart:convert';
 // delayed in getting them until we can ping Firebase for those things.
 
 // Get a singular user
-User userFromJson(String str) => User.fromJson(json.decode(str));
-String userToJson(User data) => json.encode(data.toJson());
-// To get Users from a list
-List<User> usersFromJson(String str) =>
-    List<User>.from(json.decode(str).map((x) => User.fromJson(x)));
-String usersToJson(List<User> data) =>
+AppUser userFromJson(String str) => AppUser.fromJson(json.decode(str)['user']);
+String userToJson(AppUser data) => json.encode(data.toJson());
+// To get AppUsers from a list
+List<AppUser> usersFromJson(String str) =>
+    List<AppUser>.from(json.decode(str).map((x) => AppUser.fromJson(x)));
+String usersToJson(List<AppUser> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 // https://app.quicktype.io/ was used to generate the model class from the JSON response
-class User {
+class AppUser {
   String? firebaseUid;
   dynamic profileImage;
   String name;
@@ -35,7 +35,7 @@ class User {
   String? carModel;
   int? carMpg;
 
-  User({
+  AppUser({
     this.firebaseUid,
     required this.profileImage,
     required this.name,
@@ -56,7 +56,7 @@ class User {
     this.carMpg,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
+  factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
         firebaseUid: json["firebaseUid"],
         profileImage: json["profileImage"],
         name: json["name"],
@@ -76,7 +76,6 @@ class User {
         carModel: json["carModel"],
         carMpg: json["carMpg"],
       );
-
   Map<String, dynamic> toJson() => {
         "firebaseUid": firebaseUid,
         "profileImage": profileImage,
@@ -97,4 +96,23 @@ class User {
         "carModel": carModel,
         "carMpg": carMpg,
       };
+  Map<String, String> toQueryParams() => {
+        "firebaseUid": firebaseUid!,
+        "profileImage": profileImage ?? "",
+        "name": name,
+        "email": email,
+        "phoneNumber": phoneNumber,
+        "school": school,
+        "fcmToken": fcmToken ?? "",
+        "driver": driver.toString(),
+        "carColor": carColor.toString(),
+        "carPlate": carPlate.toString(),
+        "carMake": carMake.toString(),
+        "carModel": carModel.toString(),
+        "carMpg": carMpg.toString(),
+      };
+  @override
+  String toString() {
+    return "firebaseUid: $firebaseUid, name: $name, email: $email, phoneNumber: $phoneNumber, school: $school, fcmToken: $fcmToken, driver: $driver, id: $id, driverRating: $driverRating, driverReviewCount: $driverReviewCount, riderRating: $riderRating, riderReviewCount: $riderReviewCount, carColor: $carColor, carPlate: $carPlate, carMake: $carMake, carModel: $carModel, carMpg: $carMpg";
+  }
 }

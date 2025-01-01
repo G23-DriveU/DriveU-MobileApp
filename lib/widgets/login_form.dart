@@ -61,7 +61,7 @@ class _LoginFormState extends State<LoginForm> {
                 _formKey.currentState!.save();
                 // Implement the login logic here
                 final response = await AuthService().login(_email!, _password!);
-                print("Debugging: $response");
+
                 // There was an error that needs to be handled
                 if (response != null) {
                   setState(() {

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:driveu_mobile_app/model/user.dart';
+import 'package:driveu_mobile_app/model/app_user.dart';
 
 // Get a single ride request
 RideRequest rideRequestFromJson(String str) =>
@@ -28,7 +28,7 @@ class RideRequest {
   double driverPayout;
   double distance;
   String dropoffTime;
-  User rider;
+  AppUser rider;
 
   RideRequest({
     required this.futureTripId,
@@ -65,7 +65,7 @@ class RideRequest {
         driverPayout: json["driverPayout"]?.toDouble(),
         distance: json["distance"]?.toDouble(),
         dropoffTime: json["dropoffTime"],
-        rider: User.fromJson(json["rider"]),
+        rider: AppUser.fromJson(json["rider"]),
       );
 
   Map<String, dynamic> toJson() => {

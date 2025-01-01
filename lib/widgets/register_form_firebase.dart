@@ -1,10 +1,11 @@
 import 'dart:io';
+import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../model/user.dart';
+import '../model/app_user.dart';
 
 // This portion of the register page consists of adding information which will be stored on Firebase
 class RegisterFormFirebase extends StatefulWidget {
@@ -259,11 +260,10 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                   final response =
                       await AuthService().register(_email!, _password!);
                   // Decode the response
+                  // TODO: Need to fix this since I need to send the user info to the DriveU database
                   if (response == null) {
-                    _error = null;
-                    // Save the user, once we get confirmation that the user is registered within
-                    // firebase, we can then get the firebase uid and fcm token and then save the user to our db
-                    SingleUser().setUser(User(
+                    SingleUser().setUser(AppUser(
+                        firebaseUid: FirebaseAuth.instance.currentUser!.uid,
                         email: _email!,
                         name: _name!,
                         school: _school!,
@@ -275,6 +275,11 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         carColor: _carColor,
                         carMpg: _carMpg,
                         profileImage: _profileImage));
+                    // Register the user with our database
+                    await UserApi()
+                        .createUser(SingleUser().getUser()!.toQueryParams());
+                    _error = null;
+                    Navigator.pop(context);
                   } else if (response == 'weak-password') {
                     setState(() {
                       _error = 'weak-password';

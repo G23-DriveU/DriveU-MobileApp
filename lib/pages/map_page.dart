@@ -6,8 +6,14 @@ class MapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(
-        child: Text("Map Page"),
+      body: Column(
+        children: [
+          // Search bar
+          TextField(
+            decoration: InputDecoration(hintText: "Search"),
+          ),
+          // TODO: Put google maps here
+        ],
       ),
     );
   }

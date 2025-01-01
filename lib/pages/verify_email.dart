@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:driveu_mobile_app/model/app_user.dart';
 import 'package:driveu_mobile_app/pages/home_page.dart';
+import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
+import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -43,6 +46,18 @@ class _VerifyEmailState extends State<VerifyEmail> {
     }
   }
 
+  void _loadUser() async {
+    // TODO: Change this to add the actual fcm token from the device once we have it
+    AppUser? user = await UserApi.getUser({
+      'firebaseUid': FirebaseAuth.instance.currentUser!.uid,
+      'fcmToken': '123478a'
+    });
+    // Update the local AppUser singleton class
+    setState(() {
+      SingleUser().setUser(user!);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -54,12 +69,14 @@ class _VerifyEmailState extends State<VerifyEmail> {
 
       timer = Timer.periodic(
           const Duration(seconds: 3), (_) => checkEmailVerification());
+    } else {
+      // Grab the app user from our database
+      _loadUser();
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     timer?.cancel();
   }
@@ -67,7 +84,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
   @override
   Widget build(BuildContext context) {
     return FirebaseAuth.instance.currentUser!.emailVerified
-        ? HomePage()
+        ? const HomePage()
         : Scaffold(
             body: Center(
               child: Column(

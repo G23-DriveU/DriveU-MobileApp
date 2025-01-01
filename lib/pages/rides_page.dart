@@ -7,7 +7,15 @@ class RidesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(child: Text("My Rides Page")),
+      body: Center(
+          child: Column(
+        children: [
+          Text("My Planned Rides"),
+          // TODO: Some listview builder
+          Text("My Previous Rides"),
+          // TODO: Some listview builder
+        ],
+      )),
     );
   }
 }

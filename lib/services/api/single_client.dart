@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,25 +17,25 @@ class SingleClient {
 
   // Enable all CRUD operation that are required
   Future<http.Response> post(String url,
-      {Map<String, String>? queryParameters}) async {
+      {Map<String, dynamic>? queryParameters}) async {
     return await client.post(
         Uri.parse(makeUrl(url)).replace(queryParameters: queryParameters));
   }
 
   Future<http.Response> get(String url,
-      {Map<String, String>? queryParameters}) async {
+      {Map<String, dynamic>? queryParameters}) async {
     return await client
         .get(Uri.parse(makeUrl(url)).replace(queryParameters: queryParameters));
   }
 
   Future<http.Response> put(String url,
-      {Map<String, String>? queryParameters}) async {
+      {Map<String, dynamic>? queryParameters}) async {
     return await client
         .put(Uri.parse(makeUrl(url)).replace(queryParameters: queryParameters));
   }
 
   Future<http.Response> delete(String url,
-      {Map<String, String>? queryParameters}) async {
+      {Map<String, dynamic>? queryParameters}) async {
     return await client.delete(
         Uri.parse(makeUrl(url)).replace(queryParameters: queryParameters));
   }
@@ -43,7 +45,7 @@ class SingleClient {
   }
 
   // Form the query parameters to send
-  Map<String, String> makeQueryParameters(
+  Map<String, dynamic> makeQueryParameters(
       List<String> keys, List<String> values) {
     Map<String, String> queryParameters = {};
     for (int i = 0; i < keys.length; i++) {

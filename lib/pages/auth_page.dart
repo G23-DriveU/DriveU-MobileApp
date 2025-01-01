@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/pages/home_page.dart';
 import 'package:driveu_mobile_app/pages/login_page.dart';
 import 'package:driveu_mobile_app/pages/verify_email.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,11 +13,10 @@ class AuthPage extends StatelessWidget {
       body: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
-            // The user exists, next check to ensure that their email has been verified.
             if (snapshot.hasData) {
               return const VerifyEmail();
             }
-            // The user doesn't not exists, show the login page.
+            // The user doesn't exist, show the login page.
             else {
               return const LoginPage();
             }
