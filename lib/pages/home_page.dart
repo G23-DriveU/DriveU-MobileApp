@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Might remove this since the loading and signing out thing is weird
     return SingleUser().getUser() == null
         ? Column(
             children: [

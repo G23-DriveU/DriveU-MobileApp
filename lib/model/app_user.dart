@@ -65,6 +65,7 @@ class AppUser {
         school: json["school"],
         fcmToken: json["fcmToken"],
         driver: json["driver"],
+        // IMPORTANT: This is need to make almost ALL requests for a user
         id: json["id"],
         driverRating: json["driverRating"],
         driverReviewCount: json["driverReviewCount"],

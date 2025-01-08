@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/model/app_user.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';

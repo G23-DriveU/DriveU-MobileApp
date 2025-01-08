@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/widgets/view_google_map.dart';
 import 'package:flutter/material.dart';
 
 class MapPage extends StatelessWidget {
@@ -13,6 +14,7 @@ class MapPage extends StatelessWidget {
             decoration: InputDecoration(hintText: "Search"),
           ),
           // TODO: Put google maps here
+          Expanded(child: ViewGoogleMap()),
         ],
       ),
     );

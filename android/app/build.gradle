@@ -31,10 +31,19 @@ android {
         applicationId = "com.example.driveu_mobile_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // TODO: Changed from 23 to 21
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // // TODO: Might need to remove this
+        // val keystoreFile = project.rootProject.file("apikeys.properties")
+        // val properties = Properties()
+        // properties.load(keystoreFile.inputStream())
+    
+        // //return empty key in case something goes wrong
+        // val apiKey = properties.getProperty("GOOGLE_MAPS_API") ?: ""
+        // mainfestPlaceholders["GOOGLE_MAPS_API_KEY"] = apiKey
     }
 
     buildTypes {
