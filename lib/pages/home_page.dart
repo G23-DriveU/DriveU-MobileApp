@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _loadUser() async {
+    print("attempting to load user from Home Page");
     // We have the firebaseUid stored, so we can query the user info from the DriveU database
     AppUser? user = await UserApi.getUser({
       'firebaseUid': FirebaseAuth.instance.currentUser!.uid,

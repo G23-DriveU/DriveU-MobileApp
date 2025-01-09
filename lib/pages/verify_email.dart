@@ -5,7 +5,6 @@ import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 // TODO: Ability to recheck the email verification status and allow user to resend the email if they want
@@ -48,6 +47,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
   }
 
   void _loadUser() async {
+    print("Attempting to load a user from verify email page");
     // TODO: Change this to add the actual fcm token from the device once we have it
     AppUser? user = await UserApi.getUser({
       'firebaseUid': FirebaseAuth.instance.currentUser!.uid,

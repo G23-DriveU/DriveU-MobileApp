@@ -1,4 +1,3 @@
-import 'package:driveu_mobile_app/pages/home_page.dart';
 import 'package:driveu_mobile_app/pages/login_page.dart';
 import 'package:driveu_mobile_app/pages/verify_email.dart';
 import 'package:firebase_auth/firebase_auth.dart';
