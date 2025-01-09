@@ -56,18 +56,20 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 labelText: 'Email Address',
               ),
               validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    // TODO: ensure a .edu domain name in future
-                    !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email address';
+                }
+                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                   return 'Please enter a valid email address';
                 }
-                if (_error != null &&
-                    _error!.contains('email-already-in-use')) {
-                  return 'Email is already in use';
+                if (_error == 'email-already-in-use') {
+                  return 'Email already in use';
                 }
                 return null;
               },
+              onChanged: (value) => setState(() {
+                _error = null;
+              }),
               onSaved: (value) => _email = value,
             ),
             const SizedBox(
@@ -88,6 +90,9 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 return null;
               },
               onChanged: (value) {
+                setState(() {
+                  _error = null;
+                });
                 _password = value;
                 _passwordsMatch = _password == _confirmPassword;
               },
@@ -99,8 +104,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 labelText: 'Confirm Password',
               ),
               validator: (value) {
-                if (_error != null && _error!.contains('too weak')) {
-                  return 'Ensure your password is strong enough';
+                if (_error != null && _error! == 'weak-password') {
+                  return 'Your password is too weak';
                 }
                 if (!_passwordsMatch) {
                   return 'Ensure that both passwords match';
@@ -108,6 +113,9 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 return null;
               },
               onChanged: (value) {
+                setState(() {
+                  _error = null;
+                });
                 _confirmPassword = value;
                 _passwordsMatch = _password == _confirmPassword;
               },
@@ -284,10 +292,12 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     setState(() {
                       _error = 'weak-password';
                     });
+                    _formKey.currentState!.validate();
                   } else if (response == 'email-already-in-use') {
                     setState(() {
                       _error = 'email-already-in-use';
                     });
+                    _formKey.currentState!.validate();
                   }
                 }
               },

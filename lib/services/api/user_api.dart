@@ -30,6 +30,7 @@ class UserApi {
         throw Exception('Failed to load user data');
       }
     } catch (e) {
+      print(e);
       return null;
     }
   }
