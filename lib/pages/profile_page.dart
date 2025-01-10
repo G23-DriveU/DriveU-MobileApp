@@ -12,12 +12,15 @@ class ProfilePage extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
+            const ListTile(
+              title: Text("Your Info"),
+            ),
             Text("${FirebaseAuth.instance.currentUser?.email}"),
             const Image(
               // TODO: idk how best to store this so we don't make eronius api calls and
               image: AssetImage('assets/images/knightro.bmp'),
-              width: 200,
-              height: 200,
+              width: 150,
+              height: 150,
             ),
             const Text("Name"),
             Text(SingleUser().getUser()!.name),
@@ -25,6 +28,24 @@ class ProfilePage extends StatelessWidget {
             Text(SingleUser().getUser()!.phoneNumber),
             const Text("Email"),
             Text(SingleUser().getUser()!.email),
+            const ListTile(
+              title: Text("Your Car"),
+            ),
+            SingleUser().getUser()?.driver == true
+                ? Column(
+                    children: [
+                      const Text("Make"),
+                      Text(SingleUser().getUser()!.carMake!),
+                      const Text("Model"),
+                      Text(SingleUser().getUser()!.carModel!),
+                      const Text("Plate Number"),
+                      Text(SingleUser().getUser()!.carPlate!),
+                      const Text("Color"),
+                      Text(SingleUser().getUser()!.carColor!),
+                    ],
+                  )
+                : const Text("You don't have a car"),
+            // TODO: should be at bottom
             ElevatedButton(
               onPressed: () => AuthService().signOut(),
               child: const Text("Sign Out"),
