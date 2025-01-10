@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/view_google_map.dart';
 import 'package:flutter/material.dart';
 
@@ -6,8 +7,14 @@ class MapPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Column(
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => print("A fab has appeared"),
+        child: SingleUser().getUser()?.driver == true
+            ? const Icon(Icons.add)
+            : const Icon(Icons.album),
+      ),
+      body: const Column(
         children: [
           // Search bar
           TextField(

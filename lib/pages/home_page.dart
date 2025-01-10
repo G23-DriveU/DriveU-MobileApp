@@ -30,18 +30,6 @@ class _HomePageState extends State<HomePage> {
     // _loadUser();
   }
 
-  void _loadUser() async {
-    print("attempting to load user from Home Page");
-    // We have the firebaseUid stored, so we can query the user info from the DriveU database
-    AppUser? user = await UserApi.getUser({
-      'firebaseUid': FirebaseAuth.instance.currentUser!.uid,
-      'fcmToken': '12347890'
-    });
-    setState(() {
-      SingleUser().setUser(user!);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // TODO: Might remove this since the loading and signing out thing is weird

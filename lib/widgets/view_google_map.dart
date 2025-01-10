@@ -11,7 +11,7 @@ class ViewGoogleMap extends StatefulWidget {
 class _ViewGoogleMapState extends State<ViewGoogleMap> {
   // Manipulate the camera
   late GoogleMapController mapController;
-  late final LatLng _center = const LatLng(28365.76, -81121.80);
+  late final LatLng _center = const LatLng(28.6016, -81.2005);
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -21,6 +21,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GoogleMap(
+        zoomControlsEnabled: false,
+        zoomGesturesEnabled: true,
         initialCameraPosition: CameraPosition(target: _center, zoom: 11),
         onMapCreated: _onMapCreated,
       ),
