@@ -70,8 +70,9 @@ class _LoginFormState extends State<LoginForm> {
                   final response =
                       await AuthService().login(_email!, _password!);
                   // Handle successful login
-                  if (response != null)
+                  if (response != null) {
                     throw Exception('Invalid email or password');
+                  }
                 } catch (e) {
                   setState(() {
                     _error = 'Invalid email or password';
