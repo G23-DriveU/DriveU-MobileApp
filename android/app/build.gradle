@@ -36,14 +36,12 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        // // TODO: Might need to remove this
-        // val keystoreFile = project.rootProject.file("apikeys.properties")
-        // val properties = Properties()
-        // properties.load(keystoreFile.inputStream())
-    
-        // //return empty key in case something goes wrong
-        // val apiKey = properties.getProperty("GOOGLE_MAPS_API") ?: ""
-        // mainfestPlaceholders["GOOGLE_MAPS_API_KEY"] = apiKey
+        // Load the API key from apikeys.properties
+        def keystorePropertiesFile = rootProject.file("apikeys.properties")
+        def keystoreProperties = new Properties()
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+        // Pass the API key to the manifest (important to += the placeholder since we don't want to erase the existing placeholders) 
+        manifestPlaceholders += [googleMapsApiKey: keystoreProperties['GOOGLE_MAPS_API_KEY']]
     }
 
     buildTypes {

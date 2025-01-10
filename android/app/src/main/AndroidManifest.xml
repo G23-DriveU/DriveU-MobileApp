@@ -12,7 +12,7 @@
         android:icon="@mipmap/ic_launcher">
     <!-- TODO: Might use local.properties so I don't leak the key -->
     <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="Your key"/>
+               android:value="${googleMapsApiKey}"/>
 
         <activity
             android:name=".MainActivity"
