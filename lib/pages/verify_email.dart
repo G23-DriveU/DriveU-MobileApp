@@ -44,6 +44,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
     });
 
     try {
+      // TODO: gotta fix some issue with always returing false for driver even though 'isDriver' is set to true
       AppUser? user = await UserApi.getUser({
         'firebaseUid': FirebaseAuth.instance.currentUser!.uid,
         'fcmToken': '123478a'
@@ -53,9 +54,6 @@ class _VerifyEmailState extends State<VerifyEmail> {
           SingleUser().setUser(user);
           isLoading = false;
         });
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
       } else {
         setState(() {
           isLoading = false;

@@ -44,7 +44,7 @@ class ProfilePage extends StatelessWidget {
                       Text(SingleUser().getUser()!.carColor!),
                     ],
                   )
-                : const Text("You don't have a car"),
+                : const Text("You don't have a car on file"),
             // TODO: should be at bottom
             ElevatedButton(
               onPressed: () => AuthService().signOut(),

@@ -10,9 +10,13 @@ class RidesPage extends StatelessWidget {
       body: Center(
           child: Column(
         children: [
-          Text("My Planned Rides"),
+          ListTile(
+            title: Text("My Planned Rides"),
+          ),
           // TODO: Some listview builder
-          Text("My Previous Rides"),
+          ListTile(
+            title: Text("My Previous Rides"),
+          )
           // TODO: Some listview builder
         ],
       )),
