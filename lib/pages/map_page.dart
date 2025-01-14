@@ -12,7 +12,7 @@ class MapPage extends StatelessWidget {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          if ((SingleUser().getUser()?.driver == false)) {
+          if ((SingleUser().getUser()?.driver == true)) {
             return const CreateRideDialog();
           } else {
             return const SelectRadiusDialog();

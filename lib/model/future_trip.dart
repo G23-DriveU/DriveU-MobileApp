@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:driveu_mobile_app/model/app_user.dart';
+
 // Get a singular trip
 FutureTrip futureTripFromJson(String str) =>
     FutureTrip.fromJson(json.decode(str));
@@ -28,6 +30,8 @@ class FutureTrip {
   double distance;
   bool isFull;
   String ets;
+  // Who is the driver for this trip
+  AppUser? driver;
 
   FutureTrip({
     required this.driverId,
@@ -46,6 +50,7 @@ class FutureTrip {
     required this.distance,
     required this.isFull,
     required this.ets,
+    required this.driver,
   });
 
   factory FutureTrip.fromJson(Map<String, dynamic> json) => FutureTrip(
@@ -65,6 +70,8 @@ class FutureTrip {
         distance: json["distance"]?.toDouble(),
         isFull: json["isFull"],
         ets: json["ets"],
+        driver:
+            json["driver"] == null ? null : AppUser.fromJson(json["driver"]),
       );
 
   Map<String, dynamic> toJson() => {

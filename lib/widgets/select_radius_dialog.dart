@@ -9,6 +9,8 @@ class SelectRadiusDialog extends StatefulWidget {
 
 class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
   double _radius = 5.0;
+  bool wantRoundTrip = false;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -19,8 +21,8 @@ class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
           Slider(
             value: _radius,
             min: 1,
-            max: 100,
-            divisions: 99,
+            max: 10,
+            divisions: 10,
             label: '${_radius.round()} miles',
             onChanged: (value) {
               setState(() {
@@ -29,6 +31,15 @@ class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
             },
           ),
           Text('Radius: ${_radius.round()} miles'),
+          CheckboxListTile(
+            title: const Text('Round Trip?'),
+            value: wantRoundTrip,
+            onChanged: (value) {
+              setState(() {
+                wantRoundTrip = value!;
+              });
+            },
+          ),
         ],
       ),
       actions: [
@@ -41,7 +52,7 @@ class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
             // Handle radius selection
             Navigator.of(context).pop();
           },
-          child: const Text('Select'),
+          child: const Text('Save'),
         ),
       ],
     );

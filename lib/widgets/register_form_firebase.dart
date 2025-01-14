@@ -31,7 +31,6 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _error;
   bool _passwordsMatch = true, _isDriver = false;
   FileImage? _profileImage;
-  int? _carMpg;
 
   // Enable user to select a photo from their gallery
   Future<void> _pickPhoto() async {
@@ -243,19 +242,6 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     ),
                     onSaved: (value) => _carColor = value,
                   ),
-                  TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Car MPG',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please Enter your Car MPG';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _carMpg = int.parse(value!),
-                  ),
                 ],
               ),
             ElevatedButton(
@@ -281,7 +267,6 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         carModel: _carModel,
                         carPlate: _carPlate,
                         carColor: _carColor,
-                        carMpg: _carMpg,
                         profileImage: _profileImage));
                     // Register the user with our database
                     await UserApi()

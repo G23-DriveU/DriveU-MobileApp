@@ -22,12 +22,6 @@ class _HomePageState extends State<HomePage> {
   var currentPage = 0;
 
   @override
-  void initState() {
-    super.initState();
-    // _loadUser();
-  }
-
-  @override
   Widget build(BuildContext context) {
     // TODO: Might remove this since the loading and signing out thing is weird
     return SingleUser().getUser() == null
