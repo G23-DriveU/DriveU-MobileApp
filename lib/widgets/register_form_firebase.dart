@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../model/app_user.dart';
 
@@ -31,6 +33,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _error;
   bool _passwordsMatch = true, _isDriver = false;
   FileImage? _profileImage;
+  // To enable users to select their car from a known list
+  Map<String, List<String>> _carData = {};
 
   // Enable user to select a photo from their gallery
   Future<void> _pickPhoto() async {
@@ -40,6 +44,33 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
         _profileImage = FileImage(File(pickedFile.path));
       });
     }
+  }
+
+  Future<Map<String, List<String>>> loadCarData() async {
+    final String response =
+        await rootBundle.loadString('assets/vehicle_models_cleaned.json');
+    final List<dynamic> data = json.decode(response);
+    final Map<String, List<String>> carData = {};
+    for (var item in data) {
+      final String make = item['Make'];
+      final List<String> models = List<String>.from(item['Models']);
+      carData[make] = models;
+    }
+    return carData;
+  }
+
+  void _loadCarData() async {
+    final carData = await loadCarData();
+    setState(() {
+      _carData = carData;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Load all of the car data from assess
+    _loadCarData();
   }
 
   @override
@@ -199,30 +230,75 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
             if (_isDriver)
               Column(
                 children: [
-                  // TODO: Utilize Liam's endpoints for text auto complete when they are complete
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Car Make',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please Enter your Car Make';
+                  Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return const Iterable<String>.empty();
                       }
-                      return null;
+                      return _carData.keys.where((String option) {
+                        return option
+                            .toLowerCase()
+                            .contains(textEditingValue.text.toLowerCase());
+                      });
                     },
-                    onSaved: (value) => _carMake = value,
+                    onSelected: (String selection) {
+                      setState(() {
+                        _carMake = selection;
+                      });
+                    },
+                    fieldViewBuilder: (BuildContext context,
+                        TextEditingController textEditingController,
+                        FocusNode focusNode,
+                        VoidCallback onFieldSubmitted) {
+                      return TextFormField(
+                        controller: textEditingController,
+                        focusNode: focusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Car Make',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please Enter your Car Make';
+                          }
+                          return null;
+                        },
+                      );
+                    },
                   ),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Car Model',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please Enter your Car Model';
+                  Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty || _carMake == null) {
+                        return const Iterable<String>.empty();
                       }
-                      return null;
+                      return _carData[_carMake]!.where((String option) {
+                        return option
+                            .toLowerCase()
+                            .contains(textEditingValue.text.toLowerCase());
+                      });
                     },
-                    onSaved: (value) => _carModel = value,
+                    onSelected: (String selection) {
+                      setState(() {
+                        _carModel = selection;
+                      });
+                    },
+                    fieldViewBuilder: (BuildContext context,
+                        TextEditingController textEditingController,
+                        FocusNode focusNode,
+                        VoidCallback onFieldSubmitted) {
+                      return TextFormField(
+                        controller: textEditingController,
+                        focusNode: focusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Car Model',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please Enter your Car Model';
+                          }
+                          return null;
+                        },
+                      );
+                    },
                   ),
                   TextFormField(
                     decoration: const InputDecoration(
