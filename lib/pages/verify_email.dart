@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:driveu_mobile_app/model/app_user.dart';
 import 'package:driveu_mobile_app/pages/home_page.dart';
 import 'package:driveu_mobile_app/services/api/user_api.dart';
+import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,6 @@ class _VerifyEmailState extends State<VerifyEmail> {
     });
 
     try {
-      // TODO: gotta fix some issue with always returing false for driver even though 'isDriver' is set to true
       AppUser? user = await UserApi.getUser({
         'firebaseUid': FirebaseAuth.instance.currentUser!.uid,
         'fcmToken': '123478a'
@@ -58,6 +58,8 @@ class _VerifyEmailState extends State<VerifyEmail> {
         setState(() {
           isLoading = false;
         });
+        // Kick the user back to the login screen
+        AuthService().signOut();
         print("Failed to load user data");
       }
     } catch (e) {
