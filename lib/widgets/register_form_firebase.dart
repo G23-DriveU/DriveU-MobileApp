@@ -32,7 +32,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _carColor,
       _error;
   bool _passwordsMatch = true, _isDriver = false;
-  FileImage? _profileImage;
+  File? _profileImage;
   // To enable users to select their car from a known list
   Map<String, List<String>> _carData = {};
 
@@ -41,9 +41,15 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _profileImage = FileImage(File(pickedFile.path));
+        _profileImage = File(pickedFile.path);
       });
     }
+  }
+
+  // Encode the image as base64
+  String? _encodeToBase64(File? image) {
+    if (image == null) return null;
+    return base64Encode(image.readAsBytesSync());
   }
 
   Future<Map<String, List<String>>> loadCarData() async {
@@ -205,10 +211,10 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     width: 125,
                     height: 125,
                     'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ucf.edu%2Ffiles%2F2017%2F10%2Fknightro_two_hands_point.png&f=1&nofb=1&ipt=f3fcec4cda343ad6b15a1016a743684a41a977acedf9681488c0b9a807534670&ipo=images')
-                : Image(
-                    image: _profileImage!,
-                    height: 100,
+                : SizedBox(
                     width: 100,
+                    height: 100,
+                    child: Image.file(_profileImage!),
                   ),
             ElevatedButton(
                 onPressed: _pickPhoto,
@@ -333,17 +339,18 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                   // TODO: Need to fix this since I need to send the user info to the DriveU database
                   if (response == null) {
                     SingleUser().setUser(AppUser(
-                        firebaseUid: FirebaseAuth.instance.currentUser!.uid,
-                        email: _email!,
-                        name: _name!,
-                        school: _school!,
-                        phoneNumber: _phoneNumber!,
-                        driver: _isDriver,
-                        carMake: _carMake,
-                        carModel: _carModel,
-                        carPlate: _carPlate,
-                        carColor: _carColor,
-                        profileImage: _profileImage));
+                      firebaseUid: FirebaseAuth.instance.currentUser!.uid,
+                      email: _email!,
+                      profileImage: _encodeToBase64(_profileImage),
+                      name: _name!,
+                      school: _school!,
+                      phoneNumber: _phoneNumber!,
+                      driver: _isDriver,
+                      carMake: _carMake,
+                      carModel: _carModel,
+                      carPlate: _carPlate,
+                      carColor: _carColor,
+                    ));
                     // Register the user with our database
                     await UserApi()
                         .createUser(SingleUser().getUser()!.toQueryParams());

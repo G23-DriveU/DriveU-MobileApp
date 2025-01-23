@@ -16,6 +16,7 @@ String usersToJson(List<AppUser> data) =>
 // https://app.quicktype.io/ was used to generate the model class from the JSON response
 class AppUser {
   String? firebaseUid;
+  // TODO: Might change this to String to represent the base 64 encoded string
   dynamic profileImage;
   String name;
   String email;
