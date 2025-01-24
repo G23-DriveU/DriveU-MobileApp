@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,12 +17,10 @@ class ProfilePage extends StatelessWidget {
               title: Text("Your Info"),
             ),
             Text("${FirebaseAuth.instance.currentUser?.email}"),
-            // TODO: Change to Image.network to display images hosted on the server
-            const Image(
-              // TODO: idk how best to store this so we don't make eronius api calls and
-              image: AssetImage('assets/images/knightro.bmp'),
-              width: 150,
+            Image.network(
+              "$BASE_URL/uploads/${FirebaseAuth.instance.currentUser?.uid}.jpeg",
               height: 150,
+              width: 150,
             ),
             const Text("Name"),
             Text(SingleUser().getUser()!.name),
