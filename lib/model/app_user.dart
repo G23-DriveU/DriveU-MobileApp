@@ -38,7 +38,7 @@ class AppUser {
 
   AppUser({
     this.firebaseUid,
-    required this.profileImage,
+    this.profileImage,
     required this.name,
     required this.email,
     required this.phoneNumber,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/model/app_user.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';
@@ -15,6 +17,26 @@ class UserApi {
       }
     } catch (e) {
       return e.toString();
+    }
+  }
+
+  Future<void> sendProfileImage(String firebaseUid, String base64Image) async {
+    var res = await http.post(
+      Uri.parse(
+          'https://driveu-backend-bkdme7g5ctgmdjgb.eastus2-01.azurewebsites.net/profilePic'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'firebaseUid': firebaseUid,
+        'profilePic': base64Image,
+      }),
+    );
+
+    if (res.statusCode == 200) {
+      print('Image uploaded successfully');
+    } else {
+      print('Image upload failed');
     }
   }
 

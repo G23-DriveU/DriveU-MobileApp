@@ -341,7 +341,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     SingleUser().setUser(AppUser(
                       firebaseUid: FirebaseAuth.instance.currentUser!.uid,
                       email: _email!,
-                      profileImage: _encodeToBase64(_profileImage),
+                      // TODO: Might remove this since to send base64 need to use JSON
+                      // profileImage: _encodeToBase64(_profileImage),
                       name: _name!,
                       school: _school!,
                       phoneNumber: _phoneNumber!,
@@ -354,6 +355,10 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     // Register the user with our database
                     await UserApi()
                         .createUser(SingleUser().getUser()!.toQueryParams());
+                    await UserApi().sendProfileImage(
+                        FirebaseAuth.instance.currentUser!.uid,
+                        _encodeToBase64(_profileImage)!);
+
                     _error = null;
                     Navigator.pop(context);
                   } else if (response == 'weak-password') {

@@ -2,6 +2,7 @@ const String BASE_URL =
     'https://driveu-backend-bkdme7g5ctgmdjgb.eastus2-01.azurewebsites.net';
 const String TEST = '/';
 const String USER = '/users';
+const String IMAGE = '/profilePic';
 const String TRIP_BY_RADIUS = '/futureTripsByRadius';
 const String FUTURE_TRIPS_DRIVER = '/futureTripsForDriver';
 const String FUTURE_TRIPS_RIDER = '/futureTripsForRider';

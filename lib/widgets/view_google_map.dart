@@ -89,6 +89,12 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   }
 
   @override
+  void dispose() {
+    // TODO: Delete checking for location if user has navigated away
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GoogleMap(
