@@ -23,7 +23,6 @@ class MapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // TODO:  Might need to make a special FAB
       floatingActionButton: MapFab(
         icon: SingleUser().getUser()?.driver == true ? Icons.add : Icons.album,
         onPressed: () => _showDialog(context),
@@ -34,7 +33,6 @@ class MapPage extends StatelessWidget {
           TextField(
             decoration: InputDecoration(hintText: "Search"),
           ),
-          // TODO: Put google maps here
           Expanded(child: ViewGoogleMap()),
         ],
       ),

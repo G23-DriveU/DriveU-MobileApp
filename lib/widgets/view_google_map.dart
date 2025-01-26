@@ -17,11 +17,27 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   late LatLng _center = const LatLng(28.6016, -81.2005);
   LocationData? _userPosition;
   Set<Marker>? _trips;
+  // Keep track of where the user wants to go and end
+  LatLng? _startPos, _endPos;
   // Used to cancel async execution after navigation off of this screen
   bool _isMounted = true;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+  }
+
+  void _handleLongPress(LatLng position) {
+    setState(() {
+      if (_startPos == null) {
+        _startPos = position;
+      } else if (_endPos == null) {
+        _endPos = position;
+      } else {
+        // Reset the markers if both are already set
+        _startPos = position;
+        _endPos = null;
+      }
+    });
   }
 
   // TODO: Need to add the radius and the user's location
@@ -97,13 +113,28 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
   @override
   void dispose() {
-    // TODO: Delete checking for location if user has navigated away
     super.dispose();
     _isMounted = false;
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_startPos != null) {
+      _trips?.add(Marker(
+        markerId: const MarkerId('start'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        position: _startPos!,
+        infoWindow: const InfoWindow(title: 'Start Location'),
+      ));
+    }
+    if (_endPos != null) {
+      _trips?.add(Marker(
+        markerId: const MarkerId('end'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        position: _endPos!,
+        infoWindow: const InfoWindow(title: 'End Location'),
+      ));
+    }
     return Scaffold(
       body: GoogleMap(
         markers: _trips ?? {},
@@ -111,6 +142,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         zoomGesturesEnabled: true,
         initialCameraPosition: CameraPosition(target: _center, zoom: 11),
         onMapCreated: _onMapCreated,
+        onLongPress: _handleLongPress,
       ),
     );
   }
