@@ -17,6 +17,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   late LatLng _center = const LatLng(28.6016, -81.2005);
   LocationData? _userPosition;
   Set<Marker>? _trips;
+  // Used to cancel async execution after navigation off of this screen
+  bool _isMounted = true;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -33,9 +35,11 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       'roundTrip': 'false'
     });
 
-    setState(() {
-      _trips = markers;
-    });
+    if (_isMounted) {
+      setState(() {
+        _trips = markers;
+      });
+    }
   }
 
   // Get the current user's location
@@ -62,20 +66,23 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
     // Grab the permission
     final userPostion = await userLocation.getLocation();
-    setState(() {
-      // Set the user's position
-      _userPosition = userPostion;
-      _center = LatLng(userPostion.latitude!, userPostion.longitude!);
-      _trips?.add(Marker(
-        markerId: const MarkerId('user'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-        position: _center,
-        infoWindow: const InfoWindow(
-          title: 'Your Location',
-          snippet: 'You are here',
-        ),
-      ));
-    });
+    if (_isMounted) {
+      setState(() {
+        // Set the user's position
+        _userPosition = userPostion;
+        _center = LatLng(userPostion.latitude!, userPostion.longitude!);
+        _trips?.add(Marker(
+          markerId: const MarkerId('user'),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          position: _center,
+          infoWindow: const InfoWindow(
+            title: 'Your Location',
+            snippet: 'You are here',
+          ),
+        ));
+      });
+    }
     // Add the current users' location to the marker set
   }
 
@@ -92,6 +99,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   void dispose() {
     // TODO: Delete checking for location if user has navigated away
     super.dispose();
+    _isMounted = false;
   }
 
   @override
