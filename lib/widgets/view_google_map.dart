@@ -17,6 +17,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   late LatLng _center = const LatLng(28.6016, -81.2005);
   LocationData? _userPosition;
   Set<Marker>? _trips;
+  Set<Circle>? searchRadiusOverlay;
   // Keep track of where the user wants to go and end
   LatLng? _startPos, _endPos;
   // Used to cancel async execution after navigation off of this screen
@@ -26,7 +27,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     mapController = controller;
   }
 
-  void _handleLongPress(LatLng position) {
+  // TODO: Will need to add another for the driver which will enable them to set their ending location?
+  void _handleLongPressRider(LatLng position) {
     if (_isMounted) {
       setState(() {
         if (_startPos == null) {
@@ -128,6 +130,15 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         position: _startPos!,
         infoWindow: const InfoWindow(title: 'Start Location'),
       ));
+
+      searchRadiusOverlay?.add(Circle(
+        circleId: const CircleId('startCircle'),
+        center: _startPos!,
+        radius: 4000,
+        fillColor: Colors.blue.withOpacity(0.5),
+        strokeColor: Colors.blue,
+        strokeWidth: 4,
+      ));
     }
     if (_endPos != null) {
       _trips?.add(Marker(
@@ -144,7 +155,17 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         zoomGesturesEnabled: true,
         initialCameraPosition: CameraPosition(target: _center, zoom: 11),
         onMapCreated: _onMapCreated,
-        onLongPress: _handleLongPress,
+        // TODO: This is going to have to be different depending on if rider or driver
+        onLongPress: _handleLongPressRider,
+        circles: {
+          Circle(
+              circleId: const CircleId('1'),
+              center: _endPos ?? _center,
+              radius: 5 * 1609.34,
+              fillColor: Colors.blue.withOpacity(.5),
+              strokeColor: Colors.blue.withOpacity(.5),
+              strokeWidth: 2)
+        },
       ),
     );
   }
