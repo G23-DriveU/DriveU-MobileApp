@@ -27,17 +27,19 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   }
 
   void _handleLongPress(LatLng position) {
-    setState(() {
-      if (_startPos == null) {
-        _startPos = position;
-      } else if (_endPos == null) {
-        _endPos = position;
-      } else {
-        // Reset the markers if both are already set
-        _startPos = position;
-        _endPos = null;
-      }
-    });
+    if (_isMounted) {
+      setState(() {
+        if (_startPos == null) {
+          _startPos = position;
+        } else if (_endPos == null) {
+          _endPos = position;
+        } else {
+          // Reset the markers if both are already set
+          _startPos = position;
+          _endPos = null;
+        }
+      });
+    }
   }
 
   // TODO: Need to add the radius and the user's location
