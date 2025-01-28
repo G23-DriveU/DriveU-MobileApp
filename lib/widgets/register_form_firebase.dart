@@ -35,6 +35,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
   File? _profileImage;
   // To enable users to select their car from a known list
   Map<String, List<String>> _carData = {};
+  Set<String> _uniData = {};
 
   // Enable user to select a photo from their gallery
   Future<void> _pickPhoto() async {
@@ -72,10 +73,30 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
     });
   }
 
+  Future<Set<String>> loadSchoolData() async {
+    final String response =
+        await rootBundle.loadString('assets/us_institutions.json');
+    final List<dynamic> data = json.decode(response);
+    final Set<String> uniData = {};
+    // Loop through and add all of the colleges
+    for (var item in data) {
+      uniData.add(item['institution']);
+    }
+    return uniData;
+  }
+
+  void _loadSchoolData() async {
+    final uniData = await loadSchoolData();
+    setState(() {
+      _uniData = uniData;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    // Load all of the car data from assess
+    // Load all of the car data from assets
+    _loadSchoolData();
     _loadCarData();
   }
 
@@ -172,17 +193,40 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
             const SizedBox(
               height: 20,
             ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Your School',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please Enter your School\' Name';
+            Autocomplete<String>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text.isEmpty) {
+                  return const Iterable<String>.empty();
                 }
-                return null;
+                return _uniData.where((String option) {
+                  return option
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase());
+                });
               },
-              onSaved: (value) => _school = value,
+              onSelected: (String selection) {
+                setState(() {
+                  _school = selection;
+                });
+              },
+              fieldViewBuilder: (BuildContext context,
+                  TextEditingController textEditingController,
+                  FocusNode focusNode,
+                  VoidCallback onFieldSubmitted) {
+                return TextFormField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Your School',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Enter Your School';
+                    }
+                    return null;
+                  },
+                );
+              },
             ),
             TextFormField(
               decoration: const InputDecoration(

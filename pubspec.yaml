@@ -28,3 +28,4 @@ flutter:
   assets:
     - assets/images/
     - assets/vehicle_models_cleaned.json
+    - assets/us_institutions.json
