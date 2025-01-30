@@ -1,8 +1,10 @@
+import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:provider/provider.dart';
 
 class ViewGoogleMap extends StatefulWidget {
   const ViewGoogleMap({super.key});
@@ -14,12 +16,10 @@ class ViewGoogleMap extends StatefulWidget {
 class _ViewGoogleMapState extends State<ViewGoogleMap> {
   // Manipulate the camera
   late GoogleMapController mapController;
-  late LatLng _center = const LatLng(28.6016, -81.2005);
+  LatLng? _center;
   LocationData? _userPosition;
   Set<Marker>? _trips;
-  Set<Circle>? searchRadiusOverlay;
-  // Keep track of where the user wants to go and end
-  LatLng? _startPos, _endPos;
+  Set<Circle>? searchRadiusOverlay = {};
   // Used to cancel async execution after navigation off of this screen
   bool _isMounted = true;
 
@@ -29,16 +29,20 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
   // TODO: Will need to add another for the driver which will enable them to set their ending location?
   void _handleLongPressRider(LatLng position) {
+    final mapState = Provider.of<MapState>(context, listen: false);
     if (_isMounted) {
       setState(() {
-        if (_startPos == null) {
-          _startPos = position;
-        } else if (_endPos == null) {
-          _endPos = position;
+        if (mapState.startLocation == null) {
+          Provider.of<MapState>(context, listen: false)
+              .setStartLocation(position);
+        } else if (mapState.endLocation == null) {
+          Provider.of<MapState>(context, listen: false)
+              .setEndLocation(position);
         } else {
           // Reset the markers if both are already set
-          _startPos = position;
-          _endPos = null;
+          Provider.of<MapState>(context, listen: false)
+              .setStartLocation(position);
+          Provider.of<MapState>(context, listen: false).setEndLocation(null);
         }
       });
     }
@@ -46,13 +50,15 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
   // TODO: Need to add the radius and the user's location
   void _loadMarkers() async {
+    final mapState = Provider.of<MapState>(context, listen: false);
     // Load the markers
     final markers = await TripApi().getTrips({
       'riderId': SingleUser().getUser()!.id.toString(),
-      'radius': '100',
+      'radius': mapState.radius.toString(),
       'lat': '28.6016',
       'lng': '-81.2005',
-      'roundTrip': 'false'
+      'roundTrip': mapState.wantRoundTrip.toString(),
+      'riderLocation': 'Knight Library, Orlando, FL'
     });
 
     if (_isMounted) {
@@ -95,7 +101,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
           markerId: const MarkerId('user'),
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-          position: _center,
+          position: _center!,
           infoWindow: const InfoWindow(
             title: 'Your Location',
             snippet: 'You are here',
@@ -123,50 +129,55 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
   @override
   Widget build(BuildContext context) {
-    if (_startPos != null) {
+    final mapState = Provider.of<MapState>(context);
+
+    if (mapState.startLocation != null) {
       _trips?.add(Marker(
         markerId: const MarkerId('start'),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        position: _startPos!,
+        position: mapState.startLocation!,
         infoWindow: const InfoWindow(title: 'Start Location'),
       ));
-
-      searchRadiusOverlay?.add(Circle(
-        circleId: const CircleId('startCircle'),
-        center: _startPos!,
-        radius: 4000,
-        fillColor: Colors.blue.withOpacity(0.5),
-        strokeColor: Colors.blue,
-        strokeWidth: 4,
-      ));
     }
-    if (_endPos != null) {
+    if (mapState.endLocation != null) {
       _trips?.add(Marker(
         markerId: const MarkerId('end'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        position: _endPos!,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+        position: mapState.endLocation!,
         infoWindow: const InfoWindow(title: 'End Location'),
       ));
     }
-    return Scaffold(
-      body: GoogleMap(
-        markers: _trips ?? {},
-        zoomControlsEnabled: false,
-        zoomGesturesEnabled: true,
-        initialCameraPosition: CameraPosition(target: _center, zoom: 11),
-        onMapCreated: _onMapCreated,
-        // TODO: This is going to have to be different depending on if rider or driver
-        onLongPress: _handleLongPressRider,
-        circles: {
-          Circle(
-              circleId: const CircleId('1'),
-              center: _endPos ?? _center,
-              radius: 5 * 1609.34,
-              fillColor: Colors.blue.withOpacity(.5),
-              strokeColor: Colors.blue.withOpacity(.5),
-              strokeWidth: 2)
-        },
-      ),
-    );
+
+    // Convert radius from miles to meters
+    double radiusInMeters = mapState.radius * 1609.34;
+
+    if (mapState.startLocation != null) {
+      searchRadiusOverlay!.add(Circle(
+        circleId: const CircleId('startCircle'),
+        center: mapState.startLocation!,
+        radius: radiusInMeters,
+        fillColor: Colors.blue.withOpacity(0.5),
+        strokeColor: Colors.blue,
+        strokeWidth: 2,
+      ));
+    }
+    return _center == null
+        ? const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        : Scaffold(
+            body: GoogleMap(
+                markers: _trips ?? {},
+                zoomControlsEnabled: false,
+                zoomGesturesEnabled: true,
+                initialCameraPosition:
+                    CameraPosition(target: _center!, zoom: 11),
+                onMapCreated: _onMapCreated,
+                // TODO: This is going to have to be different depending on if rider or driver
+                onLongPress: _handleLongPressRider,
+                circles: searchRadiusOverlay ?? {}),
+          );
   }
 }

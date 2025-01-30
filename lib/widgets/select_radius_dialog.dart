@@ -1,15 +1,27 @@
+import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SelectRadiusDialog extends StatefulWidget {
-  const SelectRadiusDialog({super.key});
+  final Function(double, bool) onRadiusSelected;
+  const SelectRadiusDialog({super.key, required this.onRadiusSelected});
 
   @override
   State<SelectRadiusDialog> createState() => _SelectRadiusDialogState();
 }
 
 class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
-  double _radius = 5.0;
-  bool wantRoundTrip = false;
+  late double _radius;
+  late bool _wantRoundTrip;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the values to what is stored in the MapState
+    final mapState = Provider.of<MapState>(context, listen: false);
+    _radius = mapState.radius;
+    _wantRoundTrip = mapState.wantRoundTrip;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +45,10 @@ class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
           Text('Radius: ${_radius.round()} miles'),
           CheckboxListTile(
             title: const Text('Round Trip?'),
-            value: wantRoundTrip,
+            value: _wantRoundTrip,
             onChanged: (value) {
               setState(() {
-                wantRoundTrip = value!;
+                _wantRoundTrip = value!;
               });
             },
           ),
@@ -50,6 +62,7 @@ class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
         TextButton(
           onPressed: () {
             // Handle radius selection
+            widget.onRadiusSelected(_radius, _wantRoundTrip);
             Navigator.of(context).pop();
           },
           child: const Text('Save'),
