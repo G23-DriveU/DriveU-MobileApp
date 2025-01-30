@@ -13,6 +13,8 @@ const String ACCEPT_RIDE_REQUEST = '/acceptRideRequest';
 const String DELETE_RIDE_REQUEST_RIDER = '/rideRequestsByRider';
 const String REJECT_RIDE_REQUEST = '/rideRequestsByDriver';
 const String CREATE_RIDE_REQUEST = '/rideRequests';
+// PAST TRIPS
+const String PAST_TRIP = '/trips';
 // TODO: PayPal API
 const String CREATE_PAYPAL_ORDER = '/pay';
 const String CAPTURE_PAYPAL_ORDER = '/capture-payment';
