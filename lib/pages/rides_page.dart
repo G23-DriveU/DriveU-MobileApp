@@ -1,7 +1,7 @@
 import 'package:driveu_mobile_app/model/past_trip.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
-import 'package:driveu_mobile_app/widgets/trip_list_tile.dart';
+import 'package:driveu_mobile_app/widgets/past_trip_list_tile.dart';
 import 'package:flutter/material.dart';
 
 // Display all of the rides for a user. Either requests, or past rides
@@ -52,7 +52,7 @@ class _RidesPageState extends State<RidesPage> {
                 return Expanded(
                   child: ListView.builder(
                       itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) => TripListTile(
+                      itemBuilder: (context, index) => PastTripListTile(
                             pastTrip: snapshot.data![index],
                           )),
                 );
