@@ -25,14 +25,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // TODO: Might remove this since the loading and signing out thing is weird
     return SingleUser().getUser() == null
-        ? Column(
-            children: [
-              const Center(child: CircularProgressIndicator()),
-              ElevatedButton(
-                  onPressed: () => AuthService().signOut(),
-                  child: const Text("Sign Out"))
-            ],
-          )
+        ? const Center(child: CircularProgressIndicator())
         : Scaffold(
             body: _pages[currentPage],
             bottomNavigationBar: BottomNavigationBar(

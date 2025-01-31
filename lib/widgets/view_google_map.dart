@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
@@ -59,7 +60,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       'lng': '-81.2005',
       'roundTrip': mapState.wantRoundTrip.toString(),
       'riderLocation': 'Knight Library, Orlando, FL'
-    });
+    }, context, _showTripInfo);
 
     if (_isMounted) {
       setState(() {
@@ -110,6 +111,39 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       });
     }
     // Add the current users' location to the marker set
+  }
+
+  void _showTripInfo(BuildContext context, FutureTrip trip) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("${trip.driver!.name}'s Trip"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Destination: ${trip.destination}"),
+                Text("Start Location: ${trip.startLocation}"),
+                Text("Driver: ${trip.driver!.name}"),
+                Text("Car: ${trip.driver!.carMake} ${trip.driver!.carModel}"),
+                // Add more details as needed
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // Implement join ride request logic here
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Join Ride'),
+              ),
+            ],
+          );
+        });
   }
 
   @override
