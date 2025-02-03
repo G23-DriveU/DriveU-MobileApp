@@ -31,16 +31,26 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _carColor,
       _error;
   bool _passwordsMatch = true, _isDriver = false;
-  FileImage? _profileImage;
+
+  File? _profileImage;
+  // To enable users to select their car from a known list
   Map<String, List<String>> _carData = {};
+  Set<String> _uniData = {};
 
   Future<void> _pickPhoto() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _profileImage = FileImage(File(pickedFile.path));
+        _profileImage = File(pickedFile.path);
       });
     }
+  }
+
+
+  // Encode the image as base64
+  String? _encodeToBase64(File? image) {
+    if (image == null) return null;
+    return base64Encode(image.readAsBytesSync());
   }
 
   Future<Map<String, List<String>>> loadCarData() async {
@@ -63,15 +73,38 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
     });
   }
 
+
+  Future<Set<String>> loadSchoolData() async {
+    final String response =
+        await rootBundle.loadString('assets/us_institutions.json');
+    final List<dynamic> data = json.decode(response);
+    final Set<String> uniData = {};
+    // Loop through and add all of the colleges
+    for (var item in data) {
+      uniData.add(item['institution']);
+    }
+    return uniData;
+  }
+
+  void _loadSchoolData() async {
+    final uniData = await loadSchoolData();
+    setState(() {
+      _uniData = uniData;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    // Load all of the car data from assets
+    _loadSchoolData();
     _loadCarData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       backgroundColor: Colors.transparent, // Transparent background
       body: Container(
         decoration: BoxDecoration(
@@ -238,131 +271,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                   ),
                   const SizedBox(height: 20),
 
-/*
-                // Email input field
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Email Address',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email address';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                    if (_error == 'email-already-in-use') {
-                      return 'Email already in use';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) => setState(() {
-                    _error = null;
-                  }),
-                  onSaved: (value) => _email = value,
-                ),
-                const SizedBox(height: 15),
 
-                // Password input field
-                TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                  ),
-                  validator: (value) {
-                    if (_error != null && _error!.contains('weak-password')) {
-                      return 'Your password is too weak';
-                    }
-                    if (!_passwordsMatch) {
-                      return 'Ensure that both passwords match';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _error = null;
-                    });
-                    _password = value;
-                    _passwordsMatch = _password == _confirmPassword;
-                  },
-                  onSaved: (value) => _password = value,
-                ),
-                const SizedBox(height: 15),
-
-                // Confirm Password input field
-                TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
-                  ),
-                  validator: (value) {
-                    if (_error != null && _error! == 'weak-password') {
-                      return 'Your password is too weak';
-                    }
-                    if (!_passwordsMatch) {
-                      return 'Ensure that both passwords match';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _error = null;
-                    });
-                    _confirmPassword = value;
-                    _passwordsMatch = _password == _confirmPassword;
-                  },
-                  onSaved: (value) => _confirmPassword = value,
-                ),
-                const SizedBox(height: 15),
-
-                // Name input field
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Your Name',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please Enter your Name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) => _name = value,
-                ),
-                const SizedBox(height: 15),
-
-                // School input field
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Your School',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please Enter your School\' Name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) => _school = value,
-                ),
-                const SizedBox(height: 15),
-
-                // Phone Number input field
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Your Phone Number',
-                  ),
-                  validator: (value) {
-                    if (!RegExp(r'^(1\s?)?(\d{3}|\(\d{3}\))[\s\-]?\d{3}[\s\-]?\d{4}$')
-                        .hasMatch(value!)) {
-                      return 'Please Enter a Valid Phone Number';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    _phoneNumber = value;
-                  },
-                  onSaved: (value) => _phoneNumber = value,
-                ),
-                const SizedBox(height: 20), */
 
                 // Register button (Submit form)
                 ElevatedButton(
@@ -374,16 +283,44 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                   },
                   child: Text('Register'),
                 ),
+                      return 'Enter Your School';
+                    }
+                    return null;
+                  },
+                );
+              },
+            ),
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Your Phone Number',
+              ),
+              // TODO: We are only matching US based phone numbers, maybe we consider international numbers in the future
+              validator: (value) {
+                if (!RegExp(
+                        r'^(1\s?)?(\d{3}|\(\d{3}\))[\s\-]?\d{3}[\s\-]?\d{4}$')
+                    .hasMatch(value!)) {
+                  return 'Please Enter a Valid Phone Number';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                _phoneNumber = value;
+              },
+              onSaved: (value) => _phoneNumber = value,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             _profileImage == null
                 // TODO: Put a default image here
                 ? Image.network(
                     width: 125,
                     height: 125,
                     'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ucf.edu%2Ffiles%2F2017%2F10%2Fknightro_two_hands_point.png&f=1&nofb=1&ipt=f3fcec4cda343ad6b15a1016a743684a41a977acedf9681488c0b9a807534670&ipo=images')
-                : Image(
-                    image: _profileImage!,
-                    height: 100,
+                : SizedBox(
                     width: 100,
+                    height: 100,
+                    child: Image.file(_profileImage!),
                   ),
             ElevatedButton(
                 onPressed: _pickPhoto,
@@ -519,9 +456,14 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         carPlate: _carPlate,
                         carColor: _carColor,
                         profileImage: _profileImage));
+                     
                     // Register the user with our database
                     await UserApi()
                         .createUser(SingleUser().getUser()!.toQueryParams());
+                    await UserApi().sendProfileImage(
+                        FirebaseAuth.instance.currentUser!.uid,
+                        _encodeToBase64(_profileImage)!);
+
                     _error = null;
                     Navigator.pop(context);
                   } else if (response == 'weak-password') {

@@ -13,6 +13,11 @@ dependencies:
   firebase_auth: ^5.3.4
   http: ^1.2.2
   image_picker: ^1.1.2
+  flutter_polyline_points: ^2.1.0
+  google_maps_flutter: ^2.10.0
+  geolocator: ^13.0.2
+  location: ^7.0.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -22,4 +27,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+
     - assets/images/car1
+    - assets/images/
+    - assets/vehicle_models_cleaned.json
+    - assets/us_institutions.json

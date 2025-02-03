@@ -38,7 +38,7 @@ class AuthService {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
-      return credential.user?.uid;
+      return null;
     } catch (e) {
       print("Debugging error $e");
       return e.toString();

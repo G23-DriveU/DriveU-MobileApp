@@ -25,15 +25,18 @@ class _LoginFormState extends State<LoginForm> {
               labelText: 'Email Address',
             ),
             validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  // TODO: ensure a .edu domain name in future
-                  !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email address';
+              }
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                 return 'Please enter a valid email address';
               }
               if (_error != null) return 'Invalid email or password';
               return null;
             },
+            onChanged: (value) => setState(() {
+              _error = null;
+            }),
             onSaved: (value) => _email = value,
           ),
           const SizedBox(
@@ -51,6 +54,9 @@ class _LoginFormState extends State<LoginForm> {
               if (_error != null) return 'Invalid email or password';
               return null;
             },
+            onChanged: (value) => setState(() {
+              _error = null;
+            }),
             onSaved: (value) => _password = value,
           ),
           ElevatedButton(
@@ -60,17 +66,18 @@ class _LoginFormState extends State<LoginForm> {
                 // Save the form fields into the variables
                 _formKey.currentState!.save();
                 // Implement the login logic here
-                final response = await AuthService().login(_email!, _password!);
-
-                // There was an error that needs to be handled
-                if (response != null) {
+                try {
+                  final response =
+                      await AuthService().login(_email!, _password!);
+                  // Handle successful login
+                  if (response != null) {
+                    throw Exception('Invalid email or password');
+                  }
+                } catch (e) {
                   setState(() {
-                    _error = "Invalid email or password";
+                    _error = 'Invalid email or password';
                   });
-                } else {
-                  setState(() {
-                    _error = null;
-                  });
+                  _formKey.currentState!.validate();
                 }
               }
             },

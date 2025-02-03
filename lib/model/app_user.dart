@@ -16,6 +16,7 @@ String usersToJson(List<AppUser> data) =>
 // https://app.quicktype.io/ was used to generate the model class from the JSON response
 class AppUser {
   String? firebaseUid;
+  // TODO: Might change this to String to represent the base 64 encoded string
   dynamic profileImage;
   String name;
   String email;
@@ -37,7 +38,7 @@ class AppUser {
 
   AppUser({
     this.firebaseUid,
-    required this.profileImage,
+    this.profileImage,
     required this.name,
     required this.email,
     required this.phoneNumber,
@@ -65,6 +66,7 @@ class AppUser {
         school: json["school"],
         fcmToken: json["fcmToken"],
         driver: json["driver"],
+        // IMPORTANT: This is need to make almost ALL requests for a user
         id: json["id"],
         driverRating: json["driverRating"],
         driverReviewCount: json["driverReviewCount"],
