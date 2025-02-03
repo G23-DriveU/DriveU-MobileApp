@@ -56,4 +56,18 @@ class TripApi {
       return [];
     }
   }
+
+  Future<void> createRideRequest(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .post(CREATE_RIDE_REQUEST, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+      } else {
+        throw Exception(["Failed to make a request"]);
+      }
+    } catch (e) {
+      return;
+    }
+  }
 }

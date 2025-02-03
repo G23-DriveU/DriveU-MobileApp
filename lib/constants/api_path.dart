@@ -18,4 +18,3 @@ const String PAST_TRIP = '/trips';
 // TODO: PayPal API
 const String CREATE_PAYPAL_ORDER = '/pay';
 const String CAPTURE_PAYPAL_ORDER = '/capture-payment';
-//TODO:  Car

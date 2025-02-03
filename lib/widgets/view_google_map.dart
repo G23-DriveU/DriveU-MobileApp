@@ -117,6 +117,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     showDialog(
         context: context,
         builder: (context) {
+          final mapState = Provider.of<MapState>(context);
           return AlertDialog(
             title: Text("${trip.driver!.name}'s Trip"),
             content: Column(
@@ -136,6 +137,15 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
               ),
               ElevatedButton(
                 onPressed: () {
+                  TripApi().createRideRequest({
+                    'futureTripId': trip.id.toString(),
+                    'riderId': SingleUser().getUser()!.id!.toString(),
+                    // TODO: Need to change this prob to LatLng
+                    'riderLocation': 'Orlando, FL',
+                    'roundTrip': mapState.wantRoundTrip.toString(),
+                    // TODO: What is this
+                    'authorizationId': '1'
+                  });
                   // Implement join ride request logic here
                   Navigator.of(context).pop();
                 },
