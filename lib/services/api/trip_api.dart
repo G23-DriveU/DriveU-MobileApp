@@ -57,6 +57,26 @@ class TripApi {
     }
   }
 
+  Future<List<FutureTrip>> getFutureTrips(
+      Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .get(FUTURE_TRIP, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        List<FutureTrip> futureTripsDriver =
+            futureTripsFromJson(jsonEncode(data['items']));
+
+        return futureTripsDriver;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<void> createRideRequest(Map<String, String> queryParameters) async {
     try {
       final response = await SingleClient()

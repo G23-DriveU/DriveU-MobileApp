@@ -1,6 +1,7 @@
 import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
+import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -17,11 +18,7 @@ class ProfilePage extends StatelessWidget {
               title: Text("Your Info"),
             ),
             Text("${FirebaseAuth.instance.currentUser?.email}"),
-            Image.network(
-              "$BASE_URL/uploads/${FirebaseAuth.instance.currentUser?.uid}.jpeg",
-              height: 150,
-              width: 150,
-            ),
+            ImageFrame(firebaseUid: FirebaseAuth.instance.currentUser!.uid),
             const Text("Name"),
             Text(SingleUser().getUser()!.name),
             const Text("Phone"),
