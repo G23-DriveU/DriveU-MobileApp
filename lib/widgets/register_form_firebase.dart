@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../model/app_user.dart';
 
-// This portion of the register page consists of adding information which will be stored on Firebase
 class RegisterFormFirebase extends StatefulWidget {
   const RegisterFormFirebase({super.key});
 
@@ -32,12 +31,12 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _carColor,
       _error;
   bool _passwordsMatch = true, _isDriver = false;
+
   File? _profileImage;
   // To enable users to select their car from a known list
   Map<String, List<String>> _carData = {};
   Set<String> _uniData = {};
 
-  // Enable user to select a photo from their gallery
   Future<void> _pickPhoto() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -46,6 +45,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       });
     }
   }
+
 
   // Encode the image as base64
   String? _encodeToBase64(File? image) {
@@ -72,6 +72,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _carData = carData;
     });
   }
+
 
   Future<Set<String>> loadSchoolData() async {
     final String response =
@@ -103,124 +104,185 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Email Address',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your email address';
-                }
-                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                  return 'Please enter a valid email address';
-                }
-                if (_error == 'email-already-in-use') {
-                  return 'Email already in use';
-                }
-                return null;
-              },
-              onChanged: (value) => setState(() {
-                _error = null;
-              }),
-              onSaved: (value) => _email = value,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextFormField(
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-              ),
-              validator: (value) {
-                if (_error != null && _error!.contains('weak-password')) {
-                  return 'Your password is too weak';
-                }
-                if (!_passwordsMatch) {
-                  return 'Ensure that both passwords match';
-                }
-                return null;
-              },
-              onChanged: (value) {
-                setState(() {
-                  _error = null;
-                });
-                _password = value;
-                _passwordsMatch = _password == _confirmPassword;
-              },
-              onSaved: (value) => _password = value,
-            ),
-            TextFormField(
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Confirm Password',
-              ),
-              validator: (value) {
-                if (_error != null && _error! == 'weak-password') {
-                  return 'Your password is too weak';
-                }
-                if (!_passwordsMatch) {
-                  return 'Ensure that both passwords match';
-                }
-                return null;
-              },
-              onChanged: (value) {
-                setState(() {
-                  _error = null;
-                });
-                _confirmPassword = value;
-                _passwordsMatch = _password == _confirmPassword;
-              },
-              onSaved: (value) => _confirmPassword = value,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Your Name',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please Enter your Name';
-                }
-                return null;
-              },
-              onSaved: (value) => _name = value,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Autocomplete<String>(
-              optionsBuilder: (TextEditingValue textEditingValue) {
-                if (textEditingValue.text.isEmpty) {
-                  return const Iterable<String>.empty();
-                }
-                return _uniData.where((String option) {
-                  return option
-                      .toLowerCase()
-                      .contains(textEditingValue.text.toLowerCase());
-                });
-              },
-              onSelected: (String selection) {
-                setState(() {
-                  _school = selection;
-                });
-              },
-              fieldViewBuilder: (BuildContext context,
-                  TextEditingController textEditingController,
-                  FocusNode focusNode,
-                  VoidCallback onFieldSubmitted) {
-                return TextFormField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Your School',
+
+      backgroundColor: Colors.transparent, // Transparent background
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.teal.shade100, Colors.yellow.shade100, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+
+                // Title "REGISTER"
+                Text(
+                  'REGISTER',
+                  style: TextStyle(
+                    fontSize: 30, // Reduced size for better fit
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
+                ),
+                const SizedBox(height: 10),
+
+                // Caption
+                Text(
+                  'We are excited for you to take over the next world of carpooling 🚗!',
+                  style: TextStyle(
+                    fontSize: 16, // Reduced size for better fit
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+
+
+                // Updated TextFormField widgets with OutlineInputBorder
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Email Address',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email address';
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Please enter a valid email address';
+                      }
+                      if (_error == 'email-already-in-use') {
+                        return 'Email already in use';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) => setState(() {
+                      _error = null;
+                    }),
+                    onSaved: (value) => _email = value,
+                  ),
+                  const SizedBox(height: 15),
+
+                  TextFormField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (_error != null && _error!.contains('weak-password')) {
+                        return 'Your password is too weak';
+                      }
+                      if (!_passwordsMatch) {
+                        return 'Ensure that both passwords match';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        _error = null;
+                      });
+                      _password = value;
+                      _passwordsMatch = _password == _confirmPassword;
+                    },
+                    onSaved: (value) => _password = value,
+                  ),
+                  const SizedBox(height: 15),
+
+                  TextFormField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (_error != null && _error! == 'weak-password') {
+                        return 'Your password is too weak';
+                      }
+                      if (!_passwordsMatch) {
+                        return 'Ensure that both passwords match';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        _error = null;
+                      });
+                      _confirmPassword = value;
+                      _passwordsMatch = _password == _confirmPassword;
+                    },
+                    onSaved: (value) => _confirmPassword = value,
+                  ),
+                  const SizedBox(height: 15),
+
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Your Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please Enter your Name';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _name = value,
+                  ),
+                  const SizedBox(height: 15),
+
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Your School',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please Enter your School\'s Name';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _school = value,
+                  ),
+                  const SizedBox(height: 15),
+
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Your Phone Number',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (!RegExp(r'^(1\s?)?(\d{3}|\(\d{3}\))[\s\-]?\d{3}[\s\-]?\d{4}$')
+                          .hasMatch(value!)) {
+                        return 'Please Enter a Valid Phone Number';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      _phoneNumber = value;
+                    },
+                    onSaved: (value) => _phoneNumber = value,
+                  ),
+                  const SizedBox(height: 20),
+
+
+
+                // Register button (Submit form)
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      // Call API to register user
+                    }
+                  },
+                  child: Text('Register'),
+                ),
                       return 'Enter Your School';
                     }
                     return null;
@@ -383,19 +445,18 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                   // TODO: Need to fix this since I need to send the user info to the DriveU database
                   if (response == null) {
                     SingleUser().setUser(AppUser(
-                      firebaseUid: FirebaseAuth.instance.currentUser!.uid,
-                      email: _email!,
-                      // TODO: Might remove this since to send base64 need to use JSON
-                      // profileImage: _encodeToBase64(_profileImage),
-                      name: _name!,
-                      school: _school!,
-                      phoneNumber: _phoneNumber!,
-                      driver: _isDriver,
-                      carMake: _carMake,
-                      carModel: _carModel,
-                      carPlate: _carPlate,
-                      carColor: _carColor,
-                    ));
+                        firebaseUid: FirebaseAuth.instance.currentUser!.uid,
+                        email: _email!,
+                        name: _name!,
+                        school: _school!,
+                        phoneNumber: _phoneNumber!,
+                        driver: _isDriver,
+                        carMake: _carMake,
+                        carModel: _carModel,
+                        carPlate: _carPlate,
+                        carColor: _carColor,
+                        profileImage: _profileImage));
+                     
                     // Register the user with our database
                     await UserApi()
                         .createUser(SingleUser().getUser()!.toQueryParams());
@@ -420,9 +481,11 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
               },
               child: const Text('Register'),
             ),
-          ],
+            ],
+            ),
+          ),
         ),
       ),
-    ));
+    );
   }
 }
