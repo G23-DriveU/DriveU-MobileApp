@@ -2,6 +2,7 @@ import 'package:driveu_mobile_app/firebase_options.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/pages/auth_page.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';
+import 'package:driveu_mobile_app/theme/main_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -34,10 +35,11 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: AuthPage(),
+    return MaterialApp(
+      home: const AuthPage(),
       debugShowCheckedModeBanner: false,
       // TODO: Add the theme data here
+      theme: mainTheme,
       // TODO: Add navigators here
     );
   }
