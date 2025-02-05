@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/widgets/login_form.dart';
 import 'package:driveu_mobile_app/widgets/register_form_firebase.dart';
 import 'package:flutter/material.dart';
 
@@ -123,47 +124,6 @@ class LoginPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class LoginForm extends StatelessWidget {
-  const LoginForm({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 40),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle login action
-              },
-              child: const Text(
-                "Submit",
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

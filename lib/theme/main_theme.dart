@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 final ThemeData mainTheme = ThemeData(
   fontFamily: 'Fredoka',
+  inputDecorationTheme: const InputDecorationTheme(
+    border: OutlineInputBorder(),
+  ),
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(
       backgroundColor: WidgetStateProperty.all<Color>(Colors.teal),
