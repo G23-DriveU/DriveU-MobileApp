@@ -13,6 +13,7 @@ dependencies:
   firebase_auth: ^5.3.4
   http: ^1.2.2
   image_picker: ^1.1.2
+  dio: ^4.0.0
   flutter_polyline_points: ^2.1.0
   google_maps_flutter: ^2.10.0
   geolocator: ^13.0.2
@@ -30,3 +31,7 @@ flutter:
     - assets/images/
     - assets/vehicle_models_cleaned.json
     - assets/us_institutions.json
+  fonts:
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka/Fredoka-VariableFont_wdth,wght.ttf
