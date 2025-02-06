@@ -1,4 +1,3 @@
-import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';

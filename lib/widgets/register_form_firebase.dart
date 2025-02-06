@@ -114,19 +114,17 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Text(
+                const Text(
                   'Register',
                   style: TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Email Address',
-                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -144,14 +142,13 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _error = null;
                   }),
                   onSaved: (value) => _email = value,
-                  style: TextStyle(fontFamily: 'Fredoka'),
+                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Password',
-                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (_error != null && _error!.contains('weak-password')) {
@@ -170,13 +167,12 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _passwordsMatch = _password == _confirmPassword;
                   },
                   onSaved: (value) => _password = value,
-                  style: TextStyle(fontFamily: 'Fredoka'),
+                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 TextFormField(
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Confirm Password',
-                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (_error != null && _error! == 'weak-password') {
@@ -195,12 +191,11 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _passwordsMatch = _password == _confirmPassword;
                   },
                   onSaved: (value) => _confirmPassword = value,
-                  style: TextStyle(fontFamily: 'Fredoka'),
+                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Your Name',
-                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -209,7 +204,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     return null;
                   },
                   onSaved: (value) => _name = value,
-                  style: TextStyle(fontFamily: 'Fredoka'),
+                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 const SizedBox(height: 20),
                 Autocomplete<String>(
@@ -235,9 +230,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     return TextFormField(
                       controller: textEditingController,
                       focusNode: focusNode,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Your School',
-                        border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -245,14 +239,14 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         }
                         return null;
                       },
-                      style: TextStyle(fontFamily: 'Fredoka'),
+                      style: const TextStyle(fontFamily: 'Fredoka'),
                     );
                   },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Your Phone Number',
-                    border: OutlineInputBorder(),
+                    // (),
                   ),
                   validator: (value) {
                     if (!RegExp(
@@ -266,7 +260,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _phoneNumber = value;
                   },
                   onSaved: (value) => _phoneNumber = value,
-                  style: TextStyle(fontFamily: 'Fredoka'),
+                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 const SizedBox(height: 20),
                 _profileImage == null
@@ -321,9 +315,9 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           return TextFormField(
                             controller: textEditingController,
                             focusNode: focusNode,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Car Make',
-                              border: OutlineInputBorder(),
+                              // (),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -331,13 +325,14 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                               }
                               return null;
                             },
-                            style: TextStyle(fontFamily: 'Fredoka'),
+                            style: const TextStyle(fontFamily: 'Fredoka'),
                           );
                         },
                       ),
                       Autocomplete<String>(
                         optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty || _carMake == null) {
+                          if (textEditingValue.text.isEmpty ||
+                              _carMake == null) {
                             return const Iterable<String>.empty();
                           }
                           return _carData[_carMake]!.where((String option) {
@@ -358,9 +353,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           return TextFormField(
                             controller: textEditingController,
                             focusNode: focusNode,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Car Model',
-                              border: OutlineInputBorder(),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -368,14 +362,13 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                               }
                               return null;
                             },
-                            style: TextStyle(fontFamily: 'Fredoka'),
+                            style: const TextStyle(fontFamily: 'Fredoka'),
                           );
                         },
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Car Plate',
-                          border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -384,15 +377,14 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           return null;
                         },
                         onSaved: (value) => _carPlate = value,
-                        style: TextStyle(fontFamily: 'Fredoka'),
+                        style: const TextStyle(fontFamily: 'Fredoka'),
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Car Color',
-                          border: OutlineInputBorder(),
                         ),
                         onSaved: (value) => _carColor = value,
-                        style: TextStyle(fontFamily: 'Fredoka'),
+                        style: const TextStyle(fontFamily: 'Fredoka'),
                       ),
                     ],
                   ),
@@ -415,8 +407,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           carPlate: _carPlate,
                           carColor: _carColor,
                         ));
-                        await UserApi()
-                            .createUser(SingleUser().getUser()!.toQueryParams());
+                        await UserApi().createUser(
+                            SingleUser().getUser()!.toQueryParams());
                         await UserApi().sendProfileImage(
                             FirebaseAuth.instance.currentUser!.uid,
                             _encodeToBase64(_profileImage)!);

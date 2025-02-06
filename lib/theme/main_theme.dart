@@ -4,6 +4,13 @@ final ThemeData mainTheme = ThemeData(
   fontFamily: 'Fredoka',
   inputDecorationTheme: const InputDecorationTheme(
     border: OutlineInputBorder(),
+    labelStyle: TextStyle(fontFamily: 'Fredoka'),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.teal, width: 2),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.teal, width: 1),
+    ),
   ),
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(

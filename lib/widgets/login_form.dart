@@ -23,14 +23,6 @@ class _LoginFormState extends State<LoginForm> {
           TextFormField(
             decoration: const InputDecoration(
               labelText: 'Email',
-              labelStyle: TextStyle(fontFamily: 'Fredoka'),
-              border: OutlineInputBorder(),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.teal, width: 2),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.teal, width: 1),
-              ),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -98,24 +90,24 @@ class _LoginFormState extends State<LoginForm> {
               }
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 15,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
+              backgroundColor: Colors.teal,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 30,
+                vertical: 15,
               ),
-              child: const Text(
-                "Submit",
-                style: TextStyle(
-                  fontFamily: 'Fredoka',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
               ),
+            ),
+            child: const Text(
+              "Submit",
+              style: TextStyle(
+                fontFamily: 'Fredoka',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
