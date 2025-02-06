@@ -2,6 +2,7 @@ import 'dart:convert';
 // import 'package:flutter_application_openmapapp/env.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -30,7 +31,7 @@ class GoogleMapsUtils {
   }
 
   // Get location details (Lat and Lng) from Google Maps API
-  Future<Map<String, double>?> getLocationDetails(String placeId) async {
+  Future<LatLng?> getLocationDetails(String placeId) async {
     final url =
         'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}';
 
@@ -42,18 +43,13 @@ class GoogleMapsUtils {
 
       if (result != null) {
         final location = result['geometry']['location'];
-        return {
-          'lat': location['lat'],
-          'lng': location['lng'],
-        };
-      } else {
-        print("No result found for place ID: $placeId");
-        return null;
-      }
+        return LatLng(location['lat'], location['lng']);
+      } else {}
     } else {
       print('Failed to load location details: ${response.statusCode}');
       return null;
     }
+    return null;
   }
 
   // Take in the LatLng for start and end points and open up Google Maps with that route selected

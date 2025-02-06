@@ -1,6 +1,9 @@
+import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/services/google_maps_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 
 class LocationSuggest extends StatelessWidget {
   // Map which holds the locations
@@ -40,14 +43,51 @@ class LocationSuggest extends StatelessWidget {
             },
             itemBuilder: (context, suggest) {
               return ListTile(
-                title: Text(suggest['description'].toString()),
+                title: Text(suggest['description']),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Need to add Reverse Geocoding
+                    IconButton(
+                      icon: const Icon(Icons.location_on),
+                      onPressed: () async {
+                        final latlngLoc = await GoogleMapsUtils()
+                            .getLocationDetails(suggest['place_id']);
+
+                        // Set the start location
+                        if (latlngLoc != null) {
+                          Provider.of<MapState>(context, listen: false)
+                              .setStartLocation(LatLng(
+                                  latlngLoc.latitude, latlngLoc.longitude));
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.flag),
+                      onPressed: () async {
+                        final latlngLoc = await GoogleMapsUtils()
+                            .getLocationDetails(suggest['place_id']);
+
+                        // Set the start location
+                        if (latlngLoc != null) {
+                          Provider.of<MapState>(context, listen: false)
+                              .setEndLocation(LatLng(
+                                  latlngLoc.latitude, latlngLoc.longitude));
+                        }
+                      },
+                    ),
+                  ],
+                ),
               );
             },
           ),
         ),
         GestureDetector(
           onTap: () => _controller.clear(),
-          child: const Icon(Icons.clear),
+          child: const Icon(
+            Icons.clear,
+            color: Colors.black,
+          ),
         ),
       ],
     );
