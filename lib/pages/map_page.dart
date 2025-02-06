@@ -1,6 +1,7 @@
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/create_ride_dialog.dart';
+import 'package:driveu_mobile_app/widgets/location_suggest.dart';
 import 'package:driveu_mobile_app/widgets/map_fab.dart';
 import 'package:driveu_mobile_app/widgets/select_radius_dialog.dart';
 import 'package:driveu_mobile_app/widgets/view_google_map.dart';
@@ -33,13 +34,11 @@ class MapPage extends StatelessWidget {
         icon: SingleUser().getUser()?.driver == true ? Icons.add : Icons.album,
         onPressed: () => _showDialog(context),
       ),
-      body: const Column(
+      body: Column(
         children: [
           // Search bar
-          TextField(
-            decoration: InputDecoration(hintText: "Search"),
-          ),
-          Expanded(child: ViewGoogleMap()),
+          LocationSuggest(),
+          const Expanded(child: ViewGoogleMap()),
         ],
       ),
     );

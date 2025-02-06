@@ -15,11 +15,15 @@ class _MapFabState extends State<MapFab> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      backgroundColor: Colors.teal,
       // If the user is a driver, when they click on the button, they can add a new ride
       // If the user is a rider, they can set a search radius
       onPressed: widget.onPressed,
       // Display the icon
-      child: Icon(widget.icon),
+      child: Icon(
+        widget.icon,
+        color: Colors.white,
+      ),
     );
   }
 }
