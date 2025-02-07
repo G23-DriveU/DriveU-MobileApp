@@ -2,7 +2,9 @@ import 'package:driveu_mobile_app/firebase_options.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/pages/auth_page.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';
+import 'package:driveu_mobile_app/services/push_notification_service.dart';
 import 'package:driveu_mobile_app/theme/main_theme.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,7 +13,8 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "e.env");
+  await PushNotificationService().initNotifications();
 
   // CNP allows widgets to check the update of a widget state
   runApp(ChangeNotifierProvider(

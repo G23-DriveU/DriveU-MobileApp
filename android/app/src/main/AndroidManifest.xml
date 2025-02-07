@@ -10,7 +10,14 @@
         android:label="driveu_mobile_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-    <!-- TODO: Might use local.properties so I don't leak the key -->
+    <!-- Need in order to receive notifications-->
+    <!-- <service
+    android:name="com.example.driveu_mobile_app"
+    android:exported="false">
+        <intent-filter>
+            <action android:name="com.google.firebase.MESSAGING_EVENT" />
+        </intent-filter>
+    </service> -->
     <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="${googleMapsApiKey}"/>
 

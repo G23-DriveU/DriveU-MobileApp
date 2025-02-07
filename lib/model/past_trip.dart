@@ -62,7 +62,7 @@ class PastTrip {
         riderCost: json["riderCost"]?.toDouble(),
         distance: json["distance"]?.toDouble(),
         id: json["id"],
-        driver: AppUser.fromJson(json["driver"]),
+        driver: AppUser.fromJson(json["driver"] ?? json["rider"]),
       );
 
   Map<String, dynamic> toJson() => {
