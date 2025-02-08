@@ -142,27 +142,28 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                 child: const Text('Close'),
               ),
               ElevatedButton(
-                // TODO: Get PayPal auth id, then send trip request
                 onPressed: () async {
                   // Communicate with PayPal
                   final payUrl = await PayPalApi().getPayUrl(
                       {"tripCost": trip.request!.riderCost.toStringAsFixed(2)});
 
-                  Navigator.of(context)
+                  final authId = await Navigator.of(context)
                       .pushNamed('/PayPalWebView', arguments: payUrl);
 
-                  // Communicate with PostgreSQL
-                  // TripApi().createRideRequest({
-                  //   'futureTripId': trip.id.toString(),
-                  //   'riderId': SingleUser().getUser()!.id!.toString(),
-                  //   // TODO: Need to change this prob to LatLng
-                  //   'riderLocation': 'Orlando, FL',
-                  //   'roundTrip': mapState.wantRoundTrip.toString(),
-                  //   // TODO: What is this
-                  //   'authorizationId': '1'
-                  // });
-                  // Implement join ride request logic here
-                  // Navigator.of(context).pop();
+                  // We got an authId from the backend
+                  if (authId.runtimeType == String) {
+                    // Communicate with PostgreSQL
+                    TripApi().createRideRequest({
+                      'futureTripId': trip.id.toString(),
+                      'riderId': SingleUser().getUser()!.id!.toString(),
+                      // TODO: Need to change this prob to LatLng
+                      'riderLocation': 'Orlando, FL',
+                      'roundTrip': mapState.wantRoundTrip.toString(),
+                      'authorizationId': authId.toString()
+                    });
+                    // Request was successful
+                    Navigator.of(context).pop();
+                  }
                 },
                 child: const Text('Join Ride'),
               ),

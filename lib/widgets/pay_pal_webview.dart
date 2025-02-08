@@ -29,7 +29,12 @@ class _PayPalWebViewState extends State<PayPalWebView> {
               // Capture the authorization ID from the url
               String authId = Uri.parse(url).queryParameters['authId']!;
 
-              widget.navigatorKey.currentState?.pop();
+              widget.navigatorKey.currentState?.pop(authId);
+              // Navigator.of(context).pop(authId);
+            }
+            // Handle the case where PayPal failed
+            else if (url.contains('/cancel')) {
+              widget.navigatorKey.currentState?.pop(null);
             }
           },
         ),
