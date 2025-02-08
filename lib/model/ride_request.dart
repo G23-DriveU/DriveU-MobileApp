@@ -14,59 +14,58 @@ String rideRequestsToJson(List<RideRequest> data) =>
 // https://app.quicktype.io/ was used to generate the model class from the JSON response
 class RideRequest {
   int futureTripId;
-  int riderId;
+  String riderId;
   String riderLocation;
   String status;
-  String authorizationId;
+  String? authorizationId;
   bool roundTrip;
-  int id;
+  int? id;
   double riderLocationLat;
   double riderLocationLng;
-  String pickupTime;
-  String eta;
+  int? pickupTime;
+  int? eta;
   double riderCost;
   double driverPayout;
   double distance;
-  String dropoffTime;
-  AppUser rider;
+  int? dropoffTime;
+  AppUser? rider;
 
   RideRequest({
     required this.futureTripId,
     required this.riderId,
     required this.riderLocation,
     required this.status,
-    required this.authorizationId,
+    this.authorizationId,
     required this.roundTrip,
-    required this.id,
+    this.id,
     required this.riderLocationLat,
     required this.riderLocationLng,
-    required this.pickupTime,
+    this.pickupTime,
     required this.eta,
     required this.riderCost,
     required this.driverPayout,
     required this.distance,
-    required this.dropoffTime,
-    required this.rider,
+    this.dropoffTime,
+    this.rider,
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) => RideRequest(
-        futureTripId: json["futureTripId"],
-        riderId: json["riderId"],
-        riderLocation: json["riderLocation"],
-        status: json["status"],
-        authorizationId: json["authorizationId"],
-        roundTrip: json["roundTrip"],
-        id: json["id"],
-        riderLocationLat: json["riderLocationLat"]?.toDouble(),
-        riderLocationLng: json["riderLocationLng"]?.toDouble(),
-        pickupTime: json["pickupTime"],
-        eta: json["eta"],
-        riderCost: json["riderCost"]?.toDouble(),
-        driverPayout: json["driverPayout"]?.toDouble(),
-        distance: json["distance"]?.toDouble(),
-        dropoffTime: json["dropoffTime"],
-        rider: AppUser.fromJson(json["rider"]),
-      );
+      futureTripId: json["futureTripId"],
+      riderId: json["riderId"],
+      riderLocation: json["riderLocation"],
+      status: json["status"],
+      authorizationId: json["authorizationId"],
+      roundTrip: json["roundTrip"],
+      id: json["id"],
+      riderLocationLat: json["riderLocationLat"]?.toDouble(),
+      riderLocationLng: json["riderLocationLng"]?.toDouble(),
+      pickupTime: json["pickupTime"],
+      eta: json["eta"],
+      riderCost: json["riderCost"]?.toDouble(),
+      driverPayout: json["driverPayout"]?.toDouble(),
+      distance: json["distance"]?.toDouble(),
+      dropoffTime: json["dropoffTime"],
+      rider: json["rider"] != null ? AppUser.fromJson(json["rider"]) : null);
 
   Map<String, dynamic> toJson() => {
         "futureTripId": futureTripId,
@@ -85,6 +84,6 @@ class RideRequest {
         "distance": distance,
         "dropoffTime": dropoffTime,
         // TODO: will this cause a problem?
-        "rider": rider.toJson(),
+        "rider": rider?.toJson(),
       };
 }

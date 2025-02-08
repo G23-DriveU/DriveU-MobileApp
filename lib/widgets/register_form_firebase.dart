@@ -409,9 +409,12 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         ));
                         await UserApi().createUser(
                             SingleUser().getUser()!.toQueryParams());
-                        await UserApi().sendProfileImage(
-                            FirebaseAuth.instance.currentUser!.uid,
-                            _encodeToBase64(_profileImage)!);
+                        // Don't send a photo if it wasn't selected.
+                        if (_profileImage != null) {
+                          await UserApi().sendProfileImage(
+                              FirebaseAuth.instance.currentUser!.uid,
+                              _encodeToBase64(_profileImage)!);
+                        }
 
                         _error = null;
                         Navigator.pop(context);
