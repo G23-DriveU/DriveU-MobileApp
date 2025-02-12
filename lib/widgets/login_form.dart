@@ -75,8 +75,8 @@ class _LoginFormState extends State<LoginForm> {
                 _formKey.currentState!.save();
                 // Implement the login logic here
                 try {
-                  final response =
-                      await AuthService().login(_email!, _password!);
+                  final response = await AuthService()
+                      .login(_email!.trim(), _password!.trim());
                   // Handle successful login
                   if (response != null) {
                     throw Exception('Invalid email or password');

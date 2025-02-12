@@ -40,6 +40,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         } else if (mapState.endLocation == null) {
           Provider.of<MapState>(context, listen: false)
               .setEndLocation(position);
+          // Get a new set of trips to display
+          _loadMarkers();
         } else {
           // Reset the markers if both are already set
           Provider.of<MapState>(context, listen: false)
@@ -50,7 +52,6 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     }
   }
 
-  // TODO: Need to add the radius and the user's location
   void _loadMarkers() async {
     final mapState = Provider.of<MapState>(context, listen: false);
     // Load the markers
@@ -62,6 +63,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       'lng': mapState.endLocation?.longitude.toString() ??
           _center!.longitude.toString(),
       'roundTrip': mapState.wantRoundTrip.toString(),
+      // TODO: Change this to LatLng once Sean makes the changes
       'riderLocation': 'Knight Library, Orlando, FL'
     }, context, _showTripInfo);
 
@@ -174,12 +176,6 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
   @override
   void initState() {
-    // super.initState();
-    // // Get the current users' location
-    // _getUserLocation();
-    // // Load the initial set of markers
-    // _loadMarkers();
-
     super.initState();
     // Get the current users' location and then load the markers
     _getUserLocation().then((_) {

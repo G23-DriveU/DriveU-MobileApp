@@ -264,13 +264,14 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 ),
                 const SizedBox(height: 20),
                 _profileImage == null
-                    ? Image.network(
-                        width: 125,
-                        height: 125,
-                        'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ucf.edu%2Ffiles%2F2017%2F10%2Fknightro_two_hands_point.png&f=1&nofb=1&ipt=f3fcec4cda343ad6b15a1016a743684a41a977acedf9681488c0b9a807534670&ipo=images')
+                    ? Image.asset(
+                        'assets/images/knightro.bmp',
+                        height: 150,
+                        width: 150,
+                      )
                     : SizedBox(
-                        width: 100,
-                        height: 100,
+                        width: 150,
+                        height: 150,
                         child: Image.file(_profileImage!),
                       ),
                 ElevatedButton(

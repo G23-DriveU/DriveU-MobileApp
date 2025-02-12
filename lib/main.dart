@@ -1,12 +1,10 @@
 import 'package:driveu_mobile_app/firebase_options.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/pages/auth_page.dart';
-import 'package:driveu_mobile_app/services/api/pay_pal_api.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';
 import 'package:driveu_mobile_app/services/push_notification_service.dart';
 import 'package:driveu_mobile_app/theme/main_theme.dart';
 import 'package:driveu_mobile_app/widgets/pay_pal_webview.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -48,7 +46,6 @@ class _MainAppState extends State<MainApp> {
       debugShowCheckedModeBanner: false,
       theme: mainTheme,
       navigatorKey: navigatorKey,
-      // TODO: Add navigators here
       routes: {
         '/PayPalWebView': (context) => PayPalWebView(
             navigatorKey: navigatorKey,
