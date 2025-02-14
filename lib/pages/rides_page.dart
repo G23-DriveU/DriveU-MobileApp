@@ -33,8 +33,10 @@ class _RidesPageState extends State<RidesPage> {
   }
 
   Future<List<FutureTrip>> _loadFutureTrips() async {
-    return await TripApi()
-        .getFutureTrips({"userId": SingleUser().getUser()!.id.toString()});
+    String userType = SingleUser().getUser()!.driver ? 'driver' : 'rider';
+    return await TripApi().getFutureTrips({
+      "${userType}Id": SingleUser().getUser()!.id.toString(),
+    }, userType);
   }
 
   @override
@@ -47,8 +49,7 @@ class _RidesPageState extends State<RidesPage> {
             title: Text("My Planned Rides"),
           ),
           FutureBuilder<List<FutureTrip>>(
-            future: TripApi().getFutureTrips(
-                {"userId": SingleUser().getUser()!.id.toString()}),
+            future: _loadFutureTrips(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
@@ -72,8 +73,7 @@ class _RidesPageState extends State<RidesPage> {
             title: Text("My Previous Rides"),
           ),
           FutureBuilder<List<PastTrip>>(
-            future: TripApi().getPreviousTrips(
-                {"userId": SingleUser().getUser()!.id.toString()}),
+            future: _loadPastTrips(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();

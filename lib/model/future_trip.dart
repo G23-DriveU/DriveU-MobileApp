@@ -72,7 +72,9 @@ class FutureTrip {
         distance: json["distance"]?.toDouble(),
         isFull: json["isFull"],
         ets: json["ets"],
-        request: RideRequest.fromJson(json["rideRequest"]),
+        request: json["rideRequest"] == null
+            ? null
+            : RideRequest.fromJson(json["rideRequest"]),
         driver:
             json["driver"] == null ? null : AppUser.fromJson(json["driver"]),
       );
