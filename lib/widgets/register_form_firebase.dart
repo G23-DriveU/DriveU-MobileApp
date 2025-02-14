@@ -387,6 +387,14 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         onSaved: (value) => _carColor = value,
                         style: const TextStyle(fontFamily: 'Fredoka'),
                       ),
+                      // TODO: once auth code is received change
+                      ElevatedButton(
+                          onPressed: () async {
+                            final authCode = await Navigator.of(context)
+                                .pushNamed('/PayPalWebView');
+                            print("Printing code needed: $authCode");
+                          },
+                          child: const Text("Link PayPal"))
                     ],
                   ),
                 ElevatedButton(
@@ -395,6 +403,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                       _formKey.currentState!.save();
                       final response =
                           await AuthService().register(_email!, _password!);
+                      // TODO: Add authCode for PayPal drivers
                       if (response == null) {
                         SingleUser().setUser(AppUser(
                           firebaseUid: FirebaseAuth.instance.currentUser!.uid,

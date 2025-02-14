@@ -37,6 +37,7 @@ flutter:
     - assets/images/
     - assets/vehicle_models_cleaned.json
     - assets/us_institutions.json
+    - assets/paypal_login.html
   fonts:
     - family: Fredoka
       fonts:

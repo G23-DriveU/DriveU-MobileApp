@@ -49,7 +49,11 @@ class _MainAppState extends State<MainApp> {
       routes: {
         '/PayPalWebView': (context) => PayPalWebView(
             navigatorKey: navigatorKey,
-            url: ModalRoute.of(context)!.settings.arguments as String),
+            // If no url is supplied then it is for drivers to sign up since
+            // no prior info is need to process that request.
+            url: ModalRoute.of(context)!.settings.arguments == null
+                ? null
+                : ModalRoute.of(context)!.settings.arguments as String),
       },
     );
   }

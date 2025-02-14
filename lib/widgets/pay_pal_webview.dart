@@ -3,7 +3,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class PayPalWebView extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
-  final String url;
+  final String? url;
   const PayPalWebView(
       {super.key, required this.navigatorKey, required this.url});
 
@@ -19,26 +19,53 @@ class _PayPalWebViewState extends State<PayPalWebView> {
   @override
   void initState() {
     super.initState();
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(widget.url))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) {
-            if (url.contains('/after-approval')) {
-              // Capture the authorization ID from the url
-              String authId = Uri.parse(url).queryParameters['authId']!;
+    // Rider pay
+    if (widget.url != null) {
+      controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..loadRequest(Uri.parse(widget.url!))
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageFinished: (String url) {
+              if (url.contains('/after-approval')) {
+                // Capture the authorization ID from the url
+                String authId = Uri.parse(url).queryParameters['authId']!;
 
-              widget.navigatorKey.currentState?.pop(authId);
-              // Navigator.of(context).pop(authId);
-            }
-            // Handle the case where PayPal failed
-            else if (url.contains('/cancel')) {
-              widget.navigatorKey.currentState?.pop(null);
-            }
-          },
-        ),
-      );
+                widget.navigatorKey.currentState?.pop(authId);
+                // Navigator.of(context).pop(authId);
+              }
+              // Handle the case where PayPal failed
+              else if (url.contains('/cancel')) {
+                widget.navigatorKey.currentState?.pop(null);
+              }
+            },
+          ),
+        );
+    }
+    // Driver log into PayPal
+    else {
+      controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..loadFlutterAsset('assets/paypal_login.html')
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageFinished: (String url) {
+              print("DEBUG: Displaying url $url");
+              if (url.contains('driveu.online/signup')) {
+                // Capture the authorization ID from the url
+                String code = Uri.parse(url).queryParameters['code']!;
+
+                widget.navigatorKey.currentState?.pop(code);
+                // Navigator.of(context).pop(authId);
+              }
+              // Handle the case where PayPal failed
+              else if (url.contains('/cancel')) {
+                widget.navigatorKey.currentState?.pop(null);
+              }
+            },
+          ),
+        );
+    }
   }
 
   @override
