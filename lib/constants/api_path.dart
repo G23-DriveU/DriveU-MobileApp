@@ -15,7 +15,8 @@ const String REJECT_RIDE_REQUEST = '/rideRequestsByDriver';
 const String CREATE_RIDE_REQUEST = '/rideRequests';
 // Displaying trips
 const String PAST_TRIP = '/trips';
-const String FUTURE_TRIP = '/trips';
+const String FUTURE_TRIP_DRIVER = '/trips';
+const String FUTURE_TRIP_RIDER = '/trips';
 // TODO: PayPal API
 const String CREATE_PAYPAL_ORDER = '/pay';
 const String CAPTURE_PAYPAL_ORDER = '/capture-payment';

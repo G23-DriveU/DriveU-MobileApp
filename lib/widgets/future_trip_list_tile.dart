@@ -28,6 +28,10 @@ class FutureTripListTile extends StatelessWidget {
             ],
           ),
           actions: [
+            // If the current user is the driver for the trip, give them the option to start it
+            // TODO: Need some sort of start trip endpoint
+            if (SingleUser().getUser()!.driver)
+              TextButton(onPressed: () {}, child: const Text("Start")),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Close'),

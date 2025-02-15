@@ -14,6 +14,31 @@ class RidesPage extends StatefulWidget {
 }
 
 class _RidesPageState extends State<RidesPage> {
+  
+  // Store the past trips into a list
+  List<PastTrip>? previousTrips;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load planned rides and previous rides
+    _loadFutureTrips();
+    _loadPastTrips();
+  }
+
+  // Load the past trips as both a rider and driver
+  Future<List<PastTrip>> _loadPastTrips() async {
+    return await TripApi()
+        .getPreviousTrips({"userId": SingleUser().getUser()!.id.toString()});
+  }
+
+  Future<List<FutureTrip>> _loadFutureTrips() async {
+    String userType = SingleUser().getUser()!.driver ? 'driver' : 'rider';
+    return await TripApi().getFutureTrips({
+      "${userType}Id": SingleUser().getUser()!.id.toString(),
+    }, userType);
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,8 +58,7 @@ class _RidesPageState extends State<RidesPage> {
                 title: "Upcoming Trips",
                 icon: Icons.calendar_today,
                 futureBuilder: FutureBuilder<List<FutureTrip>>(
-                  future: TripApi().getFutureTrips(
-                    {"userId": SingleUser().getUser()!.id.toString()},
+                  future: _loadFutureTrips(),
                   ),
                   builder: (context, snapshot) {
                     return _buildContent(
@@ -51,22 +75,18 @@ class _RidesPageState extends State<RidesPage> {
                 ),
               ),
             ),
-
             // Divider
             Container(
               height: 1,
               margin: const EdgeInsets.symmetric(vertical: 8),
               color: Colors.grey[300],
             ),
-
             // Past Rides Section
             Expanded(
               child: _buildSection(
                 title: "Trip History",
                 icon: Icons.history,
-                futureBuilder: FutureBuilder<List<PastTrip>>(
-                  future: TripApi().getPreviousTrips(
-                    {"userId": SingleUser().getUser()!.id.toString()},
+                futureBuilder: _loadPastTrips(),
                   ),
                   builder: (context, snapshot) {
                     return _buildContent(

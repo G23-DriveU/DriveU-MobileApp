@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:driveu_mobile_app/model/app_user.dart';
+import 'package:driveu_mobile_app/model/ride_request.dart';
 
 // Get a singular trip
 FutureTrip futureTripFromJson(String str) =>
@@ -30,28 +31,29 @@ class FutureTrip {
   double distance;
   bool isFull;
   String ets;
+  RideRequest? request;
   // Who is the driver for this trip
   AppUser? driver;
 
-  FutureTrip({
-    required this.driverId,
-    required this.startLocation,
-    required this.destination,
-    required this.startTime,
-    required this.avoidHighways,
-    required this.avoidTolls,
-    required this.roundTrip,
-    required this.id,
-    required this.startLocationLat,
-    required this.startLocationLng,
-    required this.destinationLat,
-    required this.destinationLng,
-    required this.eta,
-    required this.distance,
-    required this.isFull,
-    required this.ets,
-    required this.driver,
-  });
+  FutureTrip(
+      {required this.driverId,
+      required this.startLocation,
+      required this.destination,
+      required this.startTime,
+      required this.avoidHighways,
+      required this.avoidTolls,
+      required this.roundTrip,
+      required this.id,
+      required this.startLocationLat,
+      required this.startLocationLng,
+      required this.destinationLat,
+      required this.destinationLng,
+      required this.eta,
+      required this.distance,
+      required this.isFull,
+      required this.ets,
+      required this.driver,
+      this.request});
 
   factory FutureTrip.fromJson(Map<String, dynamic> json) => FutureTrip(
         driverId: json["driverId"],
@@ -70,6 +72,9 @@ class FutureTrip {
         distance: json["distance"]?.toDouble(),
         isFull: json["isFull"],
         ets: json["ets"],
+        request: json["rideRequest"] == null
+            ? null
+            : RideRequest.fromJson(json["rideRequest"]),
         driver:
             json["driver"] == null ? null : AppUser.fromJson(json["driver"]),
       );

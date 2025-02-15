@@ -5,6 +5,7 @@ import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class VerifyEmail extends StatefulWidget {
@@ -45,9 +46,11 @@ class _VerifyEmailState extends State<VerifyEmail> {
     });
 
     try {
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+
       AppUser? user = await UserApi.getUser({
         'firebaseUid': FirebaseAuth.instance.currentUser!.uid,
-        'fcmToken': '123478a'
+        'fcmToken': fcmToken ?? ""
       });
       if (user != null) {
         setState(() {
@@ -60,13 +63,11 @@ class _VerifyEmailState extends State<VerifyEmail> {
         });
         // Kick the user back to the login screen
         AuthService().signOut();
-        print("Failed to load user data");
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print("Error loading user data: $e");
     }
   }
 

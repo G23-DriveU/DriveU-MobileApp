@@ -1,5 +1,6 @@
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
+import 'package:driveu_mobile_app/services/api/pay_pal_api.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         } else if (mapState.endLocation == null) {
           Provider.of<MapState>(context, listen: false)
               .setEndLocation(position);
+          // Get a new set of trips to display
+          _loadMarkers();
         } else {
           // Reset the markers if both are already set
           Provider.of<MapState>(context, listen: false)
@@ -49,16 +52,18 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     }
   }
 
-  // TODO: Need to add the radius and the user's location
   void _loadMarkers() async {
     final mapState = Provider.of<MapState>(context, listen: false);
     // Load the markers
     final markers = await TripApi().getTrips({
       'riderId': SingleUser().getUser()!.id.toString(),
       'radius': mapState.radius.toString(),
-      'lat': '28.6016',
-      'lng': '-81.2005',
+      'lat': mapState.endLocation?.latitude.toString() ??
+          _center!.latitude.toString(),
+      'lng': mapState.endLocation?.longitude.toString() ??
+          _center!.longitude.toString(),
       'roundTrip': mapState.wantRoundTrip.toString(),
+      // TODO: Change this to LatLng once Sean makes the changes
       'riderLocation': 'Knight Library, Orlando, FL'
     }, context, _showTripInfo);
 
@@ -70,7 +75,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   }
 
   // Get the current user's location
-  void _getUserLocation() async {
+  Future<void> _getUserLocation() async {
     Location userLocation = Location();
 
     bool serviceEnabled = await userLocation.serviceEnabled();
@@ -94,10 +99,12 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     // Grab the permission
     final userPostion = await userLocation.getLocation();
     if (_isMounted) {
+      final mapState = Provider.of<MapState>(context, listen: false);
       setState(() {
         // Set the user's position
         _userPosition = userPostion;
         _center = LatLng(userPostion.latitude!, userPostion.longitude!);
+        mapState.setEndLocation(_center);
         _trips?.add(Marker(
           markerId: const MarkerId('user'),
           icon:
@@ -127,6 +134,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                 Text("Start Location: ${trip.startLocation}"),
                 Text("Driver: ${trip.driver!.name}"),
                 Text("Car: ${trip.driver!.carMake} ${trip.driver!.carModel}"),
+                Text("Your Estimated Cost: ${trip.request?.riderCost}")
                 // Add more details as needed
               ],
             ),
@@ -136,18 +144,28 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                 child: const Text('Close'),
               ),
               ElevatedButton(
-                onPressed: () {
-                  TripApi().createRideRequest({
-                    'futureTripId': trip.id.toString(),
-                    'riderId': SingleUser().getUser()!.id!.toString(),
-                    // TODO: Need to change this prob to LatLng
-                    'riderLocation': 'Orlando, FL',
-                    'roundTrip': mapState.wantRoundTrip.toString(),
-                    // TODO: What is this
-                    'authorizationId': '1'
-                  });
-                  // Implement join ride request logic here
-                  Navigator.of(context).pop();
+                onPressed: () async {
+                  // Communicate with PayPal
+                  final payUrl = await PayPalApi().getPayUrl(
+                      {"tripCost": trip.request!.riderCost.toStringAsFixed(2)});
+
+                  final authId = await Navigator.of(context)
+                      .pushNamed('/PayPalWebView', arguments: payUrl);
+
+                  // We got an authId from the backend
+                  if (authId.runtimeType == String) {
+                    // Communicate with PostgreSQL
+                    TripApi().createRideRequest({
+                      'futureTripId': trip.id.toString(),
+                      'riderId': SingleUser().getUser()!.id!.toString(),
+                      // TODO: Need to change this prob to LatLng
+                      'riderLocation': 'Orlando, FL',
+                      'roundTrip': mapState.wantRoundTrip.toString(),
+                      'authorizationId': authId.toString()
+                    });
+                    // Request was successful
+                    Navigator.of(context).pop();
+                  }
                 },
                 child: const Text('Join Ride'),
               ),
@@ -159,10 +177,12 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   @override
   void initState() {
     super.initState();
-    // Get the current users' location
-    _getUserLocation();
-    // Load the initial set of markers
-    _loadMarkers();
+    // Get the current users' location and then load the markers
+    _getUserLocation().then((_) {
+      if (_center != null) {
+        _loadMarkers();
+      }
+    });
   }
 
   @override
@@ -195,10 +215,10 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     // Convert radius from miles to meters
     double radiusInMeters = mapState.radius * 1609.34;
 
-    if (mapState.startLocation != null) {
+    if (mapState.endLocation != null) {
       searchRadiusOverlay!.add(Circle(
         circleId: const CircleId('startCircle'),
-        center: mapState.startLocation!,
+        center: mapState.endLocation!,
         radius: radiusInMeters,
         fillColor: Colors.blue.withOpacity(0.5),
         strokeColor: Colors.blue,
