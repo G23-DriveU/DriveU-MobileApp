@@ -98,8 +98,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
     // Grab the permission
     final userPostion = await userLocation.getLocation();
-    final mapState = Provider.of<MapState>(context, listen: false);
     if (_isMounted) {
+      final mapState = Provider.of<MapState>(context, listen: false);
       setState(() {
         // Set the user's position
         _userPosition = userPostion;
