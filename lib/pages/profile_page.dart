@@ -9,45 +9,176 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final user = SingleUser().getUser();
+
     return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            const ListTile(
-              title: Text("Your Info"),
-            ),
-            Text("${FirebaseAuth.instance.currentUser?.email}"),
-            ImageFrame(firebaseUid: FirebaseAuth.instance.currentUser!.uid),
-            const Text("Name"),
-            Text(SingleUser().getUser()!.name),
-            const Text("Phone"),
-            Text(SingleUser().getUser()!.phoneNumber),
-            const Text("Email"),
-            Text(SingleUser().getUser()!.email),
-            const ListTile(
-              title: Text("Your Car"),
-            ),
-            SingleUser().getUser()?.driver == true
-                ? Column(
-                    children: [
-                      const Text("Make"),
-                      Text(SingleUser().getUser()!.carMake!),
-                      const Text("Model"),
-                      Text(SingleUser().getUser()!.carModel!),
-                      const Text("Plate Number"),
-                      Text(SingleUser().getUser()!.carPlate!),
-                      const Text("Color"),
-                      Text(SingleUser().getUser()!.carColor!),
-                    ],
-                  )
-                : const Text("You don't have a car on file"),
-            // TODO: should be at bottom
-            ElevatedButton(
-              onPressed: () => AuthService().signOut(),
-              child: const Text("Sign Out"),
-            )
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
+        child: Center(
+          child: Container(
+            margin: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.black, width: 2),
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFFFFB6C1), // Light pink
+                  Colors.white,
+                  Color(0xFFADD8E6), // Light blue
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 3,
+                )
+              ],
+            ),
+            padding: const EdgeInsets.all(25),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Profile Picture Section
+                  if (currentUser != null) ...[
+                    Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black, width: 2),
+                          ),
+                          child: ClipOval(
+                            child: SizedBox(
+                              width: 120,
+                              height: 120,
+                              child: ImageFrame(
+                                firebaseUid: currentUser.uid,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "Profile Picture",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+                  ] else
+                    const CircularProgressIndicator(),
+
+                  // User Info Section
+                  if (user != null) ...[
+                    _buildSectionTitle("User Information"),
+                    _buildInfoRow("Name", user.name ?? 'Not provided'),
+                    _buildInfoRow("Email", user.email ?? 'Not provided'),
+                    _buildInfoRow("Phone", user.phoneNumber ?? 'Not provided'),
+                    const SizedBox(height: 25),
+                  ],
+
+                  // Car Info Section (only for drivers)
+                  if (user != null && user.driver == true) ...[
+                    _buildSectionTitle("Vehicle Details"),
+                    if (user.carMake != null) _buildInfoRow("Make", user.carMake!),
+                    if (user.carModel != null) _buildInfoRow("Model", user.carModel!),
+                    if (user.carPlate != null) _buildInfoRow("Plate", user.carPlate!),
+                    if (user.carColor != null) _buildInfoRow("Color", user.carColor!),
+                    const SizedBox(height: 25),
+                  ] else if (user != null)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        "No Vehicle Information",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+
+                  // Sign Out Button
+                  ElevatedButton(
+                    onPressed: () => AuthService().signOut(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        side: const BorderSide(color: Colors.white),
+                      ),
+                    ),
+                    child: const Text(
+                      "Sign Out",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "$label:",
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+          ),
+        ],
       ),
     );
   }
