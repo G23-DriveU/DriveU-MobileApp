@@ -31,8 +31,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
   // TODO: Will need to add another for the driver which will enable them to set their ending location?
   void _handleLongPressRider(LatLng position) {
-    final mapState = Provider.of<MapState>(context, listen: false);
     if (_isMounted) {
+      final mapState = Provider.of<MapState>(context, listen: false);
       setState(() {
         if (mapState.startLocation == null) {
           Provider.of<MapState>(context, listen: false)
@@ -52,20 +52,28 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     }
   }
 
+  // Retrieves a set of markers of future trips. For riders, they see a set of
+  // future trips to join. For drivers, they see a set of future trips they have planned.
   void _loadMarkers() async {
     final mapState = Provider.of<MapState>(context, listen: false);
     // Load the markers
-    final markers = await TripApi().getTrips({
-      'riderId': SingleUser().getUser()!.id.toString(),
-      'radius': mapState.radius.toString(),
-      'lat': mapState.endLocation?.latitude.toString() ??
-          _center!.latitude.toString(),
-      'lng': mapState.endLocation?.longitude.toString() ??
-          _center!.longitude.toString(),
-      'roundTrip': mapState.wantRoundTrip.toString(),
-      // TODO: Change this to LatLng once Sean makes the changes
-      'riderLocation': 'Knight Library, Orlando, FL'
-    }, context, _showTripInfo);
+    final markers = SingleUser().getUser()!.driver
+        // Retrieve driver's trips
+        ? await TripApi().getTrips({
+            'driverId': SingleUser().getUser()!.id.toString(),
+          }, context, _showTripInfo)
+        // Retrieve trips by radius for rider
+        : await TripApi().getTrips({
+            'riderId': SingleUser().getUser()!.id.toString(),
+            'radius': mapState.radius.toString(),
+            'lat': mapState.endLocation?.latitude.toString() ??
+                _center!.latitude.toString(),
+            'lng': mapState.endLocation?.longitude.toString() ??
+                _center!.longitude.toString(),
+            'roundTrip': mapState.wantRoundTrip.toString(),
+            'riderLat': _userPosition!.latitude.toString(),
+            'riderLng': _userPosition!.longitude.toString()
+          }, context, _showTripInfo);
 
     if (_isMounted) {
       setState(() {
@@ -158,8 +166,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                     TripApi().createRideRequest({
                       'futureTripId': trip.id.toString(),
                       'riderId': SingleUser().getUser()!.id!.toString(),
-                      // TODO: Need to change this prob to LatLng
-                      'riderLocation': 'Orlando, FL',
+                      'riderLat': _userPosition!.latitude.toString(),
+                      'riderLng': _userPosition!.longitude.toString(),
                       'roundTrip': mapState.wantRoundTrip.toString(),
                       'authorizationId': authId.toString()
                     });

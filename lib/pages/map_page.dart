@@ -11,6 +11,9 @@ import 'package:provider/provider.dart';
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
 
+  // Show a dialog for either
+  // 1) Setting search radius if user is a rider
+  // 2) Creating rides if the user is a driver
   void _showDialog(BuildContext context) {
     showDialog(
         context: context,

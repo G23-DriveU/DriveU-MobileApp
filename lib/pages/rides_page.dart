@@ -14,7 +14,6 @@ class RidesPage extends StatefulWidget {
 }
 
 class _RidesPageState extends State<RidesPage> {
-  
   // Store the past trips into a list
   List<PastTrip>? previousTrips;
 
@@ -38,7 +37,7 @@ class _RidesPageState extends State<RidesPage> {
       "${userType}Id": SingleUser().getUser()!.id.toString(),
     }, userType);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +58,6 @@ class _RidesPageState extends State<RidesPage> {
                 icon: Icons.calendar_today,
                 futureBuilder: FutureBuilder<List<FutureTrip>>(
                   future: _loadFutureTrips(),
-                  ),
                   builder: (context, snapshot) {
                     return _buildContent(
                       snapshot: snapshot,
@@ -86,8 +84,8 @@ class _RidesPageState extends State<RidesPage> {
               child: _buildSection(
                 title: "Trip History",
                 icon: Icons.history,
-                futureBuilder: _loadPastTrips(),
-                  ),
+                futureBuilder: FutureBuilder<List<PastTrip>>(
+                  future: _loadPastTrips(),
                   builder: (context, snapshot) {
                     return _buildContent(
                       snapshot: snapshot,
