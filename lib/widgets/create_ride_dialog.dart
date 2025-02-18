@@ -1,6 +1,13 @@
+import 'package:driveu_mobile_app/model/map_state.dart';
+import 'package:driveu_mobile_app/services/api/trip_api.dart';
+import 'package:driveu_mobile_app/services/google_maps_utils.dart';
+import 'package:driveu_mobile_app/services/single_user.dart';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 
-// TODO: will need to add Google Maps here for textual autofill
 class CreateRideDialog extends StatefulWidget {
   const CreateRideDialog({super.key});
 
@@ -10,7 +17,26 @@ class CreateRideDialog extends StatefulWidget {
 
 class _CreateRideDialogState extends State<CreateRideDialog> {
   bool avoidTolls = false, avoidHighways = false, roundTrip = false;
-  TimeOfDay? selectedTime;
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+  Duration _duration = Duration(hours: 0, minutes: 0);
+  final TextEditingController _startController = TextEditingController();
+  final TextEditingController _endController = TextEditingController();
+
+  // Enable user to select a date for the ride
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime now = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: now,
+        firstDate: now,
+        lastDate: DateTime(now.year + 1));
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
 
   // Select a time for the ride to start
   Future<void> _selectTime(BuildContext context) async {
@@ -24,7 +50,7 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
         (picked.hour > now.hour ||
             (picked.hour == now.hour && picked.minute >= now.minute))) {
       setState(() {
-        selectedTime = picked;
+        _selectedTime = picked;
       });
     } else {
       // Show an error message if the selected time is before the current time
@@ -37,6 +63,15 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
     }
   }
 
+  int? _secondsSinceEpoch() {
+    if (_selectedDate != null && _selectedTime != null) {
+      final DateTime tse = DateTime(_selectedDate!.year, _selectedDate!.month,
+          _selectedDate!.day, _selectedTime!.hour, _selectedTime!.minute);
+      return (tse.millisecondsSinceEpoch ~/ 1000);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -44,17 +79,83 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const TextField(
-            decoration: InputDecoration(hintText: 'Enter origin'),
+          TypeAheadField(
+            controller: _startController,
+            // hideOnEmpty: true,
+            builder: (context, controller, focusNode) => TextField(
+              controller: _startController,
+              focusNode: focusNode,
+              decoration: const InputDecoration(
+                hintText: 'Start Location',
+              ),
+            ),
+            suggestionsCallback: (pattern) async {
+              // Call the Google Maps API to get the suggestions
+              return await GoogleMapsUtils().getLocations(pattern);
+            },
+            onSelected: (suggestion) async {
+              // Once a location is selected, call the Google Maps API to get the location details
+              final finalLoc = await GoogleMapsUtils()
+                  .getLocationDetails(suggestion['place_id']);
+
+              _startController.text = suggestion['description'].toString();
+
+              if (finalLoc != null) {
+                Provider.of<MapState>(context, listen: false).setStartLocation(
+                    LatLng(finalLoc.latitude, finalLoc.longitude));
+              }
+            },
+            itemBuilder: (context, suggest) {
+              return ListTile(
+                title: Text(suggest['description']),
+              );
+            },
           ),
-          const TextField(
-            decoration: InputDecoration(hintText: 'Enter destination'),
+          TypeAheadField(
+            controller: _endController,
+            // hideOnEmpty: true,
+            builder: (context, controller, focusNode) => TextField(
+              controller: _endController,
+              focusNode: focusNode,
+              decoration: const InputDecoration(
+                hintText: 'End Location',
+              ),
+            ),
+            suggestionsCallback: (pattern) async {
+              // Call the Google Maps API to get the suggestions
+              return await GoogleMapsUtils().getLocations(pattern);
+            },
+            onSelected: (suggestion) async {
+              // Once a location is selected, call the Google Maps API to get the location details
+              final finalLoc = await GoogleMapsUtils()
+                  .getLocationDetails(suggestion['place_id']);
+
+              _endController.text = suggestion['description'].toString();
+
+              if (finalLoc != null) {
+                Provider.of<MapState>(context, listen: false).setEndLocation(
+                    LatLng(finalLoc.latitude, finalLoc.longitude));
+              }
+            },
+            itemBuilder: (context, suggest) {
+              return ListTile(
+                title: Text(suggest['description']),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text("Select Date"),
+            trailing: _selectedDate == null
+                ? const Text("Select Date")
+                : Text(
+                    "${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}"),
+            onTap: () => _selectDate(context),
           ),
           ListTile(
             title: const Text("Select Time"),
-            trailing: selectedTime == null
+            trailing: _selectedTime == null
                 ? const Text("Select Time")
-                : Text("${selectedTime!.hour}:${selectedTime!.minute}"),
+                : Text("${_selectedTime!.hour}:${_selectedTime!.minute}"),
             onTap: () => _selectTime(context),
           ),
           CheckboxListTile(
@@ -84,6 +185,18 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
               });
             },
           ),
+          if (roundTrip)
+            Column(
+              children: [
+                Text("How Long do You Plan to Stay?"),
+                DurationPicker(
+                  onChange: (val) => setState(() {
+                    _duration = val;
+                  }),
+                  duration: _duration,
+                )
+              ],
+            ),
         ],
       ),
       actions: [
@@ -92,9 +205,46 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: () {
-            // Handle ride creation
-            Navigator.of(context).pop();
+          onPressed: () async {
+            final int? epochSeconds = _secondsSinceEpoch();
+            if (epochSeconds != null) {
+              // Send epochSeconds to your backend
+              print("Epoch seconds: $epochSeconds");
+            }
+
+            try {
+              final response = await TripApi().createTrip({
+                'driverId': SingleUser().getUser()!.id.toString(),
+                'startTime': epochSeconds.toString(),
+                'avoidHighways': avoidHighways.toString(),
+                'avoidTolls': avoidTolls.toString(),
+                'roundTrip': roundTrip.toString(),
+                'startLocationLat':
+                    Provider.of<MapState>(context, listen: false)
+                        .startLocation
+                        .latitude
+                        .toString(),
+                'startLocationLng':
+                    Provider.of<MapState>(context, listen: false)
+                        .startLocation
+                        .longitude
+                        .toString(),
+                'destinationLat': Provider.of<MapState>(context, listen: false)
+                    .endLocation
+                    .latitude
+                    .toString(),
+                'destinationLng': Provider.of<MapState>(context, listen: false)
+                    .endLocation
+                    .longitude
+                    .toString(),
+                'timeAtDestination': _duration.inSeconds.toString()
+              });
+
+              Navigator.of(context).pop();
+            } on Exception catch (e) {
+              // Some error
+              print("DEBUG: There was an error creating the trip $e");
+            }
           },
           child: const Text('Create'),
         ),

@@ -6,6 +6,7 @@ import 'package:driveu_mobile_app/services/api/single_client.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart';
 
 class TripApi {
   Future<Set<Marker>> getTrips(Map<String, String> queryParameters,
@@ -78,6 +79,21 @@ class TripApi {
       }
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<void> createTrip(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .post(FUTURE_TRIPS_CRUD, queryParameters: queryParameters);
+
+      if (response.statusCode == 201) {
+        return;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 

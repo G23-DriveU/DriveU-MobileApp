@@ -152,6 +152,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                 child: const Text('Close'),
               ),
               ElevatedButton(
+                // TODO: this will change based on if rider or driver
                 onPressed: () async {
                   // Communicate with PayPal
                   final payUrl = await PayPalApi().getPayUrl(

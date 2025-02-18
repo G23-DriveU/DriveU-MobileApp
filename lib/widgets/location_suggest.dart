@@ -37,8 +37,6 @@ class LocationSuggest extends StatelessWidget {
               final finalLoc = await GoogleMapsUtils()
                   .getLocationDetails(suggestion['place_id']);
 
-              // locationsMap[index]['lat'] = finalLoc?['lat'] ?? 0;
-              // locationsMap[index]['lng'] = finalLoc?['lng'] ?? 0;
               _controller.text = suggestion['description'].toString();
             },
             itemBuilder: (context, suggest) {
