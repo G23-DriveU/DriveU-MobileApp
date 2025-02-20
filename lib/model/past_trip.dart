@@ -23,7 +23,8 @@ class PastTrip {
   double riderCost;
   double distance;
   int id;
-  AppUser driver;
+  AppUser? rider;
+  AppUser? driver;
 
   PastTrip({
     required this.driverId,
@@ -42,7 +43,8 @@ class PastTrip {
     required this.riderCost,
     required this.distance,
     required this.id,
-    required this.driver,
+    this.rider,
+    this.driver,
   });
 
   factory PastTrip.fromJson(Map<String, dynamic> json) => PastTrip(
@@ -62,7 +64,8 @@ class PastTrip {
         riderCost: json["riderCost"]?.toDouble(),
         distance: json["distance"]?.toDouble(),
         id: json["id"],
-        driver: AppUser.fromJson(json["driver"] ?? json["rider"]),
+        rider: AppUser.fromJson(json["rider"]),
+        driver: AppUser.fromJson(json["driver"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -82,6 +85,7 @@ class PastTrip {
         "riderCost": riderCost,
         "distance": distance,
         "id": id,
-        "driver": driver.toJson(),
+        "driver": driver?.toJson() ?? "",
+        "rider": rider?.toJson() ?? ""
       };
 }

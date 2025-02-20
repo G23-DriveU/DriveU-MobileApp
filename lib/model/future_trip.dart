@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:driveu_mobile_app/model/app_user.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
 
@@ -32,7 +31,6 @@ class FutureTrip {
   bool isFull;
   String ets;
   RideRequest? request;
-  // Who is the driver for this trip
   AppUser? driver;
 
   FutureTrip(

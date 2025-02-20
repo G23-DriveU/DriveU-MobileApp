@@ -29,7 +29,9 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _carModel,
       _carPlate,
       _carColor,
-      _error;
+      _authCode,
+      _error,
+      _paypalError;
   bool _passwordsMatch = true, _isDriver = false;
   File? _profileImage;
   Map<String, List<String>> _carData = {};
@@ -387,23 +389,43 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         onSaved: (value) => _carColor = value,
                         style: const TextStyle(fontFamily: 'Fredoka'),
                       ),
-                      // TODO: once auth code is received change
                       ElevatedButton(
                           onPressed: () async {
                             final authCode = await Navigator.of(context)
                                 .pushNamed('/PayPalWebView');
                             print("Printing code needed: $authCode");
+                            if (authCode.runtimeType == String) {
+                              _authCode = authCode as String?;
+                            } else {
+                              _authCode = null;
+                            }
                           },
                           child: const Text("Link PayPal"))
                     ],
+                  ),
+                if (_paypalError != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _paypalError!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   ),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
+                      // If they want to be a driver and they haven't gotten the auth code, then invalidate the form
+                      if (_isDriver && _authCode == null) {
+                        setState(() {
+                          _paypalError =
+                              'Please link your PayPal account to continue.';
+                        });
+                        return;
+                      }
                       final response =
                           await AuthService().register(_email!, _password!);
-                      // TODO: Add authCode for PayPal drivers
+
                       if (response == null) {
                         SingleUser().setUser(AppUser(
                           firebaseUid: FirebaseAuth.instance.currentUser!.uid,
@@ -418,7 +440,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           carColor: _carColor,
                         ));
                         await UserApi().createUser(
-                            SingleUser().getUser()!.toQueryParams());
+                            SingleUser().getUser()!.toQueryParams(_authCode));
                         // Don't send a photo if it wasn't selected.
                         if (_profileImage != null) {
                           await UserApi().sendProfileImage(

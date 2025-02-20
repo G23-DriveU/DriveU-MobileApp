@@ -17,14 +17,6 @@ class _RidesPageState extends State<RidesPage> {
   // Store the past trips into a list
   List<PastTrip>? previousTrips;
 
-  @override
-  void initState() {
-    super.initState();
-    // Load planned rides and previous rides
-    _loadFutureTrips();
-    _loadPastTrips();
-  }
-
   // Load the past trips as both a rider and driver
   Future<List<PastTrip>> _loadPastTrips() async {
     return await TripApi()

@@ -8,6 +8,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
+// TODO: Add some field verification along with dialogs to let users know successful action
 class CreateRideDialog extends StatefulWidget {
   const CreateRideDialog({super.key});
 
@@ -104,6 +105,9 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
                 Provider.of<MapState>(context, listen: false).setStartLocation(
                     LatLng(finalLoc.latitude, finalLoc.longitude));
               }
+
+              // Unfocus the text field
+              FocusScope.of(context).requestFocus(FocusNode());
             },
             itemBuilder: (context, suggest) {
               return ListTile(
@@ -136,6 +140,9 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
                 Provider.of<MapState>(context, listen: false).setEndLocation(
                     LatLng(finalLoc.latitude, finalLoc.longitude));
               }
+
+              // Unfocus the text field when a selection is made
+              FocusScope.of(context).requestFocus(FocusNode());
             },
             itemBuilder: (context, suggest) {
               return ListTile(
@@ -207,10 +214,6 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
         TextButton(
           onPressed: () async {
             final int? epochSeconds = _secondsSinceEpoch();
-            if (epochSeconds != null) {
-              // Send epochSeconds to your backend
-              print("Epoch seconds: $epochSeconds");
-            }
 
             try {
               final response = await TripApi().createTrip({

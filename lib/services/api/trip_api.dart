@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/past_trip.dart';
+import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:flutter/material.dart';
@@ -108,6 +109,23 @@ class TripApi {
       }
     } catch (e) {
       return;
+    }
+  }
+
+  Future<List<RideRequest>> getRideRequests(
+      Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .get(RIDE_REQUEST_DRIVER, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return rideRequestsFromJson(jsonEncode(data['items']));
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      return [];
     }
   }
 }

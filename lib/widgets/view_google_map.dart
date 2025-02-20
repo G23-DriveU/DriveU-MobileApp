@@ -1,8 +1,9 @@
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
-import 'package:driveu_mobile_app/services/api/pay_pal_api.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
+import 'package:driveu_mobile_app/widgets/driver_alert_dialog_future_trip.dart';
+import 'package:driveu_mobile_app/widgets/rider_alert_dialog_future_trip.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -132,54 +133,11 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     showDialog(
         context: context,
         builder: (context) {
-          final mapState = Provider.of<MapState>(context);
-          return AlertDialog(
-            title: Text("${trip.driver!.name}'s Trip"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Destination: ${trip.destination}"),
-                Text("Start Location: ${trip.startLocation}"),
-                Text("Driver: ${trip.driver!.name}"),
-                Text("Car: ${trip.driver!.carMake} ${trip.driver!.carModel}"),
-                Text("Your Estimated Cost: ${trip.request?.riderCost}")
-                // Add more details as needed
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
-              ),
-              ElevatedButton(
-                // TODO: this will change based on if rider or driver
-                onPressed: () async {
-                  // Communicate with PayPal
-                  final payUrl = await PayPalApi().getPayUrl(
-                      {"tripCost": trip.request!.riderCost.toStringAsFixed(2)});
-
-                  final authId = await Navigator.of(context)
-                      .pushNamed('/PayPalWebView', arguments: payUrl);
-
-                  // We got an authId from the backend
-                  if (authId.runtimeType == String) {
-                    // Communicate with PostgreSQL
-                    TripApi().createRideRequest({
-                      'futureTripId': trip.id.toString(),
-                      'riderId': SingleUser().getUser()!.id!.toString(),
-                      'riderLat': _userPosition!.latitude.toString(),
-                      'riderLng': _userPosition!.longitude.toString(),
-                      'roundTrip': mapState.wantRoundTrip.toString(),
-                      'authorizationId': authId.toString()
-                    });
-                    // Request was successful
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: const Text('Join Ride'),
-              ),
-            ],
-          );
+          return SingleUser().getUser()!.driver
+              ? DriverAlertDialogFutureTrip(
+                  trip: trip, userPosition: _userPosition)
+              : RiderAlertDialogFutureTrip(
+                  trip: trip, userPosition: _userPosition);
         });
   }
 
@@ -224,7 +182,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     // Convert radius from miles to meters
     double radiusInMeters = mapState.radius * 1609.34;
 
-    if (mapState.endLocation != null) {
+    if (!SingleUser().getUser()!.driver && mapState.endLocation != null) {
       searchRadiusOverlay!.add(Circle(
         circleId: const CircleId('startCircle'),
         center: mapState.endLocation!,

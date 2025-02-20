@@ -6,10 +6,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 class LocationSuggest extends StatelessWidget {
-  // Map which holds the locations
-  // final List<Map<String, double>> locationsMap;
-  // Where in the map to add the location
-  // final int index;
   final TextEditingController _controller = TextEditingController();
   LocationSuggest({super.key});
 

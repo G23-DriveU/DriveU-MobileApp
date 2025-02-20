@@ -13,21 +13,15 @@ class AuthService {
         password: password,
       );
 
-      print("Successfully registered user: and returning null");
       // Successful register, now onto email verification
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        // TODO: Show a dialog or toast to let user know error
-        print('The password provided is too weak.');
         return e.code.toString();
       } else if (e.code == 'email-already-in-use') {
-        // TODO: Show a dialog or toast to let user know error
-        print('The account already exists for that email.');
         return e.code.toString();
       }
     } catch (e) {
-      print("Debugging error $e");
       return e.toString();
     }
     return null;
