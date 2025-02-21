@@ -213,6 +213,13 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
         ),
         TextButton(
           onPressed: () async {
+            // Some field verification
+            if (_startController.text == "" || _endController.text == "") {
+              return;
+            }
+            if (_selectedDate == null || _selectedTime == null) {
+              return;
+            }
             final int? epochSeconds = _secondsSinceEpoch();
 
             try {

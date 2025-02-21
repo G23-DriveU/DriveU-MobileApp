@@ -150,48 +150,24 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         _loadMarkers();
       }
     });
+
+    // // Add a listener to the MapState to reload markers when the radius changes
+    // final mapState = Provider.of<MapState>(context, listen: false);
+    // mapState.addListener(_loadMarkers);
   }
 
   @override
   void dispose() {
+    // // Remove the listeners to avoid memory leaks
+    // final mapState = Provider.of<MapState>(context, listen: false);
+    // mapState.removeListener(_loadMarkers);
+
     super.dispose();
     _isMounted = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    final mapState = Provider.of<MapState>(context);
-
-    if (mapState.startLocation != null) {
-      _trips?.add(Marker(
-        markerId: const MarkerId('start'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        position: mapState.startLocation!,
-        infoWindow: const InfoWindow(title: 'Start Location'),
-      ));
-    }
-    if (mapState.endLocation != null) {
-      _trips?.add(Marker(
-        markerId: const MarkerId('end'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-        position: mapState.endLocation!,
-        infoWindow: const InfoWindow(title: 'End Location'),
-      ));
-    }
-
-    // Convert radius from miles to meters
-    double radiusInMeters = mapState.radius * 1609.34;
-
-    if (!SingleUser().getUser()!.driver && mapState.endLocation != null) {
-      searchRadiusOverlay!.add(Circle(
-        circleId: const CircleId('startCircle'),
-        center: mapState.endLocation!,
-        radius: radiusInMeters,
-        fillColor: Colors.blue.withOpacity(0.5),
-        strokeColor: Colors.blue,
-        strokeWidth: 2,
-      ));
-    }
     return _center == null
         ? const Scaffold(
             body: Center(
@@ -199,16 +175,55 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
             ),
           )
         : Scaffold(
-            body: GoogleMap(
-                markers: _trips ?? {},
-                zoomControlsEnabled: false,
-                zoomGesturesEnabled: true,
-                initialCameraPosition:
-                    CameraPosition(target: _center!, zoom: 11),
-                onMapCreated: _onMapCreated,
-                // TODO: This is going to have to be different depending on if rider or driver
-                onLongPress: _handleLongPressRider,
-                circles: searchRadiusOverlay ?? {}),
+            body: Consumer<MapState>(
+              builder: (context, mapState, child) {
+                if (mapState.startLocation != null) {
+                  _trips?.add(Marker(
+                    markerId: const MarkerId('start'),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueGreen),
+                    position: mapState.startLocation!,
+                    infoWindow: const InfoWindow(title: 'Start Location'),
+                  ));
+                }
+                if (mapState.endLocation != null) {
+                  _trips?.add(Marker(
+                    markerId: const MarkerId('end'),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueOrange),
+                    position: mapState.endLocation!,
+                    infoWindow: const InfoWindow(title: 'End Location'),
+                  ));
+                }
+
+                double radiusInMeters = mapState.radius * 1609.34;
+
+                if (!SingleUser().getUser()!.driver &&
+                    mapState.endLocation != null) {
+                  searchRadiusOverlay = {
+                    Circle(
+                      circleId: const CircleId('startCircle'),
+                      center: mapState.endLocation!,
+                      radius: radiusInMeters,
+                      fillColor: Colors.blue.withOpacity(0.5),
+                      strokeColor: Colors.blue,
+                      strokeWidth: 2,
+                    )
+                  };
+                }
+
+                return GoogleMap(
+                  markers: _trips ?? {},
+                  zoomControlsEnabled: false,
+                  zoomGesturesEnabled: true,
+                  initialCameraPosition:
+                      CameraPosition(target: _center!, zoom: 11),
+                  onMapCreated: _onMapCreated,
+                  onLongPress: _handleLongPressRider,
+                  circles: searchRadiusOverlay!,
+                );
+              },
+            ),
           );
   }
 }

@@ -34,6 +34,9 @@ class LocationSuggest extends StatelessWidget {
                   .getLocationDetails(suggestion['place_id']);
 
               _controller.text = suggestion['description'].toString();
+
+              // Unfocus the text field
+              FocusScope.of(context).requestFocus(FocusNode());
             },
             itemBuilder: (context, suggest) {
               return ListTile(
@@ -54,6 +57,9 @@ class LocationSuggest extends StatelessWidget {
                               .setStartLocation(LatLng(
                                   latlngLoc.latitude, latlngLoc.longitude));
                         }
+
+                        // Unfocus the text field
+                        FocusScope.of(context).requestFocus(FocusNode());
                       },
                     ),
                     IconButton(
@@ -68,6 +74,9 @@ class LocationSuggest extends StatelessWidget {
                               .setEndLocation(LatLng(
                                   latlngLoc.latitude, latlngLoc.longitude));
                         }
+
+                        // Unfocus the text field
+                        FocusScope.of(context).requestFocus(FocusNode());
                       },
                     ),
                   ],

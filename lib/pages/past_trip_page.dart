@@ -33,7 +33,7 @@ class _PastTripPageState extends State<PastTripPage> {
               "Driver: ${widget.trip.driver?.name ?? SingleUser().getUser()!.name}"),
           Text(
               "Car: ${"${widget.trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${widget.trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"}"),
-// Display driver specific information about the trip
+          // Display driver specific information about the trip
           if (widget.trip.driverId == SingleUser().getUser()!.id)
             Column(
               children: [
