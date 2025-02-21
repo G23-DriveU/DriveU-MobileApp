@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:driveu_mobile_app/model/app_user.dart';
+import 'package:driveu_mobile_app/model/future_trip.dart';
 
 // Get a single ride request
 RideRequest rideRequestFromJson(String str) =>
@@ -28,6 +29,7 @@ class RideRequest {
   double driverPayout;
   double distance;
   int? dropoffTime;
+  FutureTrip? futureTrip;
   AppUser? rider;
 
   RideRequest({
@@ -46,12 +48,13 @@ class RideRequest {
     required this.driverPayout,
     required this.distance,
     this.dropoffTime,
+    this.futureTrip,
     this.rider,
   });
 
   factory RideRequest.fromJson(Map<String, dynamic> json) => RideRequest(
       futureTripId: json["futureTripId"],
-      riderId: json["riderId"],
+      riderId: json["riderId"].toString(),
       riderLocation: json["riderLocation"],
       status: json["status"],
       authorizationId: json["authorizationId"],
@@ -59,12 +62,17 @@ class RideRequest {
       id: json["id"],
       riderLocationLat: json["riderLocationLat"]?.toDouble(),
       riderLocationLng: json["riderLocationLng"]?.toDouble(),
-      pickupTime: json["pickupTime"],
-      eta: json["eta"],
+      pickupTime: json["pickupTime"] != null
+          ? int.tryParse(json["pickupTime"].toString())
+          : null,
+      eta: int.tryParse(json["eta"].toString()),
       riderCost: json["riderCost"]?.toDouble(),
       driverPayout: json["driverPayout"]?.toDouble(),
       distance: json["distance"]?.toDouble(),
       dropoffTime: json["dropoffTime"],
+      futureTrip: json["futureTrip"] != null
+          ? FutureTrip.fromJson(json["futureTrip"])
+          : null,
       rider: json["rider"] != null ? AppUser.fromJson(json["rider"]) : null);
 
   Map<String, dynamic> toJson() => {

@@ -1,5 +1,6 @@
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/past_trip.dart';
+import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/future_trip_list_tile.dart';
@@ -14,20 +15,21 @@ class RidesPage extends StatefulWidget {
 }
 
 class _RidesPageState extends State<RidesPage> {
-  // Store the past trips into a list
-  List<PastTrip>? previousTrips;
-
   // Load the past trips as both a rider and driver
   Future<List<PastTrip>> _loadPastTrips() async {
     return await TripApi()
         .getPreviousTrips({"userId": SingleUser().getUser()!.id.toString()});
   }
 
-  Future<List<FutureTrip>> _loadFutureTrips() async {
-    String userType = SingleUser().getUser()!.driver ? 'driver' : 'rider';
+  Future<List<FutureTrip>> _loadFutureTripsDriver() async {
     return await TripApi().getFutureTrips({
-      "${userType}Id": SingleUser().getUser()!.id.toString(),
-    }, userType);
+      "driverId": SingleUser().getUser()!.id.toString(),
+    });
+  }
+
+  Future<List<RideRequest>> _loadFutureTripsRider() async {
+    return await TripApi().getRiderFutureTrips(
+        {"riderId": SingleUser().getUser()!.id.toString()});
   }
 
   @override
@@ -48,21 +50,9 @@ class _RidesPageState extends State<RidesPage> {
               child: _buildSection(
                 title: "Upcoming Trips",
                 icon: Icons.calendar_today,
-                futureBuilder: FutureBuilder<List<FutureTrip>>(
-                  future: _loadFutureTrips(),
-                  builder: (context, snapshot) {
-                    return _buildContent(
-                      snapshot: snapshot,
-                      emptyText: "No upcoming trips planned",
-                      builder: (data) => ListView.builder(
-                        itemCount: data.length,
-                        itemBuilder: (context, index) => FutureTripListTile(
-                          futureTrip: data[index],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                futureBuilder: SingleUser().getUser()!.driver
+                    ? futureTripDriver()
+                    : futureTripRider(),
               ),
             ),
             // Divider
@@ -96,6 +86,42 @@ class _RidesPageState extends State<RidesPage> {
           ],
         ),
       ),
+    );
+  }
+
+  FutureBuilder<List<FutureTrip>> futureTripDriver() {
+    return FutureBuilder<List<FutureTrip>>(
+      future: _loadFutureTripsDriver(),
+      builder: (context, snapshot) {
+        return _buildContent(
+          snapshot: snapshot,
+          emptyText: "No upcoming trips planned",
+          builder: (data) => ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) => FutureTripListTile(
+              futureTrip: data[index],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  FutureBuilder<List<RideRequest>> futureTripRider() {
+    return FutureBuilder<List<RideRequest>>(
+      future: _loadFutureTripsRider(),
+      builder: (context, snapshot) {
+        return _buildContent(
+          snapshot: snapshot,
+          emptyText: "No upcoming trips planned",
+          builder: (data) => ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) => FutureTripListTile(
+              rideRequest: data[index],
+            ),
+          ),
+        );
+      },
     );
   }
 

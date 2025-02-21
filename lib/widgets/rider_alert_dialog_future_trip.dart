@@ -55,7 +55,7 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
             // We got an authId from the backend
             if (authId.runtimeType == String) {
               // Communicate with PostgreSQL
-              TripApi().createRideRequest({
+              await TripApi().createRideRequest({
                 'futureTripId': widget.trip.id.toString(),
                 'riderId': SingleUser().getUser()!.id!.toString(),
                 'riderLat': widget.userPosition!.latitude.toString(),
@@ -65,6 +65,9 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
               });
               // Request was successful
               Navigator.of(context).pop();
+              print("Successfull Request made");
+            } else {
+              print("Failed to get PayPal credentials, canceling transaction");
             }
           },
           child: const Text('Join Ride'),

@@ -63,18 +63,36 @@ class TripApi {
   }
 
   Future<List<FutureTrip>> getFutureTrips(
-      Map<String, String> queryParameters, String type) async {
+      Map<String, String> queryParameters) async {
     // Dynamically determine which trips to get, if the user is a rider, then get rider and vis. versa.
-    String getTrip = type == 'rider' ? FUTURE_TRIPS_RIDER : FUTURE_TRIPS_DRIVER;
     try {
-      final response =
-          await SingleClient().get(getTrip, queryParameters: queryParameters);
+      final response = await SingleClient()
+          .get(FUTURE_TRIPS_DRIVER, queryParameters: queryParameters);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         List<FutureTrip> futureTripsDriver =
             futureTripsFromJson(jsonEncode(data['items']));
         return futureTripsDriver;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Return a list of ride requests for a rider. This will be used
+  // to display their future trips (both "pending" and "accepted")
+  Future<List<RideRequest>> getRiderFutureTrips(
+      Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .get(RIDE_REQUEST_RIDER, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return rideRequestsFromJson(jsonEncode(data['items']));
       } else {
         throw Exception();
       }

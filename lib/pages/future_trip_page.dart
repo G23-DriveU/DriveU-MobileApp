@@ -8,12 +8,12 @@ import 'package:location/location.dart';
 
 // Used to display trips for Drivers using the application
 // TODO: Display all of the info for the trip in a nice way
-// Make sure to delinate between rider and driver here
 class FutureTripPage extends StatefulWidget {
-  final FutureTrip trip;
+  final FutureTrip? trip;
+  final RideRequest? rideRequest;
   final LocationData? userPosition;
   const FutureTripPage(
-      {super.key, required this.trip, required this.userPosition});
+      {super.key, this.trip, required this.userPosition, this.rideRequest});
 
   @override
   State<FutureTripPage> createState() => _FutureTripPageState();
@@ -23,21 +23,26 @@ class _FutureTripPageState extends State<FutureTripPage> {
   // Get a list of the ride requests for a trip
   Future<List<RideRequest>> _getRideRequests() async {
     return await TripApi()
-        .getRideRequests({"futureTripId": widget.trip.id.toString()});
+        .getRideRequests({"futureTripId": widget.trip!.id.toString()});
   }
 
   @override
   Widget build(BuildContext context) {
+    return widget.trip != null ? driverFutureTrip() : riderFutureTrip();
+  }
+
+  // Future trip page for driver's
+  Scaffold driverFutureTrip() {
     return Scaffold(
       persistentFooterButtons: [
         Center(child: ElevatedButton(onPressed: () {}, child: Text("Start")))
       ],
       body: Column(
         children: [
-          Text("Start Location: ${widget.trip.startLocation}"),
-          Text("Destination: ${widget.trip.destination}"),
+          Text("Start Location: ${widget.trip?.startLocation}"),
+          Text("Destination: ${widget.trip?.destination}"),
           // Add more details as needed
-          if (SingleUser().getUser()!.id == widget.trip.driverId)
+          if (SingleUser().getUser()!.id == widget.trip?.driverId)
             FutureBuilder<List<RideRequest>>(
                 future: _getRideRequests(),
                 builder: (context, snapshot) {
@@ -71,6 +76,26 @@ class _FutureTripPageState extends State<FutureTripPage> {
                     );
                   }
                 })
+        ],
+      ),
+    );
+  }
+
+  // Future trip for riders
+  Scaffold riderFutureTrip() {
+    return Scaffold(
+      persistentFooterButtons: [
+        Center(
+            child: ElevatedButton(onPressed: () {}, child: Text("Picked Up")))
+      ],
+      body: Column(
+        children: [
+          Text(
+              "Start Location: ${widget.rideRequest?.futureTrip!.startLocation}"),
+          Text("Destination: ${widget.rideRequest?.futureTrip!.destination}"),
+          // Add more details as needed
+          Text("Status: ${widget.rideRequest!.status}"),
+          Text("Your Estimated Contribution: ${widget.rideRequest!.riderCost}")
         ],
       ),
     );
