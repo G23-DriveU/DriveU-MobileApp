@@ -146,4 +146,34 @@ class TripApi {
       return [];
     }
   }
+
+  Future<void> acceptRideRequest(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(ACCEPT_RIDE_REQUEST, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<void> rejectRideRequest(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .delete(REJECT_RIDE_REQUEST, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
 }

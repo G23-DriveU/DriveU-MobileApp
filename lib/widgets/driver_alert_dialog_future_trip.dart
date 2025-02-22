@@ -1,11 +1,6 @@
 import 'package:driveu_mobile_app/model/future_trip.dart';
-import 'package:driveu_mobile_app/model/map_state.dart';
-import 'package:driveu_mobile_app/services/api/pay_pal_api.dart';
-import 'package:driveu_mobile_app/services/api/trip_api.dart';
-import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
-import 'package:provider/provider.dart';
 
 // Used to display trips for Drivers using the application
 class DriverAlertDialogFutureTrip extends StatefulWidget {

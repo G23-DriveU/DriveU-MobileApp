@@ -24,7 +24,6 @@ class FutureTripListTile extends StatelessWidget {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
         return FutureTripPage(
           trip: futureTrip!,
-          userPosition: null,
         );
       })),
     );
@@ -40,7 +39,6 @@ class FutureTripListTile extends StatelessWidget {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
         return FutureTripPage(
           rideRequest: rideRequest,
-          userPosition: null,
         );
       })),
     );
