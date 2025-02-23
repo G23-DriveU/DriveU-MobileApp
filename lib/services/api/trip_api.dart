@@ -176,4 +176,19 @@ class TripApi {
       print("Error: $e");
     }
   }
+
+  Future<void> startTrip(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(START_TRIP, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception("Error starting trip");
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }

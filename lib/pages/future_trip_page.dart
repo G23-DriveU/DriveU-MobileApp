@@ -1,4 +1,3 @@
-import 'package:driveu_mobile_app/model/app_user.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
@@ -6,6 +5,7 @@ import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 // Used to display trips for Drivers using the application
 // TODO: Display all of the info for the trip in a nice way
@@ -19,6 +19,7 @@ class FutureTripPage extends StatefulWidget {
 }
 
 class _FutureTripPageState extends State<FutureTripPage> {
+  late Location location;
   // Get a list of the ride requests for a trip
   Future<List<RideRequest>> _getRideRequests() async {
     return await TripApi()
@@ -40,6 +41,9 @@ class _FutureTripPageState extends State<FutureTripPage> {
                       onPressed: () async {
                         await TripApi().acceptRideRequest(
                             {"rideRequestId": riderRequest.id.toString()});
+
+                        // Add the ride request to trip object
+                        trip.request = riderRequest;
                         Navigator.of(context).pop();
                         // TODO: Add the rider to the future trip so that way we
                         // can replace the ride requests with the rider's information
@@ -92,6 +96,32 @@ class _FutureTripPageState extends State<FutureTripPage> {
         });
   }
 
+  void _startTrip() async {
+    print("Starting the trip");
+    await TripApi().startTrip({
+      'rideRequestId': widget.trip!.request!.id!.toString(),
+      'startTime': (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString()
+    });
+
+    // Start tracking the driver's location
+    _trackLocation();
+  }
+
+  // Used to track the driver's (and rider's) location during the trip
+  void _trackLocation() {
+    location = Location();
+
+    location.onLocationChanged.listen((LocationData ld) {
+      // Check for rider pick up
+
+      // Check for first arrival at destination
+
+      // If round trip, start second leg
+
+      // Check for drop off
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return widget.trip != null ? driverFutureTrip() : riderFutureTrip();
@@ -101,7 +131,8 @@ class _FutureTripPageState extends State<FutureTripPage> {
   Scaffold driverFutureTrip() {
     return Scaffold(
       persistentFooterButtons: [
-        Center(child: ElevatedButton(onPressed: () {}, child: Text("Start")))
+        Center(
+            child: ElevatedButton(onPressed: _startTrip, child: Text("Start")))
       ],
       body: Column(
         children: [
