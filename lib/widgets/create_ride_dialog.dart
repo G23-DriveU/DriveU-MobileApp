@@ -213,7 +213,7 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
         ),
         TextButton(
           onPressed: () async {
-            // Some field verification
+            // TODO: implement some field verification to display errors
             if (_startController.text == "" || _endController.text == "") {
               return;
             }

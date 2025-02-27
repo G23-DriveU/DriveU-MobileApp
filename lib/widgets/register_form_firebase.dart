@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
+import 'package:driveu_mobile_app/widgets/pay_pal_webview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,7 +33,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _authCode,
       _error,
       _paypalError;
-  bool _passwordsMatch = true, _isDriver = false;
+  bool _passwordsMatch = true, _isDriver = false, _isMounted = true;
   File? _profileImage;
   Map<String, List<String>> _carData = {};
   Set<String> _uniData = {};
@@ -94,6 +95,12 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
     super.initState();
     _loadSchoolData();
     _loadCarData();
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   @override
@@ -391,13 +398,21 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                       ),
                       ElevatedButton(
                           onPressed: () async {
-                            final authCode = await Navigator.of(context)
-                                .pushNamed('/PayPalWebView');
-                            print("Printing code needed: $authCode");
-                            if (authCode.runtimeType == String) {
-                              _authCode = authCode as String?;
-                            } else {
-                              _authCode = null;
+                            if (_isMounted) {
+                              // Grab the users PayPal ID so they can get paid for rides
+                              final authCode = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PayPalWebView(url: null),
+                                ),
+                              );
+
+                              // We got a valid id
+                              if (authCode.runtimeType == String) {
+                                _authCode = authCode as String?;
+                              } else {
+                                _authCode = null;
+                              }
                             }
                           },
                           child: const Text("Link PayPal"))

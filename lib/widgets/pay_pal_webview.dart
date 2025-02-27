@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PayPalWebView extends StatefulWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
+  // final GlobalKey<NavigatorState> navigatorKey;
   final String? url;
-  const PayPalWebView(
-      {super.key, required this.navigatorKey, required this.url});
+  const PayPalWebView({super.key, required this.url});
 
   @override
   State<PayPalWebView> createState() => _PayPalWebViewState();
@@ -13,6 +12,7 @@ class PayPalWebView extends StatefulWidget {
 
 class _PayPalWebViewState extends State<PayPalWebView> {
   late final WebViewController controller;
+  bool redirected = false;
 
   // Set up the WebViewController to open the initial PayPal DriveU
   // page and set up a listener to see when the payment has been 'complete'
@@ -31,12 +31,16 @@ class _PayPalWebViewState extends State<PayPalWebView> {
                 // Capture the authorization ID from the url
                 String authId = Uri.parse(url).queryParameters['authId']!;
 
-                widget.navigatorKey.currentState?.pop(authId);
-                // Navigator.of(context).pop(authId);
+                if (!redirected) {
+                  redirected = true;
+                  // widget.navigatorKey.currentState?.pop(authId);
+                  Navigator.of(context).pop(authId);
+                }
               }
               // Handle the case where PayPal failed
               else if (url.contains('/cancel')) {
-                widget.navigatorKey.currentState?.pop(null);
+                // widget.navigatorKey.currentState?.pop(null);
+                Navigator.of(context).pop(null);
               }
             },
           ),
@@ -51,16 +55,22 @@ class _PayPalWebViewState extends State<PayPalWebView> {
           NavigationDelegate(
             onPageFinished: (String url) {
               print("DEBUG: Displaying url $url");
-              if (url.contains('driveu.online/signup')) {
+              if (url.contains('driveu.online/editprofile')) {
+                print("DEBUG: Trying to grab code and pop");
                 // Capture the authorization ID from the url
                 String code = Uri.parse(url).queryParameters['code']!;
+                print("GOT CODE $code");
 
-                widget.navigatorKey.currentState?.pop(code);
-                // Navigator.of(context).pop(authId);
+                // widget.navigatorKey.currentState?.pop(code);
+                if (!redirected) {
+                  redirected = true;
+                  Navigator.of(context).pop(code);
+                }
               }
               // Handle the case where PayPal failed
               else if (url.contains('/cancel')) {
-                widget.navigatorKey.currentState?.pop(null);
+                // widget.navigatorKey.currentState?.pop(null);
+                Navigator.of(context).pop(null);
               }
             },
           ),

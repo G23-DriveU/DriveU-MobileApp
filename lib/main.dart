@@ -10,14 +10,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load(fileName: "e.env");
   await PushNotificationService().initNotifications();
-
 
   // CNP allows widgets to check the update of a widget state
   runApp(ChangeNotifierProvider(
@@ -48,16 +45,6 @@ class _MainAppState extends State<MainApp> {
       home: const AuthPage(),
       debugShowCheckedModeBanner: false,
       theme: mainTheme,
-      navigatorKey: navigatorKey,
-      routes: {
-        '/PayPalWebView': (context) => PayPalWebView(
-            navigatorKey: navigatorKey,
-            // If no url is supplied then it is for drivers to sign up since
-            // no prior info is need to process that request.
-            url: ModalRoute.of(context)!.settings.arguments == null
-                ? null
-                : ModalRoute.of(context)!.settings.arguments as String),
-      },
     );
   }
 }
