@@ -99,7 +99,7 @@ class _FutureTripPageState extends State<FutureTripPage> {
   void _startTrip() async {
     print("Starting the trip");
     await TripApi().startTrip({
-      'rideRequestId': widget.trip!.request!.id!.toString(),
+      'futureTripId': widget.trip!.id.toString(),
       'startTime': (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString()
     });
 

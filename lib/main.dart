@@ -4,7 +4,6 @@ import 'package:driveu_mobile_app/pages/auth_page.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';
 import 'package:driveu_mobile_app/services/push_notification_service.dart';
 import 'package:driveu_mobile_app/theme/main_theme.dart';
-import 'package:driveu_mobile_app/widgets/pay_pal_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
