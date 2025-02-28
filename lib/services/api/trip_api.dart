@@ -2,16 +2,21 @@ import 'dart:convert';
 import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/past_trip.dart';
+import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:driveu_mobile_app/services/api/single_client.dart';
+import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart';
 
 class TripApi {
   Future<Set<Marker>> getTrips(Map<String, String> queryParameters,
       BuildContext context, Function showTripInfo) async {
+    String endPoint =
+        SingleUser().getUser()!.driver ? FUTURE_TRIPS_DRIVER : TRIP_BY_RADIUS;
     try {
-      final response = await SingleClient()
-          .get(TRIP_BY_RADIUS, queryParameters: queryParameters);
+      final response =
+          await SingleClient().get(endPoint, queryParameters: queryParameters);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final items = data['items'] as List;
@@ -59,21 +64,55 @@ class TripApi {
 
   Future<List<FutureTrip>> getFutureTrips(
       Map<String, String> queryParameters) async {
+    // Dynamically determine which trips to get, if the user is a rider, then get rider and vis. versa.
     try {
       final response = await SingleClient()
-          .get(FUTURE_TRIP, queryParameters: queryParameters);
+          .get(FUTURE_TRIPS_DRIVER, queryParameters: queryParameters);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         List<FutureTrip> futureTripsDriver =
             futureTripsFromJson(jsonEncode(data['items']));
-
         return futureTripsDriver;
       } else {
         throw Exception();
       }
     } catch (e) {
       return [];
+    }
+  }
+
+  // Return a list of ride requests for a rider. This will be used
+  // to display their future trips (both "pending" and "accepted")
+  Future<List<RideRequest>> getRiderFutureTrips(
+      Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .get(RIDE_REQUEST_RIDER, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return rideRequestsFromJson(jsonEncode(data['items']));
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<void> createTrip(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .post(FUTURE_TRIPS_CRUD, queryParameters: queryParameters);
+
+      if (response.statusCode == 201) {
+        return;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 
@@ -88,6 +127,68 @@ class TripApi {
       }
     } catch (e) {
       return;
+    }
+  }
+
+  Future<List<RideRequest>> getRideRequests(
+      Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .get(RIDE_REQUEST_DRIVER, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return rideRequestsFromJson(jsonEncode(data['items']));
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<void> acceptRideRequest(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(ACCEPT_RIDE_REQUEST, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<void> rejectRideRequest(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .delete(REJECT_RIDE_REQUEST, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<void> startTrip(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(START_TRIP, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception("Error starting trip");
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 }

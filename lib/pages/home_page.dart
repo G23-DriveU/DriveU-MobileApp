@@ -21,31 +21,36 @@ class _HomePageState extends State<HomePage> {
 
   var currentPage = 0;
 
+  // For some reason if there is a Firebase instance of the user but not Postgres
+  // then just log the user out. TODO: Put up a toast message.
+  @override
+  void initState() {
+    super.initState();
+    if (SingleUser().getUser() == null) AuthService().signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: Might remove this since the loading and signing out thing is weird
-    return SingleUser().getUser() == null
-        ? const Center(child: CircularProgressIndicator())
-        : Scaffold(
-            body: _pages[currentPage],
-            bottomNavigationBar: BottomNavigationBar(
-              onTap: (value) => setState(() => currentPage = value),
-              currentIndex: currentPage,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.map),
-                  label: "Search",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.car_rental),
-                  label: "My Rides",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: "Profile",
-                ),
-              ],
-            ),
-          );
+    return Scaffold(
+      body: _pages[currentPage],
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (value) => setState(() => currentPage = value),
+        currentIndex: currentPage,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: "Search",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.car_rental),
+            label: "My Rides",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "Profile",
+          ),
+        ],
+      ),
+    );
   }
 }

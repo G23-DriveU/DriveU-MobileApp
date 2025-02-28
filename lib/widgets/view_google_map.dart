@@ -2,6 +2,8 @@ import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
+import 'package:driveu_mobile_app/widgets/driver_alert_dialog_future_trip.dart';
+import 'package:driveu_mobile_app/widgets/rider_alert_dialog_future_trip.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -30,8 +32,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
   // TODO: Will need to add another for the driver which will enable them to set their ending location?
   void _handleLongPressRider(LatLng position) {
-    final mapState = Provider.of<MapState>(context, listen: false);
     if (_isMounted) {
+      final mapState = Provider.of<MapState>(context, listen: false);
       setState(() {
         if (mapState.startLocation == null) {
           Provider.of<MapState>(context, listen: false)
@@ -39,6 +41,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         } else if (mapState.endLocation == null) {
           Provider.of<MapState>(context, listen: false)
               .setEndLocation(position);
+          // Get a new set of trips to display
+          _loadMarkers();
         } else {
           // Reset the markers if both are already set
           Provider.of<MapState>(context, listen: false)
@@ -49,18 +53,28 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     }
   }
 
-  // TODO: Need to add the radius and the user's location
+  // Retrieves a set of markers of future trips. For riders, they see a set of
+  // future trips to join. For drivers, they see a set of future trips they have planned.
   void _loadMarkers() async {
     final mapState = Provider.of<MapState>(context, listen: false);
     // Load the markers
-    final markers = await TripApi().getTrips({
-      'riderId': SingleUser().getUser()!.id.toString(),
-      'radius': mapState.radius.toString(),
-      'lat': '28.6016',
-      'lng': '-81.2005',
-      'roundTrip': mapState.wantRoundTrip.toString(),
-      'riderLocation': 'Knight Library, Orlando, FL'
-    }, context, _showTripInfo);
+    final markers = SingleUser().getUser()!.driver
+        // Retrieve driver's trips
+        ? await TripApi().getTrips({
+            'driverId': SingleUser().getUser()!.id.toString(),
+          }, context, _showTripInfo)
+        // Retrieve trips by radius for rider
+        : await TripApi().getTrips({
+            'riderId': SingleUser().getUser()!.id.toString(),
+            'radius': mapState.radius.toString(),
+            'lat': mapState.endLocation?.latitude.toString() ??
+                _center!.latitude.toString(),
+            'lng': mapState.endLocation?.longitude.toString() ??
+                _center!.longitude.toString(),
+            'roundTrip': mapState.wantRoundTrip.toString(),
+            'riderLat': _userPosition!.latitude.toString(),
+            'riderLng': _userPosition!.longitude.toString()
+          }, context, _showTripInfo);
 
     if (_isMounted) {
       setState(() {
@@ -70,7 +84,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   }
 
   // Get the current user's location
-  void _getUserLocation() async {
+  Future<void> _getUserLocation() async {
     Location userLocation = Location();
 
     bool serviceEnabled = await userLocation.serviceEnabled();
@@ -94,10 +108,12 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     // Grab the permission
     final userPostion = await userLocation.getLocation();
     if (_isMounted) {
+      final mapState = Provider.of<MapState>(context, listen: false);
       setState(() {
         // Set the user's position
         _userPosition = userPostion;
         _center = LatLng(userPostion.latitude!, userPostion.longitude!);
+        mapState.setEndLocation(_center);
         _trips?.add(Marker(
           markerId: const MarkerId('user'),
           icon:
@@ -117,94 +133,41 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     showDialog(
         context: context,
         builder: (context) {
-          final mapState = Provider.of<MapState>(context);
-          return AlertDialog(
-            title: Text("${trip.driver!.name}'s Trip"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Destination: ${trip.destination}"),
-                Text("Start Location: ${trip.startLocation}"),
-                Text("Driver: ${trip.driver!.name}"),
-                Text("Car: ${trip.driver!.carMake} ${trip.driver!.carModel}"),
-                // Add more details as needed
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  TripApi().createRideRequest({
-                    'futureTripId': trip.id.toString(),
-                    'riderId': SingleUser().getUser()!.id!.toString(),
-                    // TODO: Need to change this prob to LatLng
-                    'riderLocation': 'Orlando, FL',
-                    'roundTrip': mapState.wantRoundTrip.toString(),
-                    // TODO: What is this
-                    'authorizationId': '1'
-                  });
-                  // Implement join ride request logic here
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Join Ride'),
-              ),
-            ],
-          );
+          return SingleUser().getUser()!.driver
+              ? DriverAlertDialogFutureTrip(
+                  trip: trip, userPosition: _userPosition)
+              : RiderAlertDialogFutureTrip(
+                  trip: trip, userPosition: _userPosition);
         });
   }
 
   @override
   void initState() {
     super.initState();
-    // Get the current users' location
-    _getUserLocation();
-    // Load the initial set of markers
-    _loadMarkers();
+    // Get the current users' location and then load the markers
+    _getUserLocation().then((_) {
+      if (_center != null) {
+        _loadMarkers();
+      }
+    });
+
+    // // Add a listener to the MapState to reload markers when the radius changes
+    // final mapState = Provider.of<MapState>(context, listen: false);
+    // mapState.addListener(_loadMarkers);
   }
 
   @override
   void dispose() {
+    // // Remove the listeners to avoid memory leaks
+    // final mapState = Provider.of<MapState>(context, listen: false);
+    // mapState.removeListener(_loadMarkers);
+
     super.dispose();
     _isMounted = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    final mapState = Provider.of<MapState>(context);
-
-    if (mapState.startLocation != null) {
-      _trips?.add(Marker(
-        markerId: const MarkerId('start'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        position: mapState.startLocation!,
-        infoWindow: const InfoWindow(title: 'Start Location'),
-      ));
-    }
-    if (mapState.endLocation != null) {
-      _trips?.add(Marker(
-        markerId: const MarkerId('end'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-        position: mapState.endLocation!,
-        infoWindow: const InfoWindow(title: 'End Location'),
-      ));
-    }
-
-    // Convert radius from miles to meters
-    double radiusInMeters = mapState.radius * 1609.34;
-
-    if (mapState.startLocation != null) {
-      searchRadiusOverlay!.add(Circle(
-        circleId: const CircleId('startCircle'),
-        center: mapState.startLocation!,
-        radius: radiusInMeters,
-        fillColor: Colors.blue.withOpacity(0.5),
-        strokeColor: Colors.blue,
-        strokeWidth: 2,
-      ));
-    }
     return _center == null
         ? const Scaffold(
             body: Center(
@@ -212,16 +175,55 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
             ),
           )
         : Scaffold(
-            body: GoogleMap(
-                markers: _trips ?? {},
-                zoomControlsEnabled: false,
-                zoomGesturesEnabled: true,
-                initialCameraPosition:
-                    CameraPosition(target: _center!, zoom: 11),
-                onMapCreated: _onMapCreated,
-                // TODO: This is going to have to be different depending on if rider or driver
-                onLongPress: _handleLongPressRider,
-                circles: searchRadiusOverlay ?? {}),
+            body: Consumer<MapState>(
+              builder: (context, mapState, child) {
+                if (mapState.startLocation != null) {
+                  _trips?.add(Marker(
+                    markerId: const MarkerId('start'),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueGreen),
+                    position: mapState.startLocation!,
+                    infoWindow: const InfoWindow(title: 'Start Location'),
+                  ));
+                }
+                if (mapState.endLocation != null) {
+                  _trips?.add(Marker(
+                    markerId: const MarkerId('end'),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueOrange),
+                    position: mapState.endLocation!,
+                    infoWindow: const InfoWindow(title: 'End Location'),
+                  ));
+                }
+
+                double radiusInMeters = mapState.radius * 1609.34;
+
+                if (!SingleUser().getUser()!.driver &&
+                    mapState.endLocation != null) {
+                  searchRadiusOverlay = {
+                    Circle(
+                      circleId: const CircleId('startCircle'),
+                      center: mapState.endLocation!,
+                      radius: radiusInMeters,
+                      fillColor: Colors.blue.withOpacity(0.5),
+                      strokeColor: Colors.blue,
+                      strokeWidth: 2,
+                    )
+                  };
+                }
+
+                return GoogleMap(
+                  markers: _trips ?? {},
+                  zoomControlsEnabled: false,
+                  zoomGesturesEnabled: true,
+                  initialCameraPosition:
+                      CameraPosition(target: _center!, zoom: 11),
+                  onMapCreated: _onMapCreated,
+                  onLongPress: _handleLongPressRider,
+                  circles: searchRadiusOverlay!,
+                );
+              },
+            ),
           );
   }
 }

@@ -98,7 +98,7 @@ class AppUser {
         "carModel": carModel,
         "carMpg": carMpg,
       };
-  Map<String, String> toQueryParams() => {
+  Map<String, String> toQueryParams(String? auth) => {
         "firebaseUid": firebaseUid!,
         "profileImage": profileImage ?? "",
         "name": name,
@@ -112,6 +112,7 @@ class AppUser {
         "carMake": carMake.toString(),
         "carModel": carModel.toString(),
         "carMpg": carMpg.toString(),
+        "authCode": auth ?? ""
       };
   @override
   String toString() {

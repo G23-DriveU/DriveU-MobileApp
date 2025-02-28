@@ -22,7 +22,7 @@ class _LoginFormState extends State<LoginForm> {
         children: [
           TextFormField(
             decoration: const InputDecoration(
-              labelText: 'Email Address',
+              labelText: 'Email',
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -46,6 +46,14 @@ class _LoginFormState extends State<LoginForm> {
             obscureText: true,
             decoration: const InputDecoration(
               labelText: 'Password',
+              labelStyle: TextStyle(fontFamily: 'Fredoka'),
+              border: OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.teal, width: 2),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.teal, width: 1),
+              ),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -67,8 +75,8 @@ class _LoginFormState extends State<LoginForm> {
                 _formKey.currentState!.save();
                 // Implement the login logic here
                 try {
-                  final response =
-                      await AuthService().login(_email!, _password!);
+                  final response = await AuthService()
+                      .login(_email!.trim(), _password!.trim());
                   // Handle successful login
                   if (response != null) {
                     throw Exception('Invalid email or password');
@@ -81,7 +89,25 @@ class _LoginFormState extends State<LoginForm> {
                 }
               }
             },
-            child: const Text('Submit'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 30,
+                vertical: 15,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+            child: const Text(
+              "Submit",
+              style: TextStyle(
+                fontFamily: 'Fredoka',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
