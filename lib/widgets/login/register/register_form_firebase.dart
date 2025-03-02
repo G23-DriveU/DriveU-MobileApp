@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:driveu_mobile_app/model/app_user.dart';
 import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
@@ -8,7 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import '../model/app_user.dart';
 
 class RegisterFormFirebase extends StatefulWidget {
   const RegisterFormFirebase({super.key});
