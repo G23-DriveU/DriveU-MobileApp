@@ -37,11 +37,31 @@ class MapPage extends StatelessWidget {
         icon: SingleUser().getUser()?.driver == true ? Icons.add : Icons.album,
         onPressed: () => _showDialog(context),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Search bar
-          LocationSuggest(),
-          const Expanded(child: ViewGoogleMap()),
+          const ViewGoogleMap(),
+          Positioned(
+            top: 50,
+            left: 20,
+            right: 20,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: LocationSuggest(),
+              ),
+            ),
+          ),
         ],
       ),
     );

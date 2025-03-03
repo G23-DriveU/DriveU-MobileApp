@@ -15,17 +15,24 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
   Widget build(BuildContext context) {
     return Scaffold(
       persistentFooterButtons: [
-        Center(
-          child: ElevatedButton(
-            onPressed: () {},
-            child: Text("Picked Up 🚗", style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: () {},
+              child: Text("Picked Up 🚗", style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text("Cancel ❌", style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
         )
       ],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: ListView(
           children: [
             // Driver Image
             Center(
@@ -42,54 +49,44 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
             SizedBox(height: 16),
 
             // Driver Info
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("🧑‍🦰 Driver: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("${widget.request.futureTrip?.driver?.name ?? 'N/A'}"),
-              ],
+            ListTile(
+              title: Text("Driver: \n${widget.request.futureTrip?.driver?.name ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
-            SizedBox(height: 8),
-            Text("⭐ Driver Rating: ${widget.request.futureTrip?.driver?.driverRating ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 12),
+            ListTile(
+              title: Text("Driver Rating: \n${widget.request.futureTrip?.driver?.driverRating ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
 
             // Trip Locations
-            Text("📍 Start Location: ${widget.request.futureTrip?.startLocation ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text("🏁 Destination: ${widget.request.futureTrip?.destination ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text("📍 Pickup Location: ${widget.request.riderLocation ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 12),
+            ListTile(
+              title: Text("Start Location: \n${widget.request.futureTrip?.startLocation ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
+            ListTile(
+              title: Text("Destination: \n${widget.request.futureTrip?.destination ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
+            ListTile(
+              title: Text("Pickup Location: \n${widget.request.riderLocation ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
 
             // Estimated Times
-            Text(
-              "⏰ Estimated Pickup Time: ${widget.request.pickupTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.pickupTime! * 1000).toString() : 'N/A'}",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            ListTile(
+              title: Text("Estimated Pickup Time: \n${widget.request.pickupTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.pickupTime! * 1000).toString() : 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
-            SizedBox(height: 8),
-            Text(
-              "⏰ Estimated Dropoff Time: ${widget.request.dropoffTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.dropoffTime! * 1000).toString() : 'N/A'}",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            ListTile(
+              title: Text("Estimated Dropoff Time: \n${widget.request.dropoffTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.dropoffTime! * 1000).toString() : 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
-            SizedBox(height: 12),
 
             // Car Information
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("🚗 Car: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "${widget.request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${widget.request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}",
-                ),
-              ],
+            ListTile(
+              title: Text("Car: \n${widget.request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${widget.request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
-            SizedBox(height: 12),
 
             // Cost and Distance
-            Text("💰 Cost: \$${widget.request.riderCost.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text("📏 Distance: ${widget.request.distance.toStringAsFixed(2)} mi", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
+            ListTile(
+              title: Text("Cost: \n\$${widget.request.riderCost.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
+            ListTile(
+              title: Text("Distance: \n${widget.request.distance.toStringAsFixed(2)} mi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
           ],
         ),
       ),
