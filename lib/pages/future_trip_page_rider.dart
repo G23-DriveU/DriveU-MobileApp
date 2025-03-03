@@ -1,4 +1,6 @@
+import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
+import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:flutter/material.dart';
 
@@ -11,12 +13,34 @@ class FutureTripPageRider extends StatefulWidget {
 }
 
 class _FutureTripPageRiderState extends State<FutureTripPageRider> {
+  // Reports to the API that the rider has been picked up by the driver
+  Future<void> pickedUp() async {
+    await TripApi().pickUpRider({
+      "rideRequestId": widget.request.id.toString(),
+      "pickupTime": getSecondsSinceEpoch().toString()
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       persistentFooterButtons: [
         Center(
-            child: ElevatedButton(onPressed: () {}, child: Text("Picked Up")))
+            child: ElevatedButton(
+                onPressed: widget.request.status == 'started'
+                    ? () => pickedUp()
+                    : null,
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) {
+                      if (states.contains(WidgetState.disabled)) {
+                        return Colors.grey; // Grayed out color
+                      }
+                      return null; // Use the default color
+                    },
+                  ),
+                ),
+                child: Text("Picked Up")))
       ],
       body: Column(
         children: [

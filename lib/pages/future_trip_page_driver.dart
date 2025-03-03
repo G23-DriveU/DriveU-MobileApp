@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
@@ -97,7 +98,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     print("Starting the trip");
     await TripApi().startTrip({
       'futureTripId': widget.trip.id.toString(),
-      'startTime': (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString()
+      'startTime': getSecondsSinceEpoch().toString()
     });
 
     // Start tracking the driver's location

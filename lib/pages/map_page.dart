@@ -21,6 +21,7 @@ class MapPage extends StatelessWidget {
           if ((SingleUser().getUser()?.driver == true)) {
             return const CreateRideDialog();
           } else {
+            // Pass a callback to the FAB which updates the MapState
             return SelectRadiusDialog(onRadiusSelected: (radius, roundTrip) {
               Provider.of<MapState>(context, listen: false).setRadius(radius);
               Provider.of<MapState>(context, listen: false)
