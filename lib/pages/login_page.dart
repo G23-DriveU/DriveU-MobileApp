@@ -1,5 +1,5 @@
 import 'package:driveu_mobile_app/widgets/login/register/login_form.dart';
-import 'package:driveu_mobile_app/widgets/register_form_firebase.dart';
+import 'package:driveu_mobile_app/widgets/login/register/register_form_firebase.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
