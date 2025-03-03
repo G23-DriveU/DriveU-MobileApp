@@ -152,15 +152,15 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     });
 
     // // Add a listener to the MapState to reload markers when the radius changes
-    // final mapState = Provider.of<MapState>(context, listen: false);
-    // mapState.addListener(_loadMarkers);
+    final mapState = Provider.of<MapState>(context, listen: false);
+    mapState.addListener(_loadMarkers);
   }
 
   @override
   void dispose() {
     // // Remove the listeners to avoid memory leaks
-    // final mapState = Provider.of<MapState>(context, listen: false);
-    // mapState.removeListener(_loadMarkers);
+    final mapState = Provider.of<MapState>(context, listen: false);
+    mapState.removeListener(_loadMarkers);
 
     super.dispose();
     _isMounted = false;

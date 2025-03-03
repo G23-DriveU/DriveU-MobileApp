@@ -5,7 +5,7 @@ import 'package:driveu_mobile_app/pages/future_trip_page_driver.dart';
 import 'package:driveu_mobile_app/pages/future_trip_page_rider.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
-import 'package:driveu_mobile_app/widgets/past_trip_list_tile.dart';
+import 'package:driveu_mobile_app/widgets/rides%20page/past_trip_list_tile.dart';
 import 'package:flutter/material.dart';
 
 class RidesPage extends StatefulWidget {
