@@ -1,7 +1,9 @@
 import 'dart:convert';
 // import 'package:flutter_application_openmapapp/env.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -64,5 +66,24 @@ class GoogleMapsUtils {
     } else {
       throw 'Could not launch $googleMapsUrl';
     }
+  }
+
+  // Given a set of LatLngs generate the polylines for the route the driver
+  // will need to take in order to get to the rider and the destination.
+  Future<PolylineResult> getPolylines(Map<String, LatLng> points) async {
+    return await PolylinePoints().getRouteBetweenCoordinates(
+      googleApiKey: dotenv.env['GOOGLE_MAPS_API_KEY'],
+      request: PolylineRequest(
+          origin: PointLatLng(
+              points["origin"]!.latitude, points["origin"]!.longitude),
+          destination: PointLatLng(points["destination"]!.latitude,
+              points["destination"]!.longitude),
+          mode: TravelMode.driving,
+          wayPoints: [
+            PolylineWayPoint(
+                location:
+                    "${points["waypoint"]!.latitude},${points["waypoint"]!.longitude}")
+          ]),
+    );
   }
 }
