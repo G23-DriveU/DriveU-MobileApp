@@ -1,3 +1,4 @@
+// Standard helper functions that are needed across the whole application
 // Calculate the distance between two locations
 import 'dart:math';
 
@@ -20,4 +21,8 @@ double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
 
 double _degreesToRadians(double degrees) {
   return degrees * pi / 180;
+}
+
+int getSecondsSinceEpoch() {
+  return DateTime.now().millisecondsSinceEpoch ~/ 1000;
 }

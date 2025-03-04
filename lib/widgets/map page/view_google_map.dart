@@ -25,12 +25,13 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   Set<Circle>? searchRadiusOverlay = {};
   // Used to cancel async execution after navigation off of this screen
   bool _isMounted = true;
+  // Need to safely listen and unsubscribe from MapState changes
+  late MapState _mapState;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
-  // TODO: Will need to add another for the driver which will enable them to set their ending location?
   void _handleLongPressRider(LatLng position) {
     if (_isMounted) {
       final mapState = Provider.of<MapState>(context, listen: false);
@@ -151,19 +152,18 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       }
     });
 
-    // // Add a listener to the MapState to reload markers when the radius changes
-    // final mapState = Provider.of<MapState>(context, listen: false);
-    // mapState.addListener(_loadMarkers);
+    // Add a listener to the MapState to reload markers when the radius changes
+    _mapState = Provider.of<MapState>(context, listen: false);
+    _mapState.addListener(_loadMarkers);
   }
 
   @override
   void dispose() {
-    // // Remove the listeners to avoid memory leaks
-    // final mapState = Provider.of<MapState>(context, listen: false);
-    // mapState.removeListener(_loadMarkers);
+    // Remove the listeners to avoid memory leaks
+    _mapState.removeListener(_loadMarkers);
 
-    super.dispose();
     _isMounted = false;
+    super.dispose();
   }
 
   @override

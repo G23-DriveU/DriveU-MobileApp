@@ -49,6 +49,8 @@ class _SelectRadiusDialogState extends State<SelectRadiusDialog> {
             onChanged: (value) {
               setState(() {
                 _wantRoundTrip = value!;
+                // Handle whether the rider wants a round trip or not.
+                widget.onRadiusSelected(_radius, _wantRoundTrip);
               });
             },
           ),
