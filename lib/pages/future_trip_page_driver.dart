@@ -2,8 +2,6 @@ import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
-import 'package:driveu_mobile_app/services/google_maps_utils.dart';
-import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -82,17 +80,22 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                         await TripApi().acceptRideRequest(
                             {"rideRequestId": riderRequest.id.toString()});
 
-                        // Add the ride request to trip object
-                        trip.request = riderRequest;
+                        // Attach the accepted ride request
+                        setState(() {
+                          widget.trip.request = riderRequest;
+                        });
+
                         Navigator.of(context).pop();
-                        // TODO: Add the rider to the future trip so that way we
-                        // can replace the ride requests with the rider's information
                       },
                       child: Text("Accept")),
                   ElevatedButton(
                       onPressed: () async {
                         await TripApi().rejectRideRequest(
                             {"rideRequestId": riderRequest.id.toString()});
+                        setState(() {
+                          // Remove the request from list of ride requests
+                        });
+
                         Navigator.of(context).pop();
                       },
                       child: Text("Reject")),
@@ -182,17 +185,19 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
 
   @override
   Widget build(BuildContext context) {
+    // if (_polylines.isEmpty) getRoute(widget.trip, widget.trip.request!);
     return Scaffold(
       persistentFooterButtons: [
         Center(
+            // TODO: Perhaps some 'advanceTripStage' for onPressed
             child: ElevatedButton(onPressed: _startTrip, child: Text("Start")))
       ],
       body: Column(
         children: [
           Text("Start Location: ${widget.trip.startLocation}"),
           Text("Destination: ${widget.trip.destination}"),
-          // Add more details as needed
-          if (SingleUser().getUser()!.id == widget.trip.driverId)
+          // Give the driver the ability to view a list of ride request
+          if (widget.trip.request == null)
             FutureBuilder<List<RideRequest>>(
                 future: _getRideRequests(),
                 builder: (context, snapshot) {
@@ -233,7 +238,57 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                       child: Text("Error Loading Ride Request"),
                     );
                   }
-                })
+                }),
+          // Currently has a rider for the trip
+          // TODO: Once a ride request was accepted, we attach it to the trip
+          if (widget.trip.request != null)
+            // TODO: might need to call getRoute
+            Column(
+              children: [
+                Text("Here is the rider's information"),
+                Text(widget.trip.request!.rider!.name),
+                Text(
+                    "${widget.trip.request!.rider!.name} has a rating of ${widget.trip.request!.rider!.riderRating}"),
+                Text(
+                    "Rider Pick up Location: ${widget.trip.request!.riderLocation}"),
+                SizedBox(
+                  height: 200,
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(widget.trip.startLocationLat,
+                          widget.trip.startLocationLng),
+                      zoom: 8,
+                    ),
+                    markers: {
+                      Marker(
+                        markerId: MarkerId('driverLocation'),
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                            BitmapDescriptor.hueGreen),
+                        position: LatLng(widget.trip.startLocationLat,
+                            widget.trip.startLocationLng),
+                        infoWindow: InfoWindow(title: 'Driver Location'),
+                      ),
+                      Marker(
+                        markerId: MarkerId('riderLocation'),
+                        position: LatLng(widget.trip.request!.riderLocationLat,
+                            widget.trip.request!.riderLocationLng),
+                        infoWindow: InfoWindow(title: 'Rider Location'),
+                      ),
+                      Marker(
+                        markerId: MarkerId('riderLocation'),
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                            BitmapDescriptor.hueOrange),
+                        position: LatLng(widget.trip.destinationLat,
+                            widget.trip.destinationLng),
+                        infoWindow: InfoWindow(title: 'Final Destination'),
+                      )
+                    },
+                    // Generate polyline for the route
+                    polylines: _polylines,
+                  ),
+                ),
+              ],
+            )
         ],
       ),
     );

@@ -26,18 +26,23 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
     return Scaffold(
       persistentFooterButtons: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: widget.request.status == 'started'
-                    ? () => pickedUp()
-                    : null,
-              child: Text("Picked Up 🚗", style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text("Cancel ❌", style: TextStyle(fontWeight: FontWeight.bold)),
+              onPressed:
+                  widget.request.status == 'started' ? () => pickedUp() : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: widget.request.status == 'started'
+                    ? Colors.blue
+                    : Colors.grey,
+              ),
+              child: Text(
+                "Picked Up 🚗",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         )
@@ -49,11 +54,12 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
             // Driver Image
             Center(
               child: ClipOval(
-                child: Container(
+                child: SizedBox(
                   width: 120,
                   height: 120,
                   child: ImageFrame(
-                    firebaseUid: widget.request.futureTrip?.driver?.firebaseUid ?? '',
+                    firebaseUid:
+                        widget.request.futureTrip?.driver?.firebaseUid ?? '',
                   ),
                 ),
               ),
@@ -62,42 +68,62 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
 
             // Driver Info
             ListTile(
-              title: Text("Driver: \n${widget.request.futureTrip?.driver?.name ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Driver: \n${widget.request.futureTrip?.driver?.name ?? 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             ListTile(
-              title: Text("Driver Rating: \n${widget.request.futureTrip?.driver?.driverRating ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Driver Rating: \n${widget.request.futureTrip?.driver?.driverRating ?? 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
 
             // Trip Locations
             ListTile(
-              title: Text("Start Location: \n${widget.request.futureTrip?.startLocation ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Start Location: \n${widget.request.futureTrip?.startLocation ?? 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             ListTile(
-              title: Text("Destination: \n${widget.request.futureTrip?.destination ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Destination: \n${widget.request.futureTrip?.destination ?? 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             ListTile(
-              title: Text("Pickup Location: \n${widget.request.riderLocation ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Pickup Location: \n${widget.request.riderLocation ?? 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
 
             // Estimated Times
             ListTile(
-              title: Text("Estimated Pickup Time: \n${widget.request.pickupTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.pickupTime! * 1000).toString() : 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Estimated Pickup Time: \n${widget.request.pickupTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.pickupTime! * 1000).toString() : 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             ListTile(
-              title: Text("Estimated Dropoff Time: \n${widget.request.dropoffTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.dropoffTime! * 1000).toString() : 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Estimated Dropoff Time: \n${widget.request.dropoffTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.dropoffTime! * 1000).toString() : 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
 
             // Car Information
             ListTile(
-              title: Text("Car: \n${widget.request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${widget.request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Car: \n${widget.request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${widget.request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
 
             // Cost and Distance
             ListTile(
-              title: Text("Cost: \n\$${widget.request.riderCost.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Cost: \n\$${widget.request.riderCost.toStringAsFixed(2)}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             ListTile(
-              title: Text("Distance: \n${widget.request.distance.toStringAsFixed(2)} mi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                  "Distance: \n${widget.request.distance.toStringAsFixed(2)} mi",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ],
         ),
