@@ -86,4 +86,25 @@ class GoogleMapsUtils {
           ]),
     );
   }
+
+  // Calculate the bounds that encompass all the points.
+  // This enables ALl points to be shown on a map.
+  LatLngBounds calculateBounds(List<LatLng> points) {
+    double southWestLat = points.first.latitude;
+    double southWestLng = points.first.longitude;
+    double northEastLat = points.first.latitude;
+    double northEastLng = points.first.longitude;
+
+    for (LatLng point in points) {
+      if (point.latitude < southWestLat) southWestLat = point.latitude;
+      if (point.longitude < southWestLng) southWestLng = point.longitude;
+      if (point.latitude > northEastLat) northEastLat = point.latitude;
+      if (point.longitude > northEastLng) northEastLng = point.longitude;
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(southWestLat, southWestLng),
+      northeast: LatLng(northEastLat, northEastLng),
+    );
+  }
 }

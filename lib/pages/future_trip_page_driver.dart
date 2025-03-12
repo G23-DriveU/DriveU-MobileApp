@@ -2,6 +2,7 @@ import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
+import 'package:driveu_mobile_app/services/google_maps_utils.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -21,6 +22,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
   late Location location;
   final Set<Polyline> _polylines = {};
   final PolylinePoints polylinePoints = PolylinePoints();
+  GoogleMapController? _mapController;
 
   // Get a list of the ride requests for a trip
   Future<List<RideRequest>> _getRideRequests() async {
@@ -133,7 +135,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                         infoWindow: InfoWindow(title: 'Rider Location'),
                       ),
                       Marker(
-                        markerId: MarkerId('riderLocation'),
+                        markerId: MarkerId('destinationLocation'),
                         icon: BitmapDescriptor.defaultMarkerWithHue(
                             BitmapDescriptor.hueOrange),
                         position:
@@ -143,6 +145,18 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                     },
                     // Generate polyline for the route
                     polylines: _polylines,
+                    onMapCreated: (GoogleMapController controller) {
+                      _mapController = controller;
+                      LatLngBounds bounds = GoogleMapsUtils().calculateBounds([
+                        LatLng(trip.startLocationLat, trip.startLocationLng),
+                        LatLng(trip.destinationLat, trip.destinationLng),
+                        LatLng(riderRequest.riderLocationLat,
+                            riderRequest.riderLocationLng)
+                      ]);
+                      _mapController!.animateCamera(
+                        CameraUpdate.newLatLngBounds(bounds, 50),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -185,7 +199,8 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
 
   @override
   Widget build(BuildContext context) {
-    // if (_polylines.isEmpty) getRoute(widget.trip, widget.trip.request!);
+    // If the a request has been accepted, then call getRoute to display the route
+    if (widget.trip.isFull) getRoute(widget.trip, widget.trip.request!);
     return Scaffold(
       persistentFooterButtons: [
         Center(
@@ -240,9 +255,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                   }
                 }),
           // Currently has a rider for the trip
-          // TODO: Once a ride request was accepted, we attach it to the trip
           if (widget.trip.request != null)
-            // TODO: might need to call getRoute
             Column(
               children: [
                 Text("Here is the rider's information"),
@@ -275,7 +288,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                         infoWindow: InfoWindow(title: 'Rider Location'),
                       ),
                       Marker(
-                        markerId: MarkerId('riderLocation'),
+                        markerId: MarkerId('destinationLocation'),
                         icon: BitmapDescriptor.defaultMarkerWithHue(
                             BitmapDescriptor.hueOrange),
                         position: LatLng(widget.trip.destinationLat,
@@ -285,6 +298,20 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                     },
                     // Generate polyline for the route
                     polylines: _polylines,
+                    onMapCreated: (GoogleMapController controller) {
+                      _mapController = controller;
+                      LatLngBounds bounds = GoogleMapsUtils().calculateBounds([
+                        LatLng(widget.trip.startLocationLat,
+                            widget.trip.startLocationLng),
+                        LatLng(widget.trip.destinationLat,
+                            widget.trip.destinationLng),
+                        LatLng(widget.trip.request!.riderLocationLat,
+                            widget.trip.request!.riderLocationLng)
+                      ]);
+                      _mapController!.animateCamera(
+                        CameraUpdate.newLatLngBounds(bounds, 50),
+                      );
+                    },
                   ),
                 ),
               ],
