@@ -9,9 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../model/app_user.dart';
-
-
+  //Color(0xFFB2DFDB),
+          //    Color(0xFFBBDEFB),
+            //  Color.fromARGB(255, 255, 255, 255),
 class RegisterFormFirebase extends StatefulWidget {
   const RegisterFormFirebase({super.key});
 
@@ -112,8 +112,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.lightBlue[100]!,
-              Colors.yellow[100]!,
+              Color(0xFFBBDEFB),
+              Colors.teal[100]!,
               Colors.white,
             ],
             begin: Alignment.topCenter,
@@ -123,6 +123,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0), // Add padding for spacing
             child: Column(
               children: [
                 const Text(
@@ -133,10 +134,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Email Address',
-                  ),
+                _buildTextField(
+                  label: 'Email Address',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email address';
@@ -153,14 +152,11 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _error = null;
                   }),
                   onSaved: (value) => _email = value,
-                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 const SizedBox(height: 20),
-                TextFormField(
+                _buildTextField(
+                  label: 'Password',
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                  ),
                   validator: (value) {
                     if (_error != null && _error!.contains('weak-password')) {
                       return 'Your password is too weak';
@@ -178,13 +174,11 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _passwordsMatch = _password == _confirmPassword;
                   },
                   onSaved: (value) => _password = value,
-                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
-                TextFormField(
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: 'Confirm Password',
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
-                  ),
                   validator: (value) {
                     if (_error != null && _error! == 'weak-password') {
                       return 'Your password is too weak';
@@ -202,12 +196,10 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _passwordsMatch = _password == _confirmPassword;
                   },
                   onSaved: (value) => _confirmPassword = value,
-                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Your Name',
-                  ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: 'Your Name',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter your Name';
@@ -215,50 +207,20 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     return null;
                   },
                   onSaved: (value) => _name = value,
-                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 const SizedBox(height: 20),
-                Autocomplete<String>(
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    if (textEditingValue.text.isEmpty) {
-                      return const Iterable<String>.empty();
-                    }
-                    return _uniData.where((String option) {
-                      return option
-                          .toLowerCase()
-                          .contains(textEditingValue.text.toLowerCase());
-                    });
-                  },
+                _buildAutocompleteField(
+                  label: 'Your School',
+                  options: _uniData.toList(),
                   onSelected: (String selection) {
                     setState(() {
                       _school = selection;
                     });
                   },
-                  fieldViewBuilder: (BuildContext context,
-                      TextEditingController textEditingController,
-                      FocusNode focusNode,
-                      VoidCallback onFieldSubmitted) {
-                    return TextFormField(
-                      controller: textEditingController,
-                      focusNode: focusNode,
-                      decoration: const InputDecoration(
-                        labelText: 'Your School',
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Enter Your School';
-                        }
-                        return null;
-                      },
-                      style: const TextStyle(fontFamily: 'Fredoka'),
-                    );
-                  },
                 ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Your Phone Number',
-                    // (),
-                  ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: 'Your Phone Number',
                   validator: (value) {
                     if (!RegExp(
                             r'^(1\s?)?(\d{3}|\(\d{3}\))[\s\-]?\d{3}[\s\-]?\d{4}$')
@@ -271,23 +233,28 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     _phoneNumber = value;
                   },
                   onSaved: (value) => _phoneNumber = value,
-                  style: const TextStyle(fontFamily: 'Fredoka'),
                 ),
                 const SizedBox(height: 20),
-                _profileImage == null
-                    ? Image.asset(
-                        'assets/images/knightro.bmp',
-                        height: 150,
-                        width: 150,
-                      )
-                    : SizedBox(
-                        width: 150,
-                        height: 150,
-                        child: Image.file(_profileImage!),
-                      ),
+                ClipOval(
+                  child: SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: _profileImage == null
+                        ? Image.asset(
+                            'assets/images/knightro.bmp',
+                            fit: BoxFit.cover,
+                          )
+                        : Image.file(
+                            _profileImage!,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 ElevatedButton(
                     onPressed: _pickPhoto,
                     child: const Text("Upload Profile Picture")),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -304,84 +271,29 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 if (_isDriver)
                   Column(
                     children: [
-                      Autocomplete<String>(
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty) {
-                            return const Iterable<String>.empty();
-                          }
-                          return _carData.keys.where((String option) {
-                            return option
-                                .toLowerCase()
-                                .contains(textEditingValue.text.toLowerCase());
-                          });
-                        },
+                      const SizedBox(height: 20),
+                      _buildAutocompleteField(
+                        label: 'Car Make',
+                        options: _carData.keys.toList(),
                         onSelected: (String selection) {
                           setState(() {
                             _carMake = selection;
                           });
                         },
-                        fieldViewBuilder: (BuildContext context,
-                            TextEditingController textEditingController,
-                            FocusNode focusNode,
-                            VoidCallback onFieldSubmitted) {
-                          return TextFormField(
-                            controller: textEditingController,
-                            focusNode: focusNode,
-                            decoration: const InputDecoration(
-                              labelText: 'Car Make',
-                              // (),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter your Car Make';
-                              }
-                              return null;
-                            },
-                            style: const TextStyle(fontFamily: 'Fredoka'),
-                          );
-                        },
                       ),
-                      Autocomplete<String>(
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty ||
-                              _carMake == null) {
-                            return const Iterable<String>.empty();
-                          }
-                          return _carData[_carMake]!.where((String option) {
-                            return option
-                                .toLowerCase()
-                                .contains(textEditingValue.text.toLowerCase());
-                          });
-                        },
+                      const SizedBox(height: 20),
+                      _buildAutocompleteField(
+                        label: 'Car Model',
+                        options: _carMake != null ? _carData[_carMake]! : [],
                         onSelected: (String selection) {
                           setState(() {
                             _carModel = selection;
                           });
                         },
-                        fieldViewBuilder: (BuildContext context,
-                            TextEditingController textEditingController,
-                            FocusNode focusNode,
-                            VoidCallback onFieldSubmitted) {
-                          return TextFormField(
-                            controller: textEditingController,
-                            focusNode: focusNode,
-                            decoration: const InputDecoration(
-                              labelText: 'Car Model',
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter your Car Model';
-                              }
-                              return null;
-                            },
-                            style: const TextStyle(fontFamily: 'Fredoka'),
-                          );
-                        },
                       ),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Car Plate',
-                        ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        label: 'Car Plate',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please Enter your Car Plate';
@@ -389,15 +301,13 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           return null;
                         },
                         onSaved: (value) => _carPlate = value,
-                        style: const TextStyle(fontFamily: 'Fredoka'),
                       ),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Car Color',
-                        ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        label: 'Car Color',
                         onSaved: (value) => _carColor = value,
-                        style: const TextStyle(fontFamily: 'Fredoka'),
                       ),
+                      const SizedBox(height: 20),
                       ElevatedButton(
                           onPressed: () async {
                             if (_isMounted) {
@@ -428,6 +338,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
@@ -444,8 +355,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           await AuthService().register(_email!, _password!);
 
                       if (response == null) {
-                        SingleUser().setUser(AppUser(
-                          firebaseUid: FirebaseAuth.instance.currentUser!.uid,
+                        SingleUser ().setUser (AppUser (
+                          firebaseUid: FirebaseAuth.instance.currentUser !.uid,
                           email: _email!,
                           name: _name!,
                           school: _school!,
@@ -456,12 +367,12 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           carPlate: _carPlate,
                           carColor: _carColor,
                         ));
-                        await UserApi().createUser(
-                            SingleUser().getUser()!.toQueryParams(_authCode));
+                        await UserApi().createUser (
+                            SingleUser ().getUser ()!.toQueryParams(_authCode));
                         // Don't send a photo if it wasn't selected.
                         if (_profileImage != null) {
                           await UserApi().sendProfileImage(
-                              FirebaseAuth.instance.currentUser!.uid,
+                              FirebaseAuth.instance.currentUser !.uid,
                               _encodeToBase64(_profileImage)!);
                         }
 
@@ -480,7 +391,15 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                       }
                     }
                   },
-                  child: const Text('Register'),
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(fontSize: 18), // Increased font size
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "We are excited for you to join us!",
+                  style: TextStyle(fontSize: 16), // Paragraph font size
                 ),
               ],
             ),
@@ -489,4 +408,92 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       ),
     );
   }
+
+  Widget _buildTextField({
+    required String label,
+    bool obscureText = false,
+    FormFieldValidator<String>? validator,
+    ValueChanged<String>? onChanged,
+    FormFieldSetter<String>? onSaved,
+  }) {
+    return TextFormField(
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true, // Fill the background
+        fillColor: Colors.white, // Set background color to white
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0), // Curved corners
+        ),
+      ),
+      validator: validator,
+      onChanged: onChanged,
+      onSaved: onSaved,
+      style: const TextStyle(fontFamily: 'Fredoka'),
+    );
+  }
+
+  Widget _buildAutocompleteField({
+    required String label,
+    required List<String> options,
+    required ValueChanged<String> onSelected,
+  }) {
+    return Autocomplete<String>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return const Iterable<String>.empty();
+        }
+        return options.where((String option) {
+          return option
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
+      },
+      onSelected: onSelected,
+      fieldViewBuilder: (BuildContext context,
+          TextEditingController textEditingController,
+          FocusNode focusNode,
+          VoidCallback onFieldSubmitted) {
+        return TextFormField(
+          controller: textEditingController,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: label,
+            filled: true, // Fill the background
+            fillColor: Colors.white, // Set background color to white
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Curved corners
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please Enter $label';
+            }
+            return null;
+          },
+          style: const TextStyle(fontFamily: 'Fredoka'),
+        );
+      },
+    );
+  }
+}
+
+// Function to navigate to the RegisterFormFirebase with a transition
+void navigateToRegisterForm(BuildContext context) {
+  Navigator.of(context).push(PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => const RegisterFormFirebase(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(-1.0, 0.0); // Start from the left
+      const end = Offset.zero; // End at the original position
+      const curve = Curves.easeInOut; // Transition curve
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      var offsetAnimation = animation.drive(tween);
+
+      return SlideTransition(
+        position: offsetAnimation,
+        child: child,
+      );
+    },
+  ));
 }

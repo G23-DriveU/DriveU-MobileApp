@@ -2,8 +2,42 @@ import 'package:driveu_mobile_app/widgets/login/register/login_form.dart';
 import 'package:driveu_mobile_app/widgets/login/register/register_form_firebase.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0), // Start from the right
+      end: Offset.zero, // End at original position
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    // Start the animation when the page loads
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +50,9 @@ class LoginPage extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFB2DFDB), // Light teal
-              Colors.white, // White
-              Color(0xFFBBDEFB), // Light blue
+              Color(0xFFB2DFDB),
+              Color(0xFFBBDEFB),
+              Color.fromARGB(255, 255, 255, 255), // Light blue
             ],
           ),
         ),
@@ -50,73 +84,94 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 100),
-                  Image.asset(
-                    'assets/images/drive.png',
-                    height: 170,
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Where carpooling is pleasure 😊🚗",
-                    style: TextStyle(
-                      fontFamily: 'Fredoka',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  // Slide the logo with animation
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Image.asset(
+                      'assets/images/drive.png',
+                      height: 170,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    "Welcome to DriveU!",
-                    style: TextStyle(
-                      fontFamily: 'Fredoka',
-                      fontSize: 18,
-                      color: Colors.black87,
+                  // Slide the text with animation
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: const Text(
+                      "Where carpooling is pleasure 😊🚗",
+                      style: TextStyle(
+                        fontFamily: 'Fredoka',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: const Text(
+                      "Welcome to DriveU!",
+                      style: TextStyle(
+                        fontFamily: 'Fredoka',
+                        fontSize: 18,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 5),
-                  const Text(
-                    "Please log in or sign up to get started!",
-                    style: TextStyle(
-                      fontFamily: 'Fredoka',
-                      fontSize: 18,
-                      color: Colors.black87,
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: const Text(
+                      "Please log in or sign up to get started!",
+                      style: TextStyle(
+                        fontFamily: 'Fredoka',
+                        fontSize: 18,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 80),
-                  const LoginForm(),
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: const LoginForm(),
+                  ),
                   const SizedBox(height: 0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Don't have an Account? ",
-                        style: TextStyle(
-                          fontFamily: 'Fredoka',
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return const RegisterFormFirebase();
-                          }));
-                        },
-                        child: const Text(
-                          "Join",
+                  // Slide the row with the 'Join' text
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Don't have an Account? ",
                           style: TextStyle(
                             fontFamily: 'Fredoka',
-                            color: Colors.teal,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      const Text(
-                        " DriveU-nation for FREE!",
-                        style: TextStyle(
-                          fontFamily: 'Fredoka',
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return const RegisterFormFirebase();
+                            }));
+                          },
+                          child: const Text(
+                            "Join",
+                            style: TextStyle(
+                              fontFamily: 'Fredoka',
+                              color: Colors.teal,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      )
-                    ],
+                        const Text(
+                          " DriveU-nation for FREE!",
+                          style: TextStyle(
+                            fontFamily: 'Fredoka',
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 40),
                 ],
