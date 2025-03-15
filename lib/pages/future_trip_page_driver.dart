@@ -11,8 +11,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class FutureTripPageDriver extends StatefulWidget {
-  final FutureTrip trip;
-  const FutureTripPageDriver({super.key, required this.trip});
+  FutureTrip trip;
+  FutureTripPageDriver({super.key, required this.trip});
 
   @override
   State<FutureTripPageDriver> createState() => _FutureTripPageDriverState();
@@ -23,6 +23,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
   final Set<Polyline> _polylines = {};
   final PolylinePoints polylinePoints = PolylinePoints();
   GoogleMapController? _mapController;
+  bool _isMounted = true;
 
   // Get a list of the ride requests for a trip
   Future<List<RideRequest>> _getRideRequests() async {
@@ -55,14 +56,16 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       }
     }
 
-    setState(() {
-      _polylines.add(Polyline(
-        polylineId: PolylineId('route'),
-        color: Colors.blue,
-        points: polylineCoordinates,
-        width: 5,
-      ));
-    });
+    if (_isMounted) {
+      setState(() {
+        _polylines.add(Polyline(
+          polylineId: PolylineId('route'),
+          color: Colors.blue,
+          points: polylineCoordinates,
+          width: 5,
+        ));
+      });
+    }
   }
 
   // Show rider info for drivers when looking through ride request
@@ -191,10 +194,24 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     });
   }
 
+  // Used in tandem with the 'RefreshIndicator' to get updated
+  // trip details when looking at a specific trip.
+  Future<void> _refreshTrip() async {
+    // Fetch the updated trip information
+    FutureTrip? updatedTrip = await TripApi()
+        .getFutureTrip({'futureTripId': widget.trip.id.toString()});
+
+    if (updatedTrip != null) {
+      setState(() {
+        widget.trip = updatedTrip;
+      });
+    }
+  }
+
   @override
-  void initState() {
-    super.initState();
-    // getRoute(widget.trip, widget.trip.request!);
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   @override
@@ -207,116 +224,124 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
             // TODO: Perhaps some 'advanceTripStage' for onPressed
             child: ElevatedButton(onPressed: _startTrip, child: Text("Start")))
       ],
-      body: Column(
-        children: [
-          Text("Start Location: ${widget.trip.startLocation}"),
-          Text("Destination: ${widget.trip.destination}"),
-          // Give the driver the ability to view a list of ride request
-          if (widget.trip.request == null)
-            FutureBuilder<List<RideRequest>>(
-                future: _getRideRequests(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SizedBox(
-                        height: 45, child: CircularProgressIndicator());
-                  } else if (snapshot.data!.isEmpty) {
-                    return Center(
-                      child: Text("No Requests"),
-                    );
-                  } else if (snapshot.hasData) {
-                    return SizedBox(
-                      height: 90,
-                      child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: EdgeInsets.all(8),
-                              child: ElevatedButton(
-                                // View the rider's information
-                                onPressed: () => _showRiderInfo(context,
-                                    snapshot.data![index], widget.trip),
-                                style: ElevatedButton.styleFrom(
-                                  shape: CircleBorder(),
-                                  padding: EdgeInsets.all(16),
-                                ),
-                                child: ImageFrame(
-                                  firebaseUid:
-                                      snapshot.data![index].rider!.firebaseUid!,
-                                ),
-                              ),
-                            );
-                          }),
-                    );
-                  } else {
-                    return Center(
-                      child: Text("Error Loading Ride Request"),
-                    );
-                  }
-                }),
-          // Currently has a rider for the trip
-          if (widget.trip.request != null)
-            Column(
-              children: [
-                Text("Here is the rider's information"),
-                Text(widget.trip.request!.rider!.name),
-                Text(
-                    "${widget.trip.request!.rider!.name} has a rating of ${widget.trip.request!.rider!.riderRating}"),
-                Text(
-                    "Rider Pick up Location: ${widget.trip.request!.riderLocation}"),
-                SizedBox(
-                  height: 200,
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(widget.trip.startLocationLat,
-                          widget.trip.startLocationLng),
-                      zoom: 8,
+      body: RefreshIndicator(
+        onRefresh: _refreshTrip,
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              Text("Start Location: ${widget.trip.startLocation}"),
+              Text("Destination: ${widget.trip.destination}"),
+              // Give the driver the ability to view a list of ride request
+              if (widget.trip.request == null)
+                FutureBuilder<List<RideRequest>>(
+                    future: _getRideRequests(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return SizedBox(
+                            height: 45, child: CircularProgressIndicator());
+                      } else if (snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Text("No Requests"),
+                        );
+                      } else if (snapshot.hasData) {
+                        return SizedBox(
+                          height: 90,
+                          child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: ElevatedButton(
+                                    // View the rider's information
+                                    onPressed: () => _showRiderInfo(context,
+                                        snapshot.data![index], widget.trip),
+                                    style: ElevatedButton.styleFrom(
+                                      shape: CircleBorder(),
+                                      padding: EdgeInsets.all(16),
+                                    ),
+                                    child: ImageFrame(
+                                      firebaseUid: snapshot
+                                          .data![index].rider!.firebaseUid!,
+                                    ),
+                                  ),
+                                );
+                              }),
+                        );
+                      } else {
+                        return Center(
+                          child: Text("Error Loading Ride Request"),
+                        );
+                      }
+                    }),
+              // Currently has a rider for the trip
+              if (widget.trip.request != null)
+                Column(
+                  children: [
+                    Text("Here is the rider's information"),
+                    Text(widget.trip.request!.rider!.name),
+                    Text(
+                        "${widget.trip.request!.rider!.name} has a rating of ${widget.trip.request!.rider!.riderRating}"),
+                    Text(
+                        "Rider Pick up Location: ${widget.trip.request!.riderLocation}"),
+                    SizedBox(
+                      height: 200,
+                      child: GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(widget.trip.startLocationLat,
+                              widget.trip.startLocationLng),
+                          zoom: 8,
+                        ),
+                        markers: {
+                          Marker(
+                            markerId: MarkerId('driverLocation'),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueGreen),
+                            position: LatLng(widget.trip.startLocationLat,
+                                widget.trip.startLocationLng),
+                            infoWindow: InfoWindow(title: 'Driver Location'),
+                          ),
+                          Marker(
+                            markerId: MarkerId('riderLocation'),
+                            position: LatLng(
+                                widget.trip.request!.riderLocationLat,
+                                widget.trip.request!.riderLocationLng),
+                            infoWindow: InfoWindow(title: 'Rider Location'),
+                          ),
+                          Marker(
+                            markerId: MarkerId('destinationLocation'),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueOrange),
+                            position: LatLng(widget.trip.destinationLat,
+                                widget.trip.destinationLng),
+                            infoWindow: InfoWindow(title: 'Final Destination'),
+                          )
+                        },
+                        // Generate polyline for the route
+                        polylines: _polylines,
+                        onMapCreated: (GoogleMapController controller) {
+                          _mapController = controller;
+                          LatLngBounds bounds =
+                              GoogleMapsUtils().calculateBounds([
+                            LatLng(widget.trip.startLocationLat,
+                                widget.trip.startLocationLng),
+                            LatLng(widget.trip.destinationLat,
+                                widget.trip.destinationLng),
+                            LatLng(widget.trip.request!.riderLocationLat,
+                                widget.trip.request!.riderLocationLng)
+                          ]);
+                          _mapController!.animateCamera(
+                            CameraUpdate.newLatLngBounds(bounds, 50),
+                          );
+                        },
+                      ),
                     ),
-                    markers: {
-                      Marker(
-                        markerId: MarkerId('driverLocation'),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueGreen),
-                        position: LatLng(widget.trip.startLocationLat,
-                            widget.trip.startLocationLng),
-                        infoWindow: InfoWindow(title: 'Driver Location'),
-                      ),
-                      Marker(
-                        markerId: MarkerId('riderLocation'),
-                        position: LatLng(widget.trip.request!.riderLocationLat,
-                            widget.trip.request!.riderLocationLng),
-                        infoWindow: InfoWindow(title: 'Rider Location'),
-                      ),
-                      Marker(
-                        markerId: MarkerId('destinationLocation'),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueOrange),
-                        position: LatLng(widget.trip.destinationLat,
-                            widget.trip.destinationLng),
-                        infoWindow: InfoWindow(title: 'Final Destination'),
-                      )
-                    },
-                    // Generate polyline for the route
-                    polylines: _polylines,
-                    onMapCreated: (GoogleMapController controller) {
-                      _mapController = controller;
-                      LatLngBounds bounds = GoogleMapsUtils().calculateBounds([
-                        LatLng(widget.trip.startLocationLat,
-                            widget.trip.startLocationLng),
-                        LatLng(widget.trip.destinationLat,
-                            widget.trip.destinationLng),
-                        LatLng(widget.trip.request!.riderLocationLat,
-                            widget.trip.request!.riderLocationLng)
-                      ]);
-                      _mapController!.animateCamera(
-                        CameraUpdate.newLatLngBounds(bounds, 50),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            )
-        ],
+                  ],
+                )
+            ],
+          ),
+        ),
       ),
     );
   }
