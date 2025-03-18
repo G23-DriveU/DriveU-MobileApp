@@ -88,6 +88,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                         // Attach the accepted ride request
                         setState(() {
                           widget.trip.request = riderRequest;
+                          widget.trip.isFull = true;
                         });
 
                         Navigator.of(context).pop();
