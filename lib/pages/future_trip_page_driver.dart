@@ -7,6 +7,7 @@ import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -184,14 +185,36 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
   void _trackLocation() {
     location = Location();
 
-    location.onLocationChanged.listen((LocationData ld) {
-      // Check for rider pick up
+    location.onLocationChanged.listen((LocationData ld) async {
+      if (!_isMounted) return;
 
-      // Check for first arrival at destination
+      LatLng currentLocation = LatLng(ld.latitude!, ld.longitude!);
 
-      // If round trip, start second leg
+      // Check if the driver is within a certain distance of the final destination
+      double distanceToDestinationInMeters = Geolocator.distanceBetween(
+        currentLocation.latitude,
+        currentLocation.longitude,
+        widget.trip.destinationLat,
+        widget.trip.destinationLng,
+      );
 
-      // Check for drop off
+      if (distanceToDestinationInMeters / 1609.344 <= 0.5) {
+        // 50 meters threshold
+        print("Driver has reached the final destination.");
+        await TripApi().reachDestination({
+          'rideRequestId': widget.trip.request!.id.toString(),
+          'arrivalTime': getSecondsSinceEpoch().toString(),
+          'lat': ld.latitude.toString(),
+          'lng': ld.longitude.toString()
+        });
+
+        // Stop tracking location
+        location.onLocationChanged.drain();
+        return;
+      }
+
+      // Additional checks for other phases of the trip can be added here
+      // For example, checking for rider pick-up or intermediate stops
     });
   }
 
@@ -222,8 +245,19 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     return Scaffold(
       persistentFooterButtons: [
         Center(
-            // TODO: Perhaps some 'advanceTripStage' for onPressed
-            child: ElevatedButton(onPressed: _startTrip, child: Text("Start")))
+            child: ElevatedButton(
+                onPressed: widget.trip.isFull ? _startTrip : null,
+                style: ElevatedButton.styleFrom(
+                  disabledBackgroundColor: Theme.of(context).disabledColor,
+                ),
+                child: Text(
+                  "Start",
+                  style: TextStyle(
+                    color: widget.trip.isFull
+                        ? Colors.white
+                        : Colors.grey[700], // Adjust text color
+                  ),
+                )))
       ],
       body: RefreshIndicator(
         onRefresh: _refreshTrip,

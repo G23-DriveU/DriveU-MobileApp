@@ -18,7 +18,7 @@ class FutureTripPageRider extends StatefulWidget {
 // State class for FutureTripPageRider
 class _FutureTripPageRiderState extends State<FutureTripPageRider> {
   // Reports to the API that the rider has been picked up by the driver
-  Future<void> pickedUp() async {
+  Future<void> _pickedUp() async {
     await TripApi().pickUpRider({
       "rideRequestId": widget.request.id.toString(),
       "pickupTime": getSecondsSinceEpoch().toString()
@@ -54,10 +54,17 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
           children: [
             ElevatedButton(
               // 'Picked Up' button
-              onPressed:
-                  () {}, // Currently empty onPressed callback for button functionality
-              child: Text("Picked Up 🚗",
+              onPressed: widget.request.status == 'started'
+                  ? _pickedUp
+                  : null, // Currently empty onPressed callback for button functionality
+              style: ElevatedButton.styleFrom(
+                disabledBackgroundColor: Theme.of(context).disabledColor,
+              ),
+              child: Text("Picked Up",
                   style: TextStyle(
+                      color: widget.request.status == 'started'
+                          ? Colors.white
+                          : Colors.grey[700], // Adjust text color
                       fontWeight:
                           FontWeight.bold)), // Button label with bold text
             ),

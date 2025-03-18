@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 final ThemeData mainTheme = ThemeData(
+    primaryColor: Colors.teal,
+    disabledColor: Colors.grey,
     fontFamily: 'Fredoka',
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(),

@@ -215,4 +215,19 @@ class TripApi {
       return null;
     }
   }
+
+  Future<void> reachDestination(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(REACH_DESTINATION, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception("Error stopping trips.");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 }
