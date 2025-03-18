@@ -2,6 +2,9 @@
 // Calculate the distance between two locations
 import 'dart:math';
 
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
   const double earthRadius = 6371; // Radius of the Earth in kilometers
   double dLat = _degreesToRadians(lat2 - lat1);

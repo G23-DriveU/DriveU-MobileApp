@@ -161,7 +161,6 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   void dispose() {
     // Remove the listeners to avoid memory leaks
     _mapState.removeListener(_loadMarkers);
-
     _isMounted = false;
     super.dispose();
   }

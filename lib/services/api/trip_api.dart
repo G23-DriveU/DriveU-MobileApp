@@ -198,4 +198,21 @@ class TripApi {
       print("Error $e");
     }
   }
+
+  Future<FutureTrip?> getFutureTrip(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .get(GET_FUTURE_TRIP, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return FutureTrip.fromJson(data['futureTrip']);
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      print("Error $e");
+      return null;
+    }
+  }
 }

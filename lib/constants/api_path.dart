@@ -7,6 +7,7 @@ const String TRIP_BY_RADIUS = '/futureTripsByRadius';
 const String FUTURE_TRIPS_DRIVER = '/futureTripsForDriver';
 const String FUTURE_TRIPS_RIDER = '/futureTripsForRider';
 const String FUTURE_TRIPS_CRUD = '/futureTrips';
+const String GET_FUTURE_TRIP = '/futureTrip';
 const String RIDE_REQUEST_DRIVER = '/rideRequestsForTrip';
 const String RIDE_REQUEST_RIDER = '/rideRequestsForRider';
 const String ACCEPT_RIDE_REQUEST = '/acceptRideRequest';

@@ -10,11 +10,25 @@
     <script src="https://www.paypalobjects.com/js/external/api.js"></script>
   </head>
   <body>
-    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; font-family: Arial, sans-serif;"></div>
-      <h2 style="margin: 0;">Are you sure you want to continue to PayPal?</h2>
-      <h3 style="margin-top: 1px;">Clicking the button will direct you to PayPal</h3>
-      <div id="linkPayPal" style="margin-top: 2px;"></div>
-    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        text-align: center;
+        font-family: Arial, sans-serif;
+      "
+    >
+      <h2 style="margin: 0">Are you sure you want to continue to PayPal?</h2>
+      <h3 style="margin-top: 1px">
+        Clicking the button will direct you to PayPal
+      </h3>
+      <div
+        id="linkPayPal"
+        style="margin-top: 2px"
+      ></div>
     </div>
     <script>
       paypal.use(["login"], function (login) {

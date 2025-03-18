@@ -1,7 +1,6 @@
 import 'dart:convert';
-// import 'package:flutter_application_openmapapp/env.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -64,5 +63,45 @@ class GoogleMapsUtils {
     } else {
       throw 'Could not launch $googleMapsUrl';
     }
+  }
+
+  // Given a set of LatLngs generate the polylines for the route the driver
+  // will need to take in order to get to the rider and the destination.
+  Future<PolylineResult> getPolylines(Map<String, LatLng> points) async {
+    return await PolylinePoints().getRouteBetweenCoordinates(
+      googleApiKey: dotenv.env['GOOGLE_MAPS_API_KEY'],
+      request: PolylineRequest(
+          origin: PointLatLng(
+              points["origin"]!.latitude, points["origin"]!.longitude),
+          destination: PointLatLng(points["destination"]!.latitude,
+              points["destination"]!.longitude),
+          mode: TravelMode.driving,
+          wayPoints: [
+            PolylineWayPoint(
+                location:
+                    "${points["waypoint"]!.latitude},${points["waypoint"]!.longitude}")
+          ]),
+    );
+  }
+
+  // Calculate the bounds that encompass all the points.
+  // This enables ALl points to be shown on a map.
+  LatLngBounds calculateBounds(List<LatLng> points) {
+    double southWestLat = points.first.latitude;
+    double southWestLng = points.first.longitude;
+    double northEastLat = points.first.latitude;
+    double northEastLng = points.first.longitude;
+
+    for (LatLng point in points) {
+      if (point.latitude < southWestLat) southWestLat = point.latitude;
+      if (point.longitude < southWestLng) southWestLng = point.longitude;
+      if (point.latitude > northEastLat) northEastLat = point.latitude;
+      if (point.longitude > northEastLng) northEastLng = point.longitude;
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(southWestLat, southWestLng),
+      northeast: LatLng(northEastLat, northEastLng),
+    );
   }
 }
