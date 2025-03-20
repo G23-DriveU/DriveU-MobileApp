@@ -6,6 +6,7 @@ import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/google_maps_utils.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -173,13 +174,60 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
 
   void _startTrip() async {
     print("Starting the trip");
-    await TripApi().startTrip({
-      'futureTripId': widget.trip.id.toString(),
-      'startTime': getSecondsSinceEpoch().toString()
-    });
-
+    // Start the first leg of the trip
+    if (widget.stage == TripStage.notStarted) {
+      await TripApi().startTrip({
+        'futureTripId': widget.trip.id.toString(),
+        'startTime': getSecondsSinceEpoch().toString()
+      });
+      setState(() {
+        widget.stage = TripStage.startedFirstLeg;
+      });
+      return;
+    }
+    // Start the second leg of a round trip
+    if (widget.stage == TripStage.endFirstLeg) {
+      await TripApi().startSecondLeg({
+        "rideRequestId": widget.trip.request!.id.toString(),
+        "leavingTime": getSecondsSinceEpoch().toString()
+      });
+      setState(() {
+        widget.stage = TripStage.startSecondLeg;
+      });
+    }
     // Start tracking the driver's location
-    _trackLocation();
+    // _trackLocation();
+  }
+
+  void _endTrip() async {
+    print("Ending first leg of trip");
+    // End the first leg of the trip
+    if (widget.stage == TripStage.pickedUp) {
+      // Ensure the driver is within the valid stopping range of the
+      int res = await TripApi().reachDestination({
+        "rideRequestId": widget.trip.request!.id.toString(),
+        "arrivalTime": getSecondsSinceEpoch().toString(),
+        "lat": "",
+        "lng": ""
+      });
+
+      if (res == 200) {
+        setState(() {
+          widget.stage = TripStage.endFirstLeg;
+        });
+      }
+      // Display toast message to show that the driver isn't registering close enough to the location
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Sorry, you are not close enough to the destination. Try again later."),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
   }
 
   // Used to track the driver's (and rider's) location during the trip
@@ -234,6 +282,34 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     }
   }
 
+  // Display the different actions for each trip stage for the driver.
+  // The same looking button, but with different actions will appear for each stage
+  ElevatedButton tripStage(TripStage stage) {
+    switch (stage) {
+      case TripStage.notStarted:
+        return ElevatedButton(
+            onPressed: widget.trip.isFull ? _startTrip : null,
+            style: ElevatedButton.styleFrom(
+              disabledBackgroundColor: Theme.of(context).disabledColor,
+            ),
+            child: Text(
+              "Start",
+              style: TextStyle(
+                color: widget.trip.isFull
+                    ? Colors.white
+                    : Colors.grey[700], // Adjust text color
+              ),
+            ));
+      case TripStage.startedFirstLeg:
+        return ElevatedButton(onPressed: _endTrip, child: const Text("End"));
+      case TripStage.startSecondLeg:
+        return ElevatedButton(
+            onPressed: _startTrip, child: const Text("Start"));
+      default:
+        return ElevatedButton(onPressed: null, child: const Text("End"));
+    }
+  }
+
   @override
   void dispose() {
     _isMounted = false;
@@ -246,22 +322,8 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     // If the a request has been accepted, then call getRoute to display the route
     if (widget.trip.isFull) getRoute(widget.trip, widget.trip.request!);
     return Scaffold(
-      persistentFooterButtons: [
-        Center(
-            child: ElevatedButton(
-                onPressed: widget.trip.isFull ? _startTrip : null,
-                style: ElevatedButton.styleFrom(
-                  disabledBackgroundColor: Theme.of(context).disabledColor,
-                ),
-                child: Text(
-                  "Start",
-                  style: TextStyle(
-                    color: widget.trip.isFull
-                        ? Colors.white
-                        : Colors.grey[700], // Adjust text color
-                  ),
-                )))
-      ],
+      // Display a different action button depending on the stage of the trip
+      persistentFooterButtons: [Center(child: tripStage(widget.stage))],
       body: RefreshIndicator(
         onRefresh: _refreshTrip,
         child: SingleChildScrollView(

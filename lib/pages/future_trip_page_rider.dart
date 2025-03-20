@@ -25,6 +25,19 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
       "rideRequestId": widget.request.id.toString(),
       "pickupTime": getSecondsSinceEpoch().toString()
     });
+    setState(() {
+      widget.stage = TripStage.pickedUp;
+    });
+  }
+
+  Future<void> _droppedOff() async {
+    await TripApi().dropOffRider({
+      "futureTripId": widget.request.futureTripId.toString(),
+      "dropOffTime": getSecondsSinceEpoch().toString(),
+      "lat": "",
+      "lng": ""
+    });
+    // No need to update trip state since it is done
   }
 
   // Used in tandem with the 'RefreshIndicator' to get updated
@@ -43,6 +56,48 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
     }
   }
 
+  ElevatedButton tripStage(TripStage stage) {
+    switch (stage) {
+      case TripStage.notStarted:
+      case TripStage.startedFirstLeg:
+        return ElevatedButton(
+          // 'Picked Up' button
+          onPressed: widget.stage == TripStage.startedFirstLeg
+              ? _pickedUp
+              : null, // Currently empty onPressed callback for button functionality
+          style: ElevatedButton.styleFrom(
+            disabledBackgroundColor: Theme.of(context).disabledColor,
+          ),
+          child: Text("Picked Up",
+              style: TextStyle(
+                  color: widget.stage == TripStage.startedFirstLeg
+                      ? Colors.white
+                      : Colors.grey[700], // Adjust text color
+                  fontWeight: FontWeight.bold)), // Button label with bold text
+        );
+      case TripStage.startSecondLeg:
+        return ElevatedButton(
+          // 'Picked Up' button
+          onPressed:
+              _droppedOff, // Currently empty onPressed callback for button functionality
+          style: ElevatedButton.styleFrom(
+            disabledBackgroundColor: Theme.of(context).disabledColor,
+          ),
+          child: Text(
+            "Dropped Off",
+          ), // Button label with bold text
+        );
+      default:
+        return ElevatedButton(
+          onPressed: null,
+          child: Text("Picked Up",
+              style: TextStyle(
+                  color: Colors.grey[700], // Adjust text color
+                  fontWeight: FontWeight.bold)), // Button label with bold text
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     print("Trip status is ${widget.stage}\n");
@@ -56,22 +111,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
           mainAxisAlignment: MainAxisAlignment
               .spaceEvenly, // Space buttons evenly across the row
           children: [
-            ElevatedButton(
-              // 'Picked Up' button
-              onPressed: widget.request.status == 'started'
-                  ? _pickedUp
-                  : null, // Currently empty onPressed callback for button functionality
-              style: ElevatedButton.styleFrom(
-                disabledBackgroundColor: Theme.of(context).disabledColor,
-              ),
-              child: Text("Picked Up",
-                  style: TextStyle(
-                      color: widget.request.status == 'started'
-                          ? Colors.white
-                          : Colors.grey[700], // Adjust text color
-                      fontWeight:
-                          FontWeight.bold)), // Button label with bold text
-            ),
+            tripStage(widget.stage),
           ],
         )
       ],
