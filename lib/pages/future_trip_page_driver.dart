@@ -1,6 +1,7 @@
 import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
+import 'package:driveu_mobile_app/pages/rides_page.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/google_maps_utils.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
@@ -13,8 +14,8 @@ import 'package:location/location.dart';
 
 class FutureTripPageDriver extends StatefulWidget {
   FutureTrip trip;
-  FutureTripPageDriver({super.key, required this.trip});
-
+  TripStage stage;
+  FutureTripPageDriver({super.key, required this.trip, required this.stage});
   @override
   State<FutureTripPageDriver> createState() => _FutureTripPageDriverState();
 }
@@ -228,6 +229,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     if (updatedTrip != null) {
       setState(() {
         widget.trip = updatedTrip;
+        widget.stage = getTripStage(widget.trip, null);
       });
     }
   }
@@ -240,6 +242,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
 
   @override
   Widget build(BuildContext context) {
+    print("Trip status is ${widget.stage}\n");
     // If the a request has been accepted, then call getRoute to display the route
     if (widget.trip.isFull) getRoute(widget.trip, widget.trip.request!);
     return Scaffold(

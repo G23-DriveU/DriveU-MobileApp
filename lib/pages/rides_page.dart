@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/past_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
@@ -7,6 +8,16 @@ import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/rides%20page/past_trip_list_tile.dart';
 import 'package:flutter/material.dart';
+
+// Describe the trip state
+enum TripStage {
+  notStarted,
+  startedFirstLeg,
+  pickedUp,
+  endFirstLeg,
+  startSecondLeg,
+  tripEnd
+}
 
 class RidesPage extends StatefulWidget {
   const RidesPage({super.key});
@@ -112,8 +123,8 @@ class _RidesPageState extends State<RidesPage> {
                     onTap: () => Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return FutureTripPageDriver(
-                        trip: data[index],
-                      );
+                          trip: data[index],
+                          stage: getTripStage(data[index], null));
                     })),
                   )),
         );
@@ -138,8 +149,8 @@ class _RidesPageState extends State<RidesPage> {
                     onTap: () => Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return FutureTripPageRider(
-                        request: data[index],
-                      );
+                          request: data[index],
+                          stage: getTripStage(null, data[index]));
                     })),
                   )),
         );

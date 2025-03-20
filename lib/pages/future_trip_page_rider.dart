@@ -1,6 +1,7 @@
 import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
+import 'package:driveu_mobile_app/pages/rides_page.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,8 @@ import 'package:flutter/material.dart';
 // Stateful widget to display future trip details for the rider
 class FutureTripPageRider extends StatefulWidget {
   RideRequest request;
-  FutureTripPageRider({super.key, required this.request});
+  TripStage stage;
+  FutureTripPageRider({super.key, required this.request, required this.stage});
 
   @override
   State<FutureTripPageRider> createState() =>
@@ -36,12 +38,14 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
       setState(() {
         // Only update if the request has been accepted
         widget.request = updatedTrip.request ?? widget.request;
+        widget.stage = getTripStage(null, widget.request);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print("Trip status is ${widget.stage}\n");
     // Build method to define the widget tree
     return Scaffold(
       // Scaffold provides a page layout structure

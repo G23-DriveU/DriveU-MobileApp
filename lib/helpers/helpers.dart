@@ -2,6 +2,9 @@
 // Calculate the distance between two locations
 import 'dart:math';
 
+import 'package:driveu_mobile_app/model/future_trip.dart';
+import 'package:driveu_mobile_app/model/ride_request.dart';
+import 'package:driveu_mobile_app/pages/rides_page.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -28,4 +31,37 @@ double _degreesToRadians(double degrees) {
 
 int getSecondsSinceEpoch() {
   return DateTime.now().millisecondsSinceEpoch ~/ 1000;
+}
+
+TripStage getTripStage(FutureTrip? trip, RideRequest? request) {
+  // A driver calling this
+  if (trip != null) {
+    if (trip.request != null) {
+      return getStage(trip.request!.status);
+    } else {
+      return TripStage.notStarted;
+    }
+  }
+  // A rider is calling this
+  else {
+    return getStage(request!.status);
+  }
+}
+
+TripStage getStage(String status) {
+  switch (status) {
+    case "pending":
+    case "accepted":
+      return TripStage.notStarted;
+    case "started":
+      return TripStage.startedFirstLeg;
+    case "picked up":
+      return TripStage.pickedUp;
+    case "at destination":
+      return TripStage.endFirstLeg;
+    case "left destination":
+      return TripStage.startSecondLeg;
+    default:
+      return TripStage.tripEnd;
+  }
 }
