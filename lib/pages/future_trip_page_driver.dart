@@ -13,6 +13,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
+// TODO: need to, in real time, track GPS coor when trip is active so you don't need to pull
+// down and refresh the page to get most up to date GPS coordinates.
 class FutureTripPageDriver extends StatefulWidget {
   FutureTrip trip;
   TripStage stage;
@@ -27,6 +29,33 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
   final PolylinePoints polylinePoints = PolylinePoints();
   GoogleMapController? _mapController;
   bool _isMounted = true;
+  // Keep track of the users location
+  LocationData? _userPosition;
+
+  Future<void> _getUserLocation() async {
+    Location userLocation = Location();
+
+    bool serviceEnabled = await userLocation.serviceEnabled();
+    // Check to make sure location service is enabled
+    if (!serviceEnabled) {
+      serviceEnabled = await userLocation.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    PermissionStatus permissionsGranted = await userLocation.hasPermission();
+    // Ensure permissions are granted
+    if (permissionsGranted == PermissionStatus.denied) {
+      permissionsGranted = await userLocation.requestPermission();
+      if (permissionsGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    // Grab the location
+    _userPosition = await userLocation.getLocation();
+  }
 
   // Get a list of the ride requests for a trip
   Future<List<RideRequest>> _getRideRequests() async {
@@ -207,8 +236,8 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       int res = await TripApi().reachDestination({
         "rideRequestId": widget.trip.request!.id.toString(),
         "arrivalTime": getSecondsSinceEpoch().toString(),
-        "lat": "",
-        "lng": ""
+        "lat": _userPosition!.latitude.toString(),
+        "lng": _userPosition!.longitude.toString()
       });
 
       if (res == 200) {
@@ -228,6 +257,17 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       }
       return;
     }
+    // TODO: Add stage for dropping off rider
+  }
+
+  Future<void> _droppedOff() async {
+    await TripApi().dropOffRider({
+      "futureTripId": widget.trip.id.toString(),
+      "dropOffTime": getSecondsSinceEpoch().toString(),
+      "lat": _userPosition!.latitude.toString(),
+      "lng": _userPosition!.longitude.toString()
+    });
+    // No need to update trip state since it is done
   }
 
   // Used to track the driver's (and rider's) location during the trip
@@ -300,14 +340,31 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                     : Colors.grey[700], // Adjust text color
               ),
             ));
-      case TripStage.startedFirstLeg:
+      case TripStage.pickedUp:
         return ElevatedButton(onPressed: _endTrip, child: const Text("End"));
       case TripStage.startSecondLeg:
         return ElevatedButton(
             onPressed: _startTrip, child: const Text("Start"));
       default:
-        return ElevatedButton(onPressed: null, child: const Text("End"));
+        return ElevatedButton(
+            onPressed: null,
+            style: ElevatedButton.styleFrom(
+              disabledBackgroundColor: Theme.of(context).disabledColor,
+            ),
+            child: Text(
+              "End",
+              style: TextStyle(
+                color: Colors.grey[700], // Adjust text color
+              ),
+            ));
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Get the users location so we can use GPS coordinates to verify locations
+    _getUserLocation();
   }
 
   @override

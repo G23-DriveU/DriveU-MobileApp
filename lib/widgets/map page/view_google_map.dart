@@ -16,6 +16,7 @@ class ViewGoogleMap extends StatefulWidget {
   State<ViewGoogleMap> createState() => _ViewGoogleMapState();
 }
 
+// TODO: Change the behvaior for both rider and driver.
 class _ViewGoogleMapState extends State<ViewGoogleMap> {
   // Manipulate the camera
   late GoogleMapController mapController;
@@ -229,8 +230,14 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                   initialCameraPosition: CameraPosition(
                       target: mapState.endLocation ?? _center!, zoom: 11),
                   onMapCreated: _onMapCreated,
-                  onLongPress: _handleLongPressRider,
-                  circles: searchRadiusOverlay ?? {},
+                  // Only the riders can change the start and end location by long pressing
+                  onLongPress: SingleUser().getUser()!.driver
+                      ? null
+                      : _handleLongPressRider,
+                  // Only riders see the search radius
+                  circles: SingleUser().getUser()!.driver
+                      ? {}
+                      : searchRadiusOverlay ?? {},
                 );
               },
             ),

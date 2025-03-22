@@ -21,7 +21,7 @@ class LocationSuggest extends StatelessWidget {
               controller: _controller,
               focusNode: focusNode,
               decoration: const InputDecoration(
-                hintText: 'Search',
+                hintText: 'Set your pick up spot...',
               ),
             ),
             suggestionsCallback: (pattern) async {
@@ -62,23 +62,23 @@ class LocationSuggest extends StatelessWidget {
                         FocusScope.of(context).requestFocus(FocusNode());
                       },
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.flag),
-                      onPressed: () async {
-                        final latlngLoc = await GoogleMapsUtils()
-                            .getLocationDetails(suggest['place_id']);
+                    // IconButton(
+                    //   icon: const Icon(Icons.flag),
+                    //   onPressed: () async {
+                    //     final latlngLoc = await GoogleMapsUtils()
+                    //         .getLocationDetails(suggest['place_id']);
 
-                        // Set the start location
-                        if (latlngLoc != null) {
-                          Provider.of<MapState>(context, listen: false)
-                              .setEndLocation(LatLng(
-                                  latlngLoc.latitude, latlngLoc.longitude));
-                        }
+                    //     // Set the start location
+                    //     if (latlngLoc != null) {
+                    //       Provider.of<MapState>(context, listen: false)
+                    //           .setEndLocation(LatLng(
+                    //               latlngLoc.latitude, latlngLoc.longitude));
+                    //     }
 
-                        // Unfocus the text field
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      },
-                    ),
+                    //     // Unfocus the text field
+                    //     FocusScope.of(context).requestFocus(FocusNode());
+                    //   },
+                    // ),
                   ],
                 ),
               );

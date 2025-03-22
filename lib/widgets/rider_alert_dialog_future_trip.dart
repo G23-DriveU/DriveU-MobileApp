@@ -74,8 +74,8 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
               await TripApi().createRideRequest({
                 'futureTripId': widget.trip.id.toString(),
                 'riderId': SingleUser().getUser()!.id!.toString(),
-                'riderLat': widget.userPosition!.latitude.toString(),
-                'riderLng': widget.userPosition!.longitude.toString(),
+                'riderLat': mapState.startLocation.latitude.toString(),
+                'riderLng': mapState.startLocation.longitude.toString(),
                 'roundTrip': mapState.wantRoundTrip.toString(),
                 'authorizationId': authId.toString()
               });

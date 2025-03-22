@@ -19,39 +19,34 @@ class FutureTripPageRider extends StatefulWidget {
 
 // State class for FutureTripPageRider
 class _FutureTripPageRiderState extends State<FutureTripPageRider> {
+  // Keep track of the users location
+  late RideRequest request;
+  late TripStage stage;
+
   // Reports to the API that the rider has been picked up by the driver
   Future<void> _pickedUp() async {
     await TripApi().pickUpRider({
-      "rideRequestId": widget.request.id.toString(),
+      "rideRequestId": request.id.toString(),
       "pickupTime": getSecondsSinceEpoch().toString()
     });
     setState(() {
-      widget.stage = TripStage.pickedUp;
+      stage = TripStage.pickedUp;
     });
-  }
-
-  Future<void> _droppedOff() async {
-    await TripApi().dropOffRider({
-      "futureTripId": widget.request.futureTripId.toString(),
-      "dropOffTime": getSecondsSinceEpoch().toString(),
-      "lat": "",
-      "lng": ""
-    });
-    // No need to update trip state since it is done
   }
 
   // Used in tandem with the 'RefreshIndicator' to get updated
   // trip details when looking at a specific trip.
   Future<void> _refreshTrip() async {
     // Fetch the updated trip information
-    FutureTrip? updatedTrip = await TripApi().getFutureTrip(
-        {'futureTripId': widget.request.futureTripId.toString()});
+    FutureTrip? updatedTrip = await TripApi()
+        .getFutureTrip({'futureTripId': request.futureTripId.toString()});
 
     if (updatedTrip != null) {
       setState(() {
         // Only update if the request has been accepted
-        widget.request = updatedTrip.request ?? widget.request;
-        widget.stage = getTripStage(null, widget.request);
+        // request = updatedTrip.request ?? request;
+        request.pickupTime = updatedTrip.request!.pickupTime;
+        stage = getTripStage(updatedTrip, null);
       });
     }
   }
@@ -59,27 +54,29 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
   ElevatedButton tripStage(TripStage stage) {
     switch (stage) {
       case TripStage.notStarted:
-      case TripStage.startedFirstLeg:
         return ElevatedButton(
-          // 'Picked Up' button
-          onPressed: widget.stage == TripStage.startedFirstLeg
-              ? _pickedUp
-              : null, // Currently empty onPressed callback for button functionality
+          onPressed: null,
           style: ElevatedButton.styleFrom(
             disabledBackgroundColor: Theme.of(context).disabledColor,
           ),
           child: Text("Picked Up",
               style: TextStyle(
-                  color: widget.stage == TripStage.startedFirstLeg
-                      ? Colors.white
-                      : Colors.grey[700], // Adjust text color
+                  color: Colors.grey[700], // Adjust text color
                   fontWeight: FontWeight.bold)), // Button label with bold text
+        );
+      case TripStage.startedFirstLeg:
+        return ElevatedButton(
+          // 'Picked Up' button
+          onPressed: _pickedUp,
+          child: Text("Picked Up",
+              style: TextStyle(
+                color: Colors.white, // Adjust text color
+              )), // Button label with bold text
         );
       case TripStage.startSecondLeg:
         return ElevatedButton(
           // 'Picked Up' button
-          onPressed:
-              _droppedOff, // Currently empty onPressed callback for button functionality
+          onPressed: null,
           style: ElevatedButton.styleFrom(
             disabledBackgroundColor: Theme.of(context).disabledColor,
           ),
@@ -90,6 +87,9 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
       default:
         return ElevatedButton(
           onPressed: null,
+          style: ElevatedButton.styleFrom(
+            disabledBackgroundColor: Theme.of(context).disabledColor,
+          ),
           child: Text("Picked Up",
               style: TextStyle(
                   color: Colors.grey[700], // Adjust text color
@@ -99,8 +99,15 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    request = widget.request;
+    stage = widget.stage;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print("Trip status is ${widget.stage}\n");
+    print("Trip status is $stage\n");
     // Build method to define the widget tree
     return Scaffold(
       // Scaffold provides a page layout structure
@@ -111,7 +118,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
           mainAxisAlignment: MainAxisAlignment
               .spaceEvenly, // Space buttons evenly across the row
           children: [
-            tripStage(widget.stage),
+            tripStage(stage),
           ],
         )
       ],
@@ -133,8 +140,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
                     height: 120, // Set height of the circle
                     child: ImageFrame(
                       // Display driver's profile picture using ImageFrame widget
-                      firebaseUid: widget
-                              .request.futureTrip?.driver?.firebaseUid ??
+                      firebaseUid: request.futureTrip?.driver?.firebaseUid ??
                           '', // Use driver's Firebase UID or empty string if null
                     ),
                   ),
@@ -146,7 +152,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
 
               // Driver's name
               ListTile(
-                title: Text(widget.request.futureTrip?.driver?.name ?? 'N/A',
+                title: Text(request.futureTrip?.driver?.name ?? 'N/A',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize:
@@ -157,7 +163,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Driver's rating
               ListTile(
                 title: Text(
-                    "⭐ Driver Rating: \n${widget.request.futureTrip?.driver?.driverRating ?? 'N/A'}",
+                    "⭐ Driver Rating: \n${request.futureTrip?.driver?.driverRating ?? 'N/A'}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14)), // Display driver's rating or 'N/A'
@@ -166,7 +172,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Start location of the trip
               ListTile(
                 title: Text(
-                    "📍 Start Location: \n${widget.request.futureTrip?.startLocation ?? 'N/A'}",
+                    "📍 Start Location: \n${request.futureTrip?.startLocation ?? 'N/A'}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14)), // Display start location or 'N/A'
@@ -175,7 +181,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Destination of the trip
               ListTile(
                 title: Text(
-                    "📌 Destination: \n${widget.request.futureTrip?.destination ?? 'N/A'}",
+                    "📌 Destination: \n${request.futureTrip?.destination ?? 'N/A'}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14)), // Display destination or 'N/A'
@@ -184,7 +190,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Pickup location for the rider
               ListTile(
                 title: Text(
-                    "🛣️ Pickup Location: \n${widget.request.riderLocation ?? 'N/A'}",
+                    "🛣️ Pickup Location: \n${request.riderLocation ?? 'N/A'}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize:
@@ -194,7 +200,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Estimated pickup time, converting Unix timestamp to readable format
               ListTile(
                 title: Text(
-                    "⏰ Estimated Pickup Time: \n${widget.request.pickupTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.pickupTime! * 1000).toString() : 'N/A'}",
+                    "⏰ Estimated Pickup Time: \n${request.pickupTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.pickupTime! * 1000).toString() : 'N/A'}",
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               ),
@@ -202,7 +208,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Estimated dropoff time, converting Unix timestamp to readable format
               ListTile(
                 title: Text(
-                    "🕗 Estimated Dropoff Time: \n${widget.request.dropoffTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.dropoffTime! * 1000).toString() : 'N/A'}",
+                    "🕗 Estimated Dropoff Time: \n${request.dropoffTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.dropoffTime! * 1000).toString() : 'N/A'}",
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               ),
@@ -210,7 +216,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Car information including color, make, and model
               ListTile(
                 title: Text(
-                    "🚙 Car: \n${widget.request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${widget.request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}",
+                    "🚙 Car: \n${request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}",
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               ),
@@ -218,7 +224,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Rider's cost for the trip
               ListTile(
                 title: Text(
-                    "💲 Cost: \n\\${widget.request.riderCost.toStringAsFixed(2)}",
+                    "💲 Cost: \n\$${request.riderCost.toStringAsFixed(2)}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14)), // Format cost to 2 decimal places
@@ -227,7 +233,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
               // Distance of the trip in miles
               ListTile(
                 title: Text(
-                    "🗺️ Distance: \n${widget.request.distance.toStringAsFixed(2)} mi",
+                    "🗺️ Distance: \n${request.distance.toStringAsFixed(2)} mi",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14)), // Format distance to 2 decimal places
