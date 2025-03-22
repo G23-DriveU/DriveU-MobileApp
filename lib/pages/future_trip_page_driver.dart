@@ -63,6 +63,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
         .getRideRequests({"futureTripId": widget.trip.id.toString()});
   }
 
+  // TODO: For some reason after 'end' this throws an error
   Future<void> getRoute(FutureTrip trip, RideRequest riderRequest) async {
     List<LatLng> polylineCoordinates = [];
 
@@ -234,7 +235,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     if (widget.stage == TripStage.pickedUp) {
       // Ensure the driver is within the valid stopping range of the
       int res = await TripApi().reachDestination({
-        "rideRequestId": widget.trip.request!.id.toString(),
+        "futureTripId": widget.trip.id.toString(),
         "arrivalTime": getSecondsSinceEpoch().toString(),
         "lat": _userPosition!.latitude.toString(),
         "lng": _userPosition!.longitude.toString()

@@ -102,9 +102,11 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
               'riderLng': mapState.startLocation?.longitude.toString() ??
                   _userPosition!.longitude!.toString(),
             }, context, _showTripInfo);
-      setState(() {
-        _trips = markers;
-      });
+      if (_isMounted) {
+        setState(() {
+          _trips = markers;
+        });
+      }
     }
   }
 
