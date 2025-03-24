@@ -247,17 +247,17 @@ class TripApi {
     }
   }
 
-  Future<void> dropOffRider(Map<String, String> queryParameters) async {
+  Future<int> dropOffRider(Map<String, String> queryParameters) async {
     try {
       final response = await SingleClient()
           .put(DROP_OFF_RIDER, queryParameters: queryParameters);
       if (response.statusCode == 200) {
-        return;
+        return 200;
       } else {
-        throw Exception("Error dropping off");
+        throw Exception("Error dropping off rider");
       }
     } catch (e) {
-      print(e.toString());
+      return 500;
     }
   }
 }

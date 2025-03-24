@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // TODO: need to, in real time, track GPS coor when trip is active so you don't need to pull
 // down and refresh the page to get most up to date GPS coordinates.
@@ -68,8 +70,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     List<LatLng> polylineCoordinates = [];
 
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      googleApiKey: dotenv
-          .env['GOOGLE_MAPS_API_KEY'], // Replace with your Google Maps API Key
+      googleApiKey: dotenv.env['GOOGLE_MAPS_API_KEY'],
       request: PolylineRequest(
         origin: PointLatLng(trip.startLocationLat, trip.startLocationLng),
         destination: PointLatLng(trip.destinationLat, trip.destinationLng),
@@ -234,6 +235,8 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     // End the first leg of the trip
     if (widget.stage == TripStage.pickedUp) {
       // Ensure the driver is within the valid stopping range of the
+      await _getUserLocation();
+
       int res = await TripApi().reachDestination({
         "futureTripId": widget.trip.id.toString(),
         "arrivalTime": getSecondsSinceEpoch().toString(),
@@ -258,17 +261,34 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       }
       return;
     }
-    // TODO: Add stage for dropping off rider
-  }
+    // Drop the rider off
+    if (widget.stage == TripStage.startSecondLeg) {
+      // Ensure the driver is within the valid stopping range of the
+      await _getUserLocation();
+      int res = await TripApi().dropOffRider({
+        "futureTripId": widget.trip.id.toString(),
+        "dropOffTime": getSecondsSinceEpoch().toString(),
+        "lat": _userPosition!.latitude.toString(),
+        "lng": _userPosition!.longitude.toString()
+      });
 
-  Future<void> _droppedOff() async {
-    await TripApi().dropOffRider({
-      "futureTripId": widget.trip.id.toString(),
-      "dropOffTime": getSecondsSinceEpoch().toString(),
-      "lat": _userPosition!.latitude.toString(),
-      "lng": _userPosition!.longitude.toString()
-    });
-    // No need to update trip state since it is done
+      if (res == 200) {
+        setState(() {
+          widget.stage = TripStage.tripEnd;
+        });
+      }
+      // Display toast message to show that the driver isn't registering close enough to the location
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Sorry, you are not close enough to the destination. Try again later."),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
   }
 
   // Used to track the driver's (and rider's) location during the trip
@@ -343,9 +363,12 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
             ));
       case TripStage.pickedUp:
         return ElevatedButton(onPressed: _endTrip, child: const Text("End"));
-      case TripStage.startSecondLeg:
+      case TripStage.endFirstLeg:
         return ElevatedButton(
             onPressed: _startTrip, child: const Text("Start"));
+      case TripStage.startSecondLeg:
+        return ElevatedButton(
+            onPressed: _endTrip, child: const Text("Drop Rider Off"));
       default:
         return ElevatedButton(
             onPressed: null,
@@ -358,6 +381,22 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                 color: Colors.grey[700], // Adjust text color
               ),
             ));
+    }
+  }
+
+  void _launchMaps() async {
+    final googleMaps =
+        GoogleMapsUtils().formatGoogleUri(widget.trip, widget.trip.request!);
+
+    if (await canLaunchUrl(googleMaps)) {
+      await launchUrl(googleMaps);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please ensure you have Google Maps installed!"),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -378,7 +417,8 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
   Widget build(BuildContext context) {
     print("Trip status is ${widget.stage}\n");
     // If the a request has been accepted, then call getRoute to display the route
-    if (widget.trip.isFull) getRoute(widget.trip, widget.trip.request!);
+    if (widget.trip.isFull && widget.stage != TripStage.tripEnd)
+      getRoute(widget.trip, widget.trip.request!);
     return Scaffold(
       // Display a different action button depending on the stage of the trip
       persistentFooterButtons: [Center(child: tripStage(widget.stage))],
@@ -495,8 +535,16 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                         },
                       ),
                     ),
+                    Row(
+                      children: [
+                        // Give the driver the ability use Google Maps for directions.
+                        ElevatedButton(
+                            onPressed: _launchMaps,
+                            child: Text("Need Directions?"))
+                      ],
+                    )
                   ],
-                )
+                ),
             ],
           ),
         ),

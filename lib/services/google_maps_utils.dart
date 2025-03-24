@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:driveu_mobile_app/constants/api_path.dart';
+import 'package:driveu_mobile_app/model/future_trip.dart';
+import 'package:driveu_mobile_app/model/ride_request.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -103,5 +106,35 @@ class GoogleMapsUtils {
       southwest: LatLng(southWestLat, southWestLng),
       northeast: LatLng(northEastLat, northEastLng),
     );
+  }
+
+  Uri formatGoogleUri(FutureTrip trip, RideRequest request) {
+    final startLocation = '${trip.startLocationLat},${trip.startLocationLng}';
+    final destinationLocation = '${trip.destinationLat},${trip.destinationLng}';
+    final riderPickUpLocation =
+        '${request.riderLocationLat},${request.riderLocationLng}';
+    // At least one waypoint is the rider's pick up location
+    final waypoints = [riderPickUpLocation];
+
+    // Not a round trip
+    if (!trip.roundTrip) {
+      return Uri.parse(GOOGLE_MAPS_BASE).replace(queryParameters: {
+        'api': '1',
+        'origin': startLocation,
+        'destination': destinationLocation,
+        'travelmode': 'driving',
+        'waypoints': waypoints
+      });
+    } else {
+      waypoints.add(destinationLocation);
+      waypoints.add(riderPickUpLocation);
+      return Uri.parse(GOOGLE_MAPS_BASE).replace(queryParameters: {
+        'api': '1',
+        'origin': startLocation,
+        'destination': startLocation,
+        'travelmode': 'driving',
+        'waypoints': waypoints.join('|')
+      });
+    }
   }
 }
