@@ -247,7 +247,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       if (res == 200) {
         setState(() {
           widget.stage = TripStage.endFirstLeg;
-          if (widget.trip.roundTrip) {
+          if (!widget.trip.roundTrip) {
             Navigator.of(context).pop();
           }
         });

@@ -142,6 +142,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         _center = mapState.endLocation ??
             LatLng(userPostion.latitude!, userPostion.longitude!);
         mapState.setEndLocation(_center);
+        mapState.setStartLocation(_center);
         _trips?.add(Marker(
           markerId: const MarkerId('user'),
           icon:
