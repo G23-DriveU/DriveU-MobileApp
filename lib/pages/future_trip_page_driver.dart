@@ -247,6 +247,9 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       if (res == 200) {
         setState(() {
           widget.stage = TripStage.endFirstLeg;
+          if (widget.trip.roundTrip) {
+            Navigator.of(context).pop();
+          }
         });
       }
       // Display toast message to show that the driver isn't registering close enough to the location
@@ -275,6 +278,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       if (res == 200) {
         setState(() {
           widget.stage = TripStage.tripEnd;
+          Navigator.of(context).pop();
         });
       }
       // Display toast message to show that the driver isn't registering close enough to the location
