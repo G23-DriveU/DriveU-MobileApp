@@ -1,4 +1,3 @@
-import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
@@ -65,7 +64,6 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
         .getRideRequests({"futureTripId": widget.trip.id.toString()});
   }
 
-  // TODO: For some reason after 'end' this throws an error
   Future<void> getRoute(FutureTrip trip, RideRequest riderRequest) async {
     List<LatLng> polylineCoordinates = [];
 
@@ -231,7 +229,6 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
   }
 
   void _endTrip() async {
-    print("Ending first leg of trip");
     // End the first leg of the trip
     if (widget.stage == TripStage.pickedUp) {
       // Ensure the driver is within the valid stopping range of the
@@ -247,10 +244,10 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       if (res == 200) {
         setState(() {
           widget.stage = TripStage.endFirstLeg;
-          if (!widget.trip.roundTrip) {
-            Navigator.of(context).pop();
-          }
         });
+        if (!widget.trip.roundTrip) {
+          Navigator.of(context).pop("refresh");
+        }
       }
       // Display toast message to show that the driver isn't registering close enough to the location
       else {
@@ -278,7 +275,7 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
       if (res == 200) {
         setState(() {
           widget.stage = TripStage.tripEnd;
-          Navigator.of(context).pop();
+          Navigator.of(context).pop("refresh");
         });
       }
       // Display toast message to show that the driver isn't registering close enough to the location

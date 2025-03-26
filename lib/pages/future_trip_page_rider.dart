@@ -47,6 +47,13 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
         // request = updatedTrip.request ?? request;
         request.pickupTime = updatedTrip.request!.pickupTime;
         stage = getTripStage(updatedTrip, null);
+        // Pop out of a one-way trip
+        if (!request.roundTrip && stage == TripStage.endFirstLeg) {
+          Navigator.of(context).pop("refresh");
+        }
+        if (stage == TripStage.tripEnd) {
+          Navigator.of(context).pop("refresh");
+        }
       });
     }
   }

@@ -236,7 +236,7 @@ class TripApi {
       final response = await SingleClient()
           .put(REACH_DESTINATION, queryParameters: queryParameters);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return 200;
       } else {
         throw Exception("Error stopping trips.");
@@ -251,7 +251,7 @@ class TripApi {
     try {
       final response = await SingleClient()
           .put(DROP_OFF_RIDER, queryParameters: queryParameters);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return 200;
       } else {
         throw Exception("Error dropping off rider");

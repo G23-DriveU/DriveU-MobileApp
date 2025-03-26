@@ -131,7 +131,8 @@ class _RidesPageState extends State<RidesPage> {
                       return FutureTripPageDriver(
                           trip: data[index],
                           stage: getTripStage(data[index], null));
-                    })),
+                    })).then((result) =>
+                        result == "refresh" ? setState(() {}) : null),
                   )),
         );
       },
@@ -157,7 +158,8 @@ class _RidesPageState extends State<RidesPage> {
                       return FutureTripPageRider(
                           request: data[index],
                           stage: getTripStage(null, data[index]));
-                    })),
+                    })).then((result) =>
+                        result == "refresh" ? setState(() {}) : null),
                   )),
         );
       },
