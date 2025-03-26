@@ -191,6 +191,21 @@ class TripApi {
     }
   }
 
+  Future<void> startSecondLeg(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(LEAVE_DESITNATION, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception("Error starting second leg of trip");
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   Future<void> pickUpRider(Map<String, String> queryParameters) async {
     try {
       await SingleClient().put(PICK_UP_RIDER, queryParameters: queryParameters);
@@ -213,6 +228,36 @@ class TripApi {
     } catch (e) {
       print("Error $e");
       return null;
+    }
+  }
+
+  Future<int> reachDestination(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(REACH_DESTINATION, queryParameters: queryParameters);
+
+      if (response.statusCode == 201) {
+        return 200;
+      } else {
+        throw Exception("Error stopping trips.");
+      }
+    } catch (e) {
+      print(e);
+      return 500;
+    }
+  }
+
+  Future<int> dropOffRider(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .put(DROP_OFF_RIDER, queryParameters: queryParameters);
+      if (response.statusCode == 201) {
+        return 200;
+      } else {
+        throw Exception("Error dropping off rider");
+      }
+    } catch (e) {
+      return 500;
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/helpers/helpers.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/past_trip.dart';
 import 'package:driveu_mobile_app/model/ride_request.dart';
@@ -7,6 +8,16 @@ import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/rides%20page/past_trip_list_tile.dart';
 import 'package:flutter/material.dart';
+
+// Describe the trip state
+enum TripStage {
+  notStarted,
+  startedFirstLeg,
+  pickedUp,
+  endFirstLeg,
+  startSecondLeg,
+  tripEnd
+}
 
 class RidesPage extends StatefulWidget {
   const RidesPage({super.key});
@@ -41,56 +52,62 @@ class _RidesPageState extends State<RidesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      body: RefreshIndicator(
+        // Simply refresh the page here
+        onRefresh: () async {
+          setState(() {});
+        },
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            // Planned Rides Section
-            Expanded(
-              child: _buildSection(
-                title: "Upcoming Trips",
-                icon: Icons.calendar_today,
-                // Display either driver or rider pages
-                futureBuilder: SingleUser().getUser()!.driver
-                    ? futureTripDriver()
-                    : futureTripRider(),
-              ),
-            ),
-            // Divider
-            Container(
-              height: 1,
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              color: Colors.grey[300],
-            ),
-            // Past Rides Section
-            Expanded(
-              child: _buildSection(
-                title: "Trip History",
-                icon: Icons.history,
-                futureBuilder: FutureBuilder<List<PastTrip>>(
-                  future: _loadPastTrips(),
-                  builder: (context, snapshot) {
-                    return _buildContent(
-                      snapshot: snapshot,
-                      emptyText: "No past trips available",
-                      builder: (data) => ListView.builder(
-                        itemCount: data.length,
-                        itemBuilder: (context, index) => PastTripListTile(
-                          pastTrip: data[index],
-                        ),
-                      ),
-                    );
-                  },
+          child: Column(
+            children: [
+              // Planned Rides Section
+              Expanded(
+                child: _buildSection(
+                  title: "Upcoming Trips",
+                  icon: Icons.calendar_today,
+                  // Display either driver or rider pages
+                  futureBuilder: SingleUser().getUser()!.driver
+                      ? futureTripDriver()
+                      : futureTripRider(),
                 ),
               ),
-            ),
-          ],
+              // Divider
+              Container(
+                height: 1,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                color: Colors.grey[300],
+              ),
+              // Past Rides Section
+              Expanded(
+                child: _buildSection(
+                  title: "Trip History",
+                  icon: Icons.history,
+                  futureBuilder: FutureBuilder<List<PastTrip>>(
+                    future: _loadPastTrips(),
+                    builder: (context, snapshot) {
+                      return _buildContent(
+                        snapshot: snapshot,
+                        emptyText: "No past trips available",
+                        builder: (data) => ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (context, index) => PastTripListTile(
+                            pastTrip: data[index],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -112,9 +129,10 @@ class _RidesPageState extends State<RidesPage> {
                     onTap: () => Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return FutureTripPageDriver(
-                        trip: data[index],
-                      );
-                    })),
+                          trip: data[index],
+                          stage: getTripStage(data[index], null));
+                    })).then((result) =>
+                        result == "refresh" ? setState(() {}) : null),
                   )),
         );
       },
@@ -138,9 +156,10 @@ class _RidesPageState extends State<RidesPage> {
                     onTap: () => Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return FutureTripPageRider(
-                        request: data[index],
-                      );
-                    })),
+                          request: data[index],
+                          stage: getTripStage(null, data[index]));
+                    })).then((result) =>
+                        result == "refresh" ? setState(() {}) : null),
                   )),
         );
       },

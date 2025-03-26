@@ -16,6 +16,7 @@ class ViewGoogleMap extends StatefulWidget {
   State<ViewGoogleMap> createState() => _ViewGoogleMapState();
 }
 
+// TODO: Change the behvaior for both rider and driver.
 class _ViewGoogleMapState extends State<ViewGoogleMap> {
   // Manipulate the camera
   late GoogleMapController mapController;
@@ -35,52 +36,77 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   void _handleLongPressRider(LatLng position) {
     if (_isMounted) {
       final mapState = Provider.of<MapState>(context, listen: false);
+
       setState(() {
         if (mapState.startLocation == null) {
-          Provider.of<MapState>(context, listen: false)
-              .setStartLocation(position);
-        } else if (mapState.endLocation == null) {
-          Provider.of<MapState>(context, listen: false)
-              .setEndLocation(position);
-          // Get a new set of trips to display
+          // Set the start location (pickup location)
+          mapState.setStartLocation(position);
+          // Retrieve trips with updated pricing
           _loadMarkers();
         } else {
-          // Reset the markers if both are already set
-          Provider.of<MapState>(context, listen: false)
-              .setStartLocation(position);
-          Provider.of<MapState>(context, listen: false).setEndLocation(null);
+          // Set the end location (used for the search radius circle)
+          mapState.setEndLocation(position);
+          // No need to reload trips, just update the circle
+          _updateSearchRadiusOverlay();
         }
       });
+    }
+  }
+
+  void _updateSearchRadiusOverlay() {
+    if (_isMounted) {
+      final mapState = Provider.of<MapState>(context, listen: false);
+
+      if (mapState.endLocation != null) {
+        double radiusInMeters =
+            mapState.radius * 1609.34; // Convert miles to meters
+
+        setState(() {
+          searchRadiusOverlay = {
+            Circle(
+              circleId: const CircleId('searchRadius'),
+              center: mapState.endLocation!,
+              radius: radiusInMeters,
+              fillColor: Colors.blue.withOpacity(0.5),
+              strokeColor: Colors.blue,
+              strokeWidth: 2,
+            ),
+          };
+        });
+      }
     }
   }
 
   // Retrieves a set of markers of future trips. For riders, they see a set of
   // future trips to join. For drivers, they see a set of future trips they have planned.
   void _loadMarkers() async {
-    final mapState = Provider.of<MapState>(context, listen: false);
-    // Load the markers
-    final markers = SingleUser().getUser()!.driver
-        // Retrieve driver's trips
-        ? await TripApi().getTrips({
-            'driverId': SingleUser().getUser()!.id.toString(),
-          }, context, _showTripInfo)
-        // Retrieve trips by radius for rider
-        : await TripApi().getTrips({
-            'riderId': SingleUser().getUser()!.id.toString(),
-            'radius': mapState.radius.toString(),
-            'lat': mapState.endLocation?.latitude.toString() ??
-                _center!.latitude.toString(),
-            'lng': mapState.endLocation?.longitude.toString() ??
-                _center!.longitude.toString(),
-            'roundTrip': mapState.wantRoundTrip.toString(),
-            'riderLat': _userPosition!.latitude.toString(),
-            'riderLng': _userPosition!.longitude.toString()
-          }, context, _showTripInfo);
-
     if (_isMounted) {
-      setState(() {
-        _trips = markers;
-      });
+      final mapState = Provider.of<MapState>(context, listen: false);
+
+      // Determine the API parameters based on the user's role
+      final markers = SingleUser().getUser()!.driver
+          ? await TripApi().getTrips({
+              'driverId': SingleUser().getUser()!.id.toString(),
+            }, context, _showTripInfo)
+          : await TripApi().getTrips({
+              'riderId': SingleUser().getUser()!.id.toString(),
+              'radius': mapState.radius.toString(),
+              // TODO: Might need to change this to end location
+              'lat': mapState.endLocation?.latitude.toString() ??
+                  _center!.latitude.toString(),
+              'lng': mapState.endLocation?.longitude.toString() ??
+                  _center!.longitude.toString(),
+              'roundTrip': mapState.wantRoundTrip.toString(),
+              'riderLat': mapState.startLocation?.latitude.toString() ??
+                  _userPosition!.latitude!.toString(),
+              'riderLng': mapState.startLocation?.longitude.toString() ??
+                  _userPosition!.longitude!.toString(),
+            }, context, _showTripInfo);
+      if (_isMounted) {
+        setState(() {
+          _trips = markers;
+        });
+      }
     }
   }
 
@@ -113,8 +139,10 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       setState(() {
         // Set the user's position
         _userPosition = userPostion;
-        _center = LatLng(userPostion.latitude!, userPostion.longitude!);
+        _center = mapState.endLocation ??
+            LatLng(userPostion.latitude!, userPostion.longitude!);
         mapState.setEndLocation(_center);
+        mapState.setStartLocation(_center);
         _trips?.add(Marker(
           markerId: const MarkerId('user'),
           icon:
@@ -145,7 +173,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
   @override
   void initState() {
     super.initState();
-    // Get the current users' location and then load the markers
+    // Get the current user's location and then load the markers
     _getUserLocation().then((_) {
       if (_center != null) {
         _loadMarkers();
@@ -154,7 +182,10 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
 
     // Add a listener to the MapState to reload markers when the radius changes
     _mapState = Provider.of<MapState>(context, listen: false);
-    _mapState.addListener(_loadMarkers);
+    _mapState.addListener(() {
+      _loadMarkers();
+      _updateSearchRadiusOverlay();
+    });
   }
 
   @override
@@ -195,31 +226,21 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                   ));
                 }
 
-                double radiusInMeters = mapState.radius * 1609.34;
-
-                if (!SingleUser().getUser()!.driver &&
-                    mapState.endLocation != null) {
-                  searchRadiusOverlay = {
-                    Circle(
-                      circleId: const CircleId('startCircle'),
-                      center: mapState.endLocation!,
-                      radius: radiusInMeters,
-                      fillColor: Colors.blue.withOpacity(0.5),
-                      strokeColor: Colors.blue,
-                      strokeWidth: 2,
-                    )
-                  };
-                }
-
                 return GoogleMap(
                   markers: _trips ?? {},
                   zoomControlsEnabled: false,
                   zoomGesturesEnabled: true,
-                  initialCameraPosition:
-                      CameraPosition(target: _center!, zoom: 11),
+                  initialCameraPosition: CameraPosition(
+                      target: mapState.endLocation ?? _center!, zoom: 11),
                   onMapCreated: _onMapCreated,
-                  onLongPress: _handleLongPressRider,
-                  circles: searchRadiusOverlay!,
+                  // Only the riders can change the start and end location by long pressing
+                  onLongPress: SingleUser().getUser()!.driver
+                      ? null
+                      : _handleLongPressRider,
+                  // Only riders see the search radius
+                  circles: SingleUser().getUser()!.driver
+                      ? {}
+                      : searchRadiusOverlay ?? {},
                 );
               },
             ),

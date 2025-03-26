@@ -222,6 +222,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.2"
+
   flutter_colorpicker:
     dependency: "direct main"
     description:
@@ -230,6 +231,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.1"
+
   flutter_dotenv:
     dependency: "direct main"
     description:
