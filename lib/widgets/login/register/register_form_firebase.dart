@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'safety.dart'; 
   //Color(0xFFB2DFDB),
           //    Color(0xFFBBDEFB),
             //  Color.fromARGB(255, 255, 255, 255),
@@ -73,6 +74,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _carData = carData;
     });
   }
+  
 
   Future<Set<String>> loadSchoolData() async {
     final String response =
@@ -398,9 +400,25 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "We are excited for you to join us!",
-                  style: TextStyle(fontSize: 16), // Paragraph font size
+                "We are excited for you to join us! Please read our ",
+                style: TextStyle(fontSize: 16), // Paragraph font size
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SafetyFeaturesPage()), // Replace with your SafetyScreen
+                  );
+                },
+                child: Text(
+                  "safety features",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.blue, // Makes it look like a link
+                    decoration: TextDecoration.underline, // Underline to indicate it's clickable
+                  ),
                 ),
+              ),
               ],
             ),
           ),
