@@ -26,9 +26,9 @@ class AppUser {
   bool driver;
   // Note that if the user IN NOT driving then capturing this information in the database is not necessary
   int? id;
-  int? driverRating;
+  double? driverRating;
   int? driverReviewCount;
-  int? riderRating;
+  double? riderRating;
   int? riderReviewCount;
   String? carColor;
   String? carPlate;
@@ -68,9 +68,9 @@ class AppUser {
         driver: json["driver"],
         // IMPORTANT: This is need to make almost ALL requests for a user
         id: json["id"],
-        driverRating: json["driverRating"],
+        driverRating: json["driverRating"].toDouble(),
         driverReviewCount: json["driverReviewCount"],
-        riderRating: json["riderRating"],
+        riderRating: json["riderRating"].toDouble(),
         riderReviewCount: json["riderReviewCount"],
         carColor: json["carColor"],
         carPlate: json["carPlate"],

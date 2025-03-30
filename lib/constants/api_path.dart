@@ -28,3 +28,6 @@ const String CREATE_PAYPAL_ORDER = '/pay';
 const String CAPTURE_PAYPAL_ORDER = '/capture-payment';
 // Google Maps
 const String GOOGLE_MAPS_BASE = 'https://www.google.com/maps/dir/';
+// Rating users
+const String RATE_RIDER = '/rateRider';
+const String RATE_DRIVER = '/rateDriver';
