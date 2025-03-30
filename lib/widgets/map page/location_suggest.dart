@@ -40,46 +40,22 @@ class LocationSuggest extends StatelessWidget {
             },
             itemBuilder: (context, suggest) {
               return ListTile(
-                title: Text(suggest['description']),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Need to add Reverse Geocoding
-                    IconButton(
-                      icon: const Icon(Icons.location_on),
-                      onPressed: () async {
-                        final latlngLoc = await GoogleMapsUtils()
-                            .getLocationDetails(suggest['place_id']);
+                title: GestureDetector(
+                  child: Text(suggest['description']),
+                  onTap: () async {
+                    final latlngLoc = await GoogleMapsUtils()
+                        .getLocationDetails(suggest['place_id']);
 
-                        // Set the start location
-                        if (latlngLoc != null) {
-                          Provider.of<MapState>(context, listen: false)
-                              .setStartLocation(LatLng(
-                                  latlngLoc.latitude, latlngLoc.longitude));
-                        }
+                    // Set the start location
+                    if (latlngLoc != null) {
+                      Provider.of<MapState>(context, listen: false)
+                          .setStartLocation(
+                              LatLng(latlngLoc.latitude, latlngLoc.longitude));
+                    }
 
-                        // Unfocus the text field
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      },
-                    ),
-                    // IconButton(
-                    //   icon: const Icon(Icons.flag),
-                    //   onPressed: () async {
-                    //     final latlngLoc = await GoogleMapsUtils()
-                    //         .getLocationDetails(suggest['place_id']);
-
-                    //     // Set the start location
-                    //     if (latlngLoc != null) {
-                    //       Provider.of<MapState>(context, listen: false)
-                    //           .setEndLocation(LatLng(
-                    //               latlngLoc.latitude, latlngLoc.longitude));
-                    //     }
-
-                    //     // Unfocus the text field
-                    //     FocusScope.of(context).requestFocus(FocusNode());
-                    //   },
-                    // ),
-                  ],
+                    // Unfocus the text field
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
                 ),
               );
             },
