@@ -429,8 +429,22 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
           physics: AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              Text("Start Location: ${widget.trip.startLocation}"),
-              Text("Destination: ${widget.trip.destination}"),
+             // Text("Start Location: ${widget.trip.startLocation}"),
+              ListTile(
+                title: Text(
+                    "📍 Start Location: ${widget.trip.startLocation}",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+              ),
+             // Text("Destination: ${widget.trip.destination}"),
+              ListTile(
+                title: Text(
+                    "🌇 Destination: ${widget.trip.destination}",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+              ),
               // Give the driver the ability to view a list of ride request
               if (widget.trip.request == null)
                 FutureBuilder<List<RideRequest>>(
@@ -478,12 +492,16 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
               if (widget.trip.request != null)
                 Column(
                   children: [
-                    Text("Here is the rider's information"),
-                    Text(widget.trip.request!.rider!.name),
+                    Text("📌 Here is the rider's information",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("👤 Name: ${widget.trip.request!.rider!.name}",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(
-                        "${widget.trip.request!.rider!.name} has a rating of ${widget.trip.request!.rider!.riderRating}"),
+                        "⭐ ${widget.trip.request!.rider!.name} has a rating of ${widget.trip.request!.rider!.riderRating}",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(
-                        "Rider Pick up Location: ${widget.trip.request!.riderLocation}"),
+                        "📍 Rider Pick-up Location: ${widget.trip.request!.riderLocation}",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(
                       height: 200,
                       child: GoogleMap(
@@ -536,12 +554,13 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                         },
                       ),
                     ),
-                    Row(
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Give the driver the ability use Google Maps for directions.
                         ElevatedButton(
-                            onPressed: _launchMaps,
-                            child: Text("Need Directions?"))
+                          onPressed: _launchMaps,
+                          child: Text("Need Directions?"),
+                        ),
                       ],
                     )
                   ],

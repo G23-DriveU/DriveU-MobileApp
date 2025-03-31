@@ -28,6 +28,8 @@ dependencies:
   flutter_colorpicker: ^0.6.0
   flutter_local_notifications: ^18.0.1
   flutter_animate: ^4.5.2
+  google_fonts: ^6.2.1
+  
 
 dev_dependencies:
   flutter_test:
@@ -45,4 +47,6 @@ flutter:
   fonts:
     - family: Fredoka
       fonts:
-        - asset: assets/fonts/Fredoka/Fredoka-VariableFont_wdth,wght.ttf
+        - asset: assets/fonts/Fredoka-Regular.ttf
+        - asset: assets/fonts/Fredoka-Bold.ttf
+          weight: 700

@@ -33,6 +33,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
       stage = TripStage.pickedUp;
     });
   }
+  
 
   // Used in tandem with the 'RefreshIndicator' to get updated
   // trip details when looking at a specific trip.
@@ -111,9 +112,18 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
     request = widget.request;
     stage = widget.stage;
   }
-
+/*
+child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),*/
   @override
   Widget build(BuildContext context) {
+    
     print("Trip status is $stage\n");
     // Build method to define the widget tree
     return Scaffold(
@@ -129,30 +139,32 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
           ],
         )
       ],
-      body: RefreshIndicator(
-        onRefresh: _refreshTrip,
-        child: Padding(
-          // Add padding around the content
-          padding: const EdgeInsets.all(16.0), // 16px padding on all sides
-          child: ListView(
-            // ListView allows content to be scrollable
-            children: [
-              Center(
-                // Center the driver's profile picture
-                child: ClipOval(
-                  // Clip the image into a circular shape
-                  child: SizedBox(
-                    // Container to define image size
-                    width: 120, // Set width of the circle
-                    height: 120, // Set height of the circle
-                    child: ImageFrame(
-                      // Display driver's profile picture using ImageFrame widget
-                      firebaseUid: request.futureTrip?.driver?.firebaseUid ??
-                          '', // Use driver's Firebase UID or empty string if null
+      
+body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: RefreshIndicator(
+          onRefresh: _refreshTrip,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView(
+              children: [
+                Center(
+                  child: ClipOval(
+                    child: SizedBox(
+                      width: 120,
+                      height: 120,
+                      child: ImageFrame(
+                        firebaseUid: request.futureTrip?.driver?.firebaseUid ?? '',
+                      ),
                     ),
                   ),
                 ),
-              ),
               SizedBox(
                   height:
                       16), // Add space between profile picture and next section
@@ -249,6 +261,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
           ),
         ),
       ),
+    ),
     );
   }
 }
