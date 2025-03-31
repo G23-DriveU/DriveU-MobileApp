@@ -11,12 +11,15 @@ import 'package:provider/provider.dart';
 class RiderAlertDialogFutureTrip extends StatefulWidget {
   final FutureTrip trip;
   final LocationData? userPosition;
-  const RiderAlertDialogFutureTrip(
-      {super.key, required this.trip, required this.userPosition});
+  
+  const RiderAlertDialogFutureTrip({
+    super.key, 
+    required this.trip, 
+    required this.userPosition
+  });
 
   @override
-  State<RiderAlertDialogFutureTrip> createState() =>
-      _RiderAlertDialogFutureTrip();
+  State<RiderAlertDialogFutureTrip> createState() => _RiderAlertDialogFutureTrip();
 }
 
 class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
@@ -25,70 +28,104 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
   @override
   void dispose() {
     _isMounted = false;
-    // TODO: implement dispose
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final mapState = Provider.of<MapState>(context);
+    
     return AlertDialog(
-      title: Text("${widget.trip.driver!.name}'s Trip"),
+      title: Text(
+        "🚗 ${widget.trip.driver!.name}'s Trip",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,  // Align left for clarity
         children: [
-          Text("Destination: ${widget.trip.destination}"),
-          Text("Start Location: ${widget.trip.startLocation}"),
-          Text("Driver: ${widget.trip.driver!.name}"),
-          Text(
-              "Car: ${widget.trip.driver!.carMake} ${widget.trip.driver!.carModel}"),
-          Text("Your Estimated Cost: ${widget.trip.request?.riderCost}")
-          // Add more details as needed
+          _infoRow("📍 Destination:", widget.trip.destination),
+          _infoRow("📌 Start Location:", widget.trip.startLocation),
+          _infoRow("👨‍✈️ Driver:", widget.trip.driver!.name),
+          _infoRow("🚘 Car:", "${widget.trip.driver!.carMake} ${widget.trip.driver!.carModel}"),
+          _infoRow("💰 Estimated Cost:", "\$${widget.trip.request?.riderCost ?? 'N/A'}"),
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            // Communicate with PayPal
-            final payUrl = await PayPalApi().getPayUrl({
-              "tripCost": widget.trip.request!.riderCost.toStringAsFixed(2)
-            });
-
-            var authId;
-            if (_isMounted) {
-              // Rider must put in payment details for the ride
-              authId = await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PayPalWebView(url: payUrl),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(255, 255, 255, 255), 
+                  minimumSize: const Size(double.infinity, 40), 
                 ),
-              );
-            }
+                child: const Text('❌ Close', style: TextStyle(fontSize: 16)),
+              ),
+            ),
+            const SizedBox(width: 8), // Space between buttons
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  final payUrl = await PayPalApi().getPayUrl({
+                    "tripCost": widget.trip.request!.riderCost.toStringAsFixed(2)
+                  });
 
-            // We got an authId from the backend
-            if (authId.runtimeType == String) {
-              // Communicate with PostgreSQL
-              await TripApi().createRideRequest({
-                'futureTripId': widget.trip.id.toString(),
-                'riderId': SingleUser().getUser()!.id!.toString(),
-                'riderLat': mapState.startLocation.latitude.toString(),
-                'riderLng': mapState.startLocation.longitude.toString(),
-                'roundTrip': mapState.wantRoundTrip.toString(),
-                'authorizationId': authId.toString()
-              });
-              // Request was successful
-              Navigator.of(context).pop();
-              print("Successfull Request made");
-            } else {
-              print("Failed to get PayPal credentials, canceling transaction");
-            }
-          },
-          child: const Text('Join Ride'),
+                  var authId;
+                  if (_isMounted) {
+                    authId = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PayPalWebView(url: payUrl),
+                      ),
+                    );
+                  }
+
+                  if (authId.runtimeType == String) {
+                    await TripApi().createRideRequest({
+                      'futureTripId': widget.trip.id.toString(),
+                      'riderId': SingleUser().getUser()!.id!.toString(),
+                      'riderLat': mapState.startLocation.latitude.toString(),
+                      'riderLng': mapState.startLocation.longitude.toString(),
+                      'roundTrip': mapState.wantRoundTrip.toString(),
+                      'authorizationId': authId.toString()
+                    });
+
+                    Navigator.of(context).pop();
+                    print("✅ Successful Request Made");
+                  } else {
+                    print("⚠️ Failed to get PayPal credentials, canceling transaction");
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 40),
+                ),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('🚖 Join Ride', style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _infoRow(String title, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(value ?? 'N/A', softWrap: true),
+          ),
+        ],
+      ),
     );
   }
 }

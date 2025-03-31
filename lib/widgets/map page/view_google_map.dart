@@ -67,8 +67,8 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
               circleId: const CircleId('searchRadius'),
               center: mapState.endLocation!,
               radius: radiusInMeters,
-              fillColor: Colors.blue.withOpacity(0.5),
-              strokeColor: Colors.blue,
+              fillColor: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
+              strokeColor: const Color.fromARGB(255, 255, 255, 255),
               strokeWidth: 2,
             ),
           };

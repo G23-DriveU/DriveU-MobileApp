@@ -47,7 +47,7 @@ class MapPage extends StatelessWidget {
             right: 20,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.white, // Ensures full white background
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
@@ -58,8 +58,17 @@ class MapPage extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: LocationSuggest(),
+                padding: const EdgeInsets.all(3.0), // Pushes the inner container inward
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Ensures full white overlay
+                    borderRadius: BorderRadius.circular(27), // Slightly smaller than outer
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0), // Adjust spacing inside
+                    child: LocationSuggest(),
+                  ),
+                ),
               ),
             ),
           ),
