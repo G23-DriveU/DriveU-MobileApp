@@ -260,4 +260,25 @@ class TripApi {
       return 500;
     }
   }
+
+  // Enables riders/drivers to rate each other. 'rater' represents who is doing
+  // the rating; ie. if a rider is rating then they will be rating a driver etc.
+  Future<int> rateUser(
+      Map<String, String> queryParameters, String ratee) async {
+    // If the user is a rider, then we want to rate the driver and vis versa.
+    String path = ratee == "rider" ? RATE_RIDER : RATE_DRIVER;
+    try {
+      final response =
+          await SingleClient().put(path, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return 200;
+      } else {
+        throw Exception(response.body);
+      }
+    } catch (e) {
+      print("There was an error rating a user $e");
+      return 500;
+    }
+  }
 }

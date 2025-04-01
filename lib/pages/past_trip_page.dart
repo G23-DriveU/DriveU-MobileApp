@@ -1,11 +1,20 @@
 import 'package:driveu_mobile_app/model/past_trip.dart';
+import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
 
+
+import 'package:flutter_rating/flutter_rating.dart';
+import 'package:location/location.dart';
+
+// Used to display trips for Drivers using the application
+// TODO: Display all of the info for the trip in a nice way
+// Make sure to delineate between rider and driver here
 class PastTripPage extends StatefulWidget {
   final PastTrip trip;
   final LocationData? userPosition;
@@ -15,13 +24,17 @@ class PastTripPage extends StatefulWidget {
   State<PastTripPage> createState() => _PastTripPageState();
 }
 
+
 class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  double _rating = 3;
+  late PastTrip trip;
 
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -37,11 +50,113 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
   void dispose() {
     _controller.dispose();
     super.dispose();
+
+    trip = widget.trip;
+  }
+
+  // Determine if user can rate
+  bool _isRated() {
+    // User is the rider
+    if (SingleUser().getUser()!.id != trip.driverId) {
+      return trip.driverRated;
+    }
+    // User is the driver
+    else {
+      return trip.riderRated;
+    }
+  }
+
+  void _rateUserDialog(BuildContext context, PastTrip trip) {
+    String rateeName = SingleUser().getUser()!.id == trip.driverId
+        ? trip.rider!.name
+        : trip.driver!.name;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Center(child: Text("Rate $rateeName")),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  StarRating(
+                    rating: _rating,
+                    onRatingChanged: (rating) {
+                      // Like setState but just for the dialog
+                      setDialogState(() {
+                        _rating =
+                            rating; // Update the rating in the dialog's state
+                      });
+                    },
+                  ),
+                  Text("Rating $_rating")
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    // Who are we rating
+                    String ratee = SingleUser().getUser()!.id == trip.driverId
+                        ? "rider"
+                        : "driver";
+                    // The ratee (the one getting rated) id
+                    late int rateeId;
+                    if (ratee == "driver") {
+                      rateeId = trip.driverId;
+                    } else {
+                      rateeId = trip.riderId;
+                    }
+
+                    // Handle the rating submission logic here
+                    int res = await TripApi().rateUser({
+                      "${ratee}Id": rateeId.toString(),
+                      "rating": _rating.toString(),
+                      "tripId": trip.id.toString()
+                    }, ratee);
+
+                    if (res == 200) {
+                      setState(() {
+                        if (ratee == "driver") {
+                          trip.riderRated = true;
+                        } else {
+                          trip.driverRated = true;
+                        }
+                      });
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       persistentFooterButtons: [
+        Center(
+          child: ElevatedButton(
+            onPressed: _isRated() == false
+                ? () => _rateUserDialog(context, trip)
+                : null,
+            style: ElevatedButton.styleFrom(
+              disabledBackgroundColor: Theme.of(context).disabledColor,
+            ),
+            child: const Text("Rate"),
+          ),
+        )
+      ],
+
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -116,6 +231,7 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
             TextSpan(text: value),
           ],
         ),
+
       ),
     );
   }

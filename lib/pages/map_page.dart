@@ -41,6 +41,7 @@ class MapPage extends StatelessWidget {
       body: Stack(
         children: [
           const ViewGoogleMap(),
+
           Positioned(
             top: 50,
             left: 20,
@@ -71,7 +72,6 @@ class MapPage extends StatelessWidget {
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

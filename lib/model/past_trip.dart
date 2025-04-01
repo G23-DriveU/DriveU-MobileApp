@@ -25,27 +25,30 @@ class PastTrip {
   int id;
   AppUser? rider;
   AppUser? driver;
+  bool driverRated;
+  bool riderRated;
 
-  PastTrip({
-    required this.driverId,
-    required this.riderId,
-    required this.startLocation,
-    required this.startLocationLat,
-    required this.startLocationLng,
-    required this.riderLocation,
-    required this.riderLocationLat,
-    required this.riderLocationLng,
-    required this.destination,
-    required this.destinationLat,
-    required this.destinationLng,
-    required this.roundTrip,
-    required this.driverPayout,
-    required this.riderCost,
-    required this.distance,
-    required this.id,
-    this.rider,
-    this.driver,
-  });
+  PastTrip(
+      {required this.driverId,
+      required this.riderId,
+      required this.startLocation,
+      required this.startLocationLat,
+      required this.startLocationLng,
+      required this.riderLocation,
+      required this.riderLocationLat,
+      required this.riderLocationLng,
+      required this.destination,
+      required this.destinationLat,
+      required this.destinationLng,
+      required this.roundTrip,
+      required this.driverPayout,
+      required this.riderCost,
+      required this.distance,
+      required this.id,
+      this.rider,
+      this.driver,
+      required this.driverRated,
+      required this.riderRated});
 
   factory PastTrip.fromJson(Map<String, dynamic> json) => PastTrip(
         driverId: json["driverId"],
@@ -70,6 +73,8 @@ class PastTrip {
         driver: json.containsKey("driver") && json["driver"] != null
             ? AppUser.fromJson(json["driver"])
             : null,
+        driverRated: json["driverRated"],
+        riderRated: json["riderRated"],
       );
 
   Map<String, dynamic> toJson() => {
