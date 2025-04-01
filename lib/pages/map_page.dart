@@ -41,37 +41,40 @@ class MapPage extends StatelessWidget {
       body: Stack(
         children: [
           const ViewGoogleMap(),
-
-          Positioned(
-            top: 50,
-            left: 20,
-            right: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white, // Ensures full white background
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(3.0), // Pushes the inner container inward
+          if (!SingleUser().getUser()!.driver)
+            Positioned(
+                top: 50,
+                left: 20,
+                right: 20,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white, // Ensures full white overlay
-                    borderRadius: BorderRadius.circular(27), // Slightly smaller than outer
+                    color: Colors.white, // Ensures full white background
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(6.0), // Adjust spacing inside
-                    child: LocationSuggest(),
+                    padding: const EdgeInsets.all(
+                        3.0), // Pushes the inner container inward
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Ensures full white overlay
+                        borderRadius: BorderRadius.circular(
+                            27), // Slightly smaller than outer
+                      ),
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.all(6.0), // Adjust spacing inside
+                        child: LocationSuggest(),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
+                )),
         ],
       ),
     );

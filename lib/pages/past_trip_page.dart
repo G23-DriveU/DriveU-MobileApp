@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
 
-
 import 'package:flutter_rating/flutter_rating.dart';
 import 'package:location/location.dart';
 
@@ -18,14 +17,15 @@ import 'package:location/location.dart';
 class PastTripPage extends StatefulWidget {
   final PastTrip trip;
   final LocationData? userPosition;
-  const PastTripPage({super.key, required this.trip, required this.userPosition});
+  const PastTripPage(
+      {super.key, required this.trip, required this.userPosition});
 
   @override
   State<PastTripPage> createState() => _PastTripPageState();
 }
 
-
-class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderStateMixin {
+class _PastTripPageState extends State<PastTripPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   double _rating = 3;
@@ -35,6 +35,7 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
   void initState() {
     super.initState();
 
+    trip = widget.trip;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -143,7 +144,7 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       persistentFooterButtons: [
+      persistentFooterButtons: [
         Center(
           child: ElevatedButton(
             onPressed: _isRated() == false
@@ -156,7 +157,6 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
           ),
         )
       ],
-
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -168,7 +168,8 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -183,19 +184,23 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
                 _buildInfoRow("📍 Start Location:", widget.trip.startLocation),
                 _buildInfoRow("🎯 Destination:", widget.trip.destination),
                 const SizedBox(height: 15),
-                _buildInfoRow("👤 Driver:", widget.trip.driver?.name ?? SingleUser().getUser()!.name),
-                _buildInfoRow("🚗 Car:", "${widget.trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${widget.trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"),
+                _buildInfoRow("👤 Driver:",
+                    widget.trip.driver?.name ?? SingleUser().getUser()!.name),
+                _buildInfoRow("🚗 Car:",
+                    "${widget.trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${widget.trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"),
                 const SizedBox(height: 15),
                 if (widget.trip.driverId == SingleUser().getUser()!.id)
                   Column(
                     children: [
-                      _buildInfoRow("💰 You made:", "\$${widget.trip.driverPayout}"),
+                      _buildInfoRow(
+                          "💰 You made:", "\$${widget.trip.driverPayout}"),
                       const SizedBox(height: 10),
                       Row(
                         children: [
                           Text(
                             "🚘 You Drove:",
-                            style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.fredoka(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 10),
                           ClipOval(
@@ -208,7 +213,8 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
                     ],
                   ),
                 if (widget.trip.driverId != SingleUser().getUser()!.id)
-                  _buildInfoRow("💳 This ride cost you:", "\$${widget.trip.riderCost}"),
+                  _buildInfoRow(
+                      "💳 This ride cost you:", "\$${widget.trip.riderCost}"),
               ],
             ),
           ),
@@ -231,7 +237,6 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
             TextSpan(text: value),
           ],
         ),
-
       ),
     );
   }
