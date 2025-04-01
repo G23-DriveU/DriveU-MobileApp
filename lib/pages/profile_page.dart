@@ -6,9 +6,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   // Display an edit dialog to enable users to change their information
   void _displayEditDialog(BuildContext context, String title,
       String initialValue, Function(String, String) onSave) {
@@ -56,27 +61,45 @@ class ProfilePage extends StatelessWidget {
     switch (label) {
       case "Name":
         label = "name";
+        SingleUser().getUser()!.name = value;
         break;
       case "Phone":
         label = "phoneNumber";
+        SingleUser().getUser()!.phoneNumber = value;
       case "Make":
         label = "carMake";
+        SingleUser().getUser()!.carMake = value;
         break;
       case "Model":
         label = "carModel";
+        SingleUser().getUser()!.carModel = value;
         break;
       case "Plate":
         label = "carPlate";
+        SingleUser().getUser()!.carPlate = value;
       case "Color":
         label = "carColor";
+        SingleUser().getUser()!.carColor = value;
         break;
       default:
         label = "";
         break;
     }
+
+    final Map<String, String> newUserParams = {
+      "userId": SingleUser().getUser()!.id.toString(),
+      "name": SingleUser().getUser()!.name,
+      "phoneNumber": SingleUser().getUser()!.phoneNumber,
+      "school": SingleUser().getUser()!.school,
+      "driver": SingleUser().getUser()!.driver.toString(),
+      "carColor": SingleUser().getUser()!.carColor ?? "",
+      "carPlate": SingleUser().getUser()!.carPlate ?? "",
+      "carMake": SingleUser().getUser()!.carMake ?? "",
+      "carModel": SingleUser().getUser()!.carModel ?? "",
+    };
+    setState(() {});
     // Update the user info
-    await UserApi().editUserInfo(
-        {"userId": SingleUser().getUser()!.id.toString(), label: value});
+    await UserApi().editUserInfo(newUserParams);
   }
 
   @override
