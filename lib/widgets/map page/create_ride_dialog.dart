@@ -8,7 +8,6 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
-// TODO: Add some field verification along with dialogs to let users know successful action
 class CreateRideDialog extends StatefulWidget {
   const CreateRideDialog({super.key});
 
@@ -24,7 +23,6 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _endController = TextEditingController();
 
-  // Enable user to select a date for the ride
   Future<void> _selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
@@ -39,7 +37,6 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
     }
   }
 
-  // Select a time for the ride to start
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay now = TimeOfDay.now();
     final TimeOfDay? picked = await showTimePicker(
@@ -52,8 +49,6 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
         _selectedTime = picked;
       });
     } else {
-      // Show an error message if the selected time is before the current time
-      // TODO: Don't know if I like this, might do something else
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
@@ -71,138 +66,114 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
     return null;
   }
 
+  Widget _buildTypeAheadField(
+      String hintText, TextEditingController controller, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0), // Spacing between inputs
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12), // Inner padding
+        child: TypeAheadField(
+          controller: controller,
+          builder: (context, textController, focusNode) => TextField(
+            controller: textController,
+            focusNode: focusNode,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: hintText,
+            ),
+          ),
+          suggestionsCallback: (pattern) async {
+            return await GoogleMapsUtils().getLocations(pattern);
+          },
+          onSelected: (suggestion) async {
+            final finalLoc = await GoogleMapsUtils()
+                .getLocationDetails(suggestion['place_id']);
+
+            controller.text = suggestion['description'].toString();
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          itemBuilder: (context, suggest) {
+            return ListTile(
+              title: Text(suggest['description']),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Post a Ride"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TypeAheadField(
-            controller: _startController,
-            // hideOnEmpty: true,
-            builder: (context, controller, focusNode) => TextField(
-              controller: _startController,
-              focusNode: focusNode,
-              decoration: const InputDecoration(
-                hintText: 'Start Location',
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildTypeAheadField("Start Location", _startController, context),
+            _buildTypeAheadField("End Location", _endController, context),
+            SizedBox(height: 10), // Extra spacing
+            ListTile(
+              title: const Text("Select Date"),
+              trailing: _selectedDate == null
+                  ? const Text("Select Date")
+                  : Text(
+                      "${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}"),
+              onTap: () => _selectDate(context),
+            ),
+            ListTile(
+              title: const Text("Select Time"),
+              trailing: _selectedTime == null
+                  ? const Text("Select Time")
+                  : Text("${_selectedTime!.hour}:${_selectedTime!.minute}"),
+              onTap: () => _selectTime(context),
+            ),
+            SizedBox(height: 10),
+            CheckboxListTile(
+              title: const Text("Avoid Tolls"),
+              value: avoidTolls,
+              onChanged: (bool? value) {
+                setState(() {
+                  avoidTolls = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text("Avoid Highways"),
+              value: avoidHighways,
+              onChanged: (bool? value) {
+                setState(() {
+                  avoidHighways = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text("Round Trip"),
+              value: roundTrip,
+              onChanged: (bool? value) {
+                setState(() {
+                  roundTrip = value ?? false;
+                });
+              },
+            ),
+            if (roundTrip)
+              Column(
+                children: [
+                  const Text("How Long do You Plan to Stay?"),
+                  DurationPicker(
+                    onChange: (val) => setState(() {
+                      _duration = val;
+                    }),
+                    duration: _duration,
+                  )
+                ],
               ),
-            ),
-            suggestionsCallback: (pattern) async {
-              // Call the Google Maps API to get the suggestions
-              return await GoogleMapsUtils().getLocations(pattern);
-            },
-            onSelected: (suggestion) async {
-              // Once a location is selected, call the Google Maps API to get the location details
-              final finalLoc = await GoogleMapsUtils()
-                  .getLocationDetails(suggestion['place_id']);
-
-              _startController.text = suggestion['description'].toString();
-
-              if (finalLoc != null) {
-                Provider.of<MapState>(context, listen: false).setStartLocation(
-                    LatLng(finalLoc.latitude, finalLoc.longitude));
-              }
-
-              // Unfocus the text field
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
-            itemBuilder: (context, suggest) {
-              return ListTile(
-                title: Text(suggest['description']),
-              );
-            },
-          ),
-          TypeAheadField(
-            controller: _endController,
-            // hideOnEmpty: true,
-            builder: (context, controller, focusNode) => TextField(
-              controller: _endController,
-              focusNode: focusNode,
-              decoration: const InputDecoration(
-                hintText: 'End Location',
-              ),
-            ),
-            suggestionsCallback: (pattern) async {
-              // Call the Google Maps API to get the suggestions
-              return await GoogleMapsUtils().getLocations(pattern);
-            },
-            onSelected: (suggestion) async {
-              // Once a location is selected, call the Google Maps API to get the location details
-              final finalLoc = await GoogleMapsUtils()
-                  .getLocationDetails(suggestion['place_id']);
-
-              _endController.text = suggestion['description'].toString();
-
-              if (finalLoc != null) {
-                Provider.of<MapState>(context, listen: false).setEndLocation(
-                    LatLng(finalLoc.latitude, finalLoc.longitude));
-              }
-
-              // Unfocus the text field when a selection is made
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
-            itemBuilder: (context, suggest) {
-              return ListTile(
-                title: Text(suggest['description']),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text("Select Date"),
-            trailing: _selectedDate == null
-                ? const Text("Select Date")
-                : Text(
-                    "${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}"),
-            onTap: () => _selectDate(context),
-          ),
-          ListTile(
-            title: const Text("Select Time"),
-            trailing: _selectedTime == null
-                ? const Text("Select Time")
-                : Text("${_selectedTime!.hour}:${_selectedTime!.minute}"),
-            onTap: () => _selectTime(context),
-          ),
-          CheckboxListTile(
-            title: const Text("Avoid Tolls"),
-            value: avoidTolls,
-            onChanged: (bool? value) {
-              setState(() {
-                avoidTolls = value ?? false;
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: const Text("Avoid Highways"),
-            value: avoidHighways,
-            onChanged: (bool? value) {
-              setState(() {
-                avoidHighways = value ?? false;
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: const Text("Round Trip"),
-            value: roundTrip,
-            onChanged: (bool? value) {
-              setState(() {
-                roundTrip = value ?? false;
-              });
-            },
-          ),
-          if (roundTrip)
-            Column(
-              children: [
-                Text("How Long do You Plan to Stay?"),
-                DurationPicker(
-                  onChange: (val) => setState(() {
-                    _duration = val;
-                  }),
-                  duration: _duration,
-                )
-              ],
-            ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -249,7 +220,6 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
 
               Navigator.of(context).pop();
             } on Exception catch (e) {
-              // Some error
               print("DEBUG: There was an error creating the trip $e");
             }
           },
