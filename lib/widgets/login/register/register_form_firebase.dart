@@ -9,10 +9,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'safety.dart'; 
-  //Color(0xFFB2DFDB),
-          //    Color(0xFFBBDEFB),
-            //  Color.fromARGB(255, 255, 255, 255),
+import 'safety.dart';
+
 class RegisterFormFirebase extends StatefulWidget {
   const RegisterFormFirebase({super.key});
 
@@ -74,7 +72,6 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _carData = carData;
     });
   }
-  
 
   Future<Set<String>> loadSchoolData() async {
     final String response =
@@ -357,8 +354,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           await AuthService().register(_email!, _password!);
 
                       if (response == null) {
-                        SingleUser ().setUser (AppUser (
-                          firebaseUid: FirebaseAuth.instance.currentUser !.uid,
+                        SingleUser().setUser(AppUser(
+                          firebaseUid: FirebaseAuth.instance.currentUser!.uid,
                           email: _email!,
                           name: _name!,
                           school: _school!,
@@ -369,12 +366,12 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                           carPlate: _carPlate,
                           carColor: _carColor,
                         ));
-                        await UserApi().createUser (
-                            SingleUser ().getUser ()!.toQueryParams(_authCode));
+                        await UserApi().createUser(
+                            SingleUser().getUser()!.toQueryParams(_authCode));
                         // Don't send a photo if it wasn't selected.
                         if (_profileImage != null) {
                           await UserApi().sendProfileImage(
-                              FirebaseAuth.instance.currentUser !.uid,
+                              FirebaseAuth.instance.currentUser!.uid,
                               _encodeToBase64(_profileImage)!);
                         }
 
@@ -400,25 +397,28 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                "We are excited for you to join us! Please read our ",
-                style: TextStyle(fontSize: 16), // Paragraph font size
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SafetyFeaturesPage()), // Replace with your SafetyScreen
-                  );
-                },
-                child: Text(
-                  "safety features",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue, // Makes it look like a link
-                    decoration: TextDecoration.underline, // Underline to indicate it's clickable
+                  "We are excited for you to join us! Please read our ",
+                  style: TextStyle(fontSize: 16), // Paragraph font size
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              SafetyFeaturesPage()), // Replace with your SafetyScreen
+                    );
+                  },
+                  child: Text(
+                    "safety features",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blue, // Makes it look like a link
+                      decoration: TextDecoration
+                          .underline, // Underline to indicate it's clickable
+                    ),
                   ),
                 ),
-              ),
               ],
             ),
           ),
@@ -499,7 +499,8 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
 // Function to navigate to the RegisterFormFirebase with a transition
 void navigateToRegisterForm(BuildContext context) {
   Navigator.of(context).push(PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => const RegisterFormFirebase(),
+    pageBuilder: (context, animation, secondaryAnimation) =>
+        const RegisterFormFirebase(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(-1.0, 0.0); // Start from the left
       const end = Offset.zero; // End at the original position

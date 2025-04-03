@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/image_frame.dart';
+import 'package:driveu_mobile_app/widgets/pay_pal_webview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -49,6 +53,251 @@ class _ProfilePageState extends State<ProfilePage> {
               child: const Text("Save"),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _handleRoleSwitch(BuildContext context) {
+    final user = SingleUser().getUser()!;
+
+    // Update their role to a rider
+    if (user.driver) {
+      print("Swapping from original driver to rider");
+      _swapRole(false);
+    }
+    // Somebody currently using the app as a rider wants to swap to a driver
+    // AND they want to swap back to being a driver
+    else if (user.carColor != null ||
+        user.carMake != null ||
+        user.carModel != null ||
+        user.carPlate != null && !user.driver) {
+      print("Swapping original rider, but have proper driver creds");
+      _swapRole(true);
+    } else {
+      print("Swapping becoming a driver");
+      _displayDriverForm(context);
+    }
+  }
+
+  // isDriver == true => swap to a ride
+  // isDriver == false => swap to driver
+  void _swapRole(bool isDriver) {
+    SingleUser().getUser()!.driver = isDriver;
+    // // Update with the fact that they want to s
+    // await UserApi().editUserInfo(queryParameters);
+
+    setState(() {});
+  }
+
+  Future<void> _displayDriverForm(BuildContext context) async {
+    // Store info about the car and the PayPal payer id
+    String? carMake, carModel, carPlate, carColor, authCode0, paypalError;
+    Map<String, List<String>> carDataMap = {};
+    final formKey = GlobalKey<FormState>();
+
+    // Load car data before showing the dialog
+    carDataMap = await loadCarData();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text("Enter Your Information"),
+              content: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildAutocompleteField(
+                        label: 'Car Make',
+                        options: carDataMap.keys.toList(),
+                        onSelected: (String selection) {
+                          setDialogState(() {
+                            carMake = selection;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _buildAutocompleteField(
+                        label: 'Car Model',
+                        options:
+                            carMake != null && carDataMap.containsKey(carMake)
+                                ? carDataMap[carMake]!
+                                : [],
+                        onSelected: (String selection) {
+                          setDialogState(() {
+                            carModel = selection;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        label: 'Car Plate',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please Enter your Car Plate';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) => carPlate = value,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        label: 'Car Color',
+                        onSaved: (value) => carColor = value,
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final authCode = await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => PayPalWebView(url: null),
+                            ),
+                          );
+
+                          if (authCode.runtimeType == String) {
+                            authCode0 = authCode as String?;
+                          } else {
+                            authCode0 = null;
+                          }
+                        },
+                        child: const Text("Link PayPal"),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            formKey.currentState!.save(); // Save the form data
+
+                            if (authCode0 != null) {
+                              final Map<String, String> newUserParams = {
+                                "userId": SingleUser().getUser()!.id.toString(),
+                                "name": SingleUser().getUser()!.name,
+                                "phoneNumber":
+                                    SingleUser().getUser()!.phoneNumber,
+                                "school": SingleUser().getUser()!.school,
+                                "driver": true.toString(),
+                                "carColor": carColor!,
+                                "carPlate": carPlate!,
+                                "carMake": carMake!,
+                                "carModel": carModel!,
+                                "authCode": authCode0!
+                              };
+                              setState(() {});
+                              // Update the user info
+                              await UserApi().editUserInfo(newUserParams);
+                              SingleUser().getUser()!.driver = true;
+                              SingleUser().getUser()!.carColor = carColor;
+                              SingleUser().getUser()!.carPlate = carPlate;
+                              SingleUser().getUser()!.carMake = carMake;
+                              SingleUser().getUser()!.carModel = carModel;
+                              Navigator.of(context).pop();
+                            } else {
+                              paypalError =
+                                  "Please link your PayPal account to continue.";
+                            }
+                          } else {
+                            // Show an error message if validation fails
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      "Please fill in all required fields")),
+                            );
+                          }
+                        },
+                        child: const Text("Send Driver Information"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<Map<String, List<String>>> loadCarData() async {
+    final String response =
+        await rootBundle.loadString('assets/vehicle_models_cleaned.json');
+    final List<dynamic> data = json.decode(response);
+    final Map<String, List<String>> carData = {};
+    for (var item in data) {
+      final String make = item['Make'];
+      final List<String> models = List<String>.from(item['Models']);
+      carData[make] = models;
+    }
+    return carData;
+  }
+
+  Widget _buildTextField({
+    required String label,
+    bool obscureText = false,
+    FormFieldValidator<String>? validator,
+    ValueChanged<String>? onChanged,
+    FormFieldSetter<String>? onSaved,
+  }) {
+    return TextFormField(
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true, // Fill the background
+        fillColor: Colors.white, // Set background color to white
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0), // Curved corners
+        ),
+      ),
+      validator: validator,
+      onChanged: onChanged,
+      onSaved: onSaved,
+      style: const TextStyle(fontFamily: 'Fredoka'),
+    );
+  }
+
+  Widget _buildAutocompleteField({
+    required String label,
+    required List<String> options,
+    required ValueChanged<String> onSelected,
+  }) {
+    return Autocomplete<String>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return const Iterable<String>.empty();
+        }
+        return options.where((String option) {
+          return option
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
+      },
+      onSelected: onSelected,
+      fieldViewBuilder: (BuildContext context,
+          TextEditingController textEditingController,
+          FocusNode focusNode,
+          VoidCallback onFieldSubmitted) {
+        return TextFormField(
+          controller: textEditingController,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: label,
+            filled: true, // Fill the background
+            fillColor: Colors.white, // Set background color to white
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0), // Curved corners
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please Enter $label';
+            }
+            return null;
+          },
+          style: const TextStyle(fontFamily: 'Fredoka'),
         );
       },
     );
@@ -197,6 +446,28 @@ class _ProfilePageState extends State<ProfilePage> {
                       _buildInfoRow(context, "Color", user.carColor!),
                     const SizedBox(height: 25),
                   ].animate().fade(duration: 700.ms),
+                ElevatedButton(
+                  onPressed: () => _handleRoleSwitch(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: const BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  child: Text(
+                    SingleUser().getUser()!.driver == true
+                        ? "Switch to Rider"
+                        : "Switch to Driver",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () => AuthService().signOut(),
