@@ -100,106 +100,164 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
     }
   }
 
-  // Show rider info for drivers when looking through ride request
-  void _showRiderInfo(
-      BuildContext context, RideRequest riderRequest, FutureTrip trip) async {
-    await getRoute(trip, riderRequest);
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                      onPressed: () async {
-                        await TripApi().acceptRideRequest(
-                            {"rideRequestId": riderRequest.id.toString()});
-
-                        // Attach the accepted ride request
-                        setState(() {
-                          widget.trip.request = riderRequest;
-                          widget.trip.isFull = true;
-                        });
-
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("Accept")),
-                  ElevatedButton(
-                      onPressed: () async {
-                        await TripApi().rejectRideRequest(
-                            {"rideRequestId": riderRequest.id.toString()});
-                        setState(() {
-                          // Remove the request from list of ride requests
-                        });
-
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("Reject")),
-                ],
-              )
-            ],
-            content: Column(
+void _showRiderInfo(
+    BuildContext context, RideRequest riderRequest, FutureTrip trip) async {
+  await getRoute(trip, riderRequest);
+  showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "👤 Rider Information",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Here is the rider's information"),
-                Text(riderRequest.rider!.name),
-                Text(
-                    "${riderRequest.rider!.name} has a rating of ${riderRequest.rider!.riderRating}"),
-                Text("Rider Pick up Location: ${riderRequest.riderLocation}"),
-                SizedBox(
-                  height: 200,
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target:
+                Text("📌 Here is the rider's information",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 10),
+
+                // Rider's Name
+                ListTile(
+                  title: Text(
+                    "👤 Name:",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  subtitle: Text(riderRequest.rider?.name ?? 'N/A'),
+                ),
+
+                // Rider's Rating
+                ListTile(
+                  title: Text(
+                    "⭐ Rating:",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  subtitle: Text("${riderRequest.rider?.riderRating ?? 'N/A'}"),
+                ),
+
+                // Rider's Pick-up Location
+                ListTile(
+                  title: Text(
+                    "📍 Pickup Location:",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  subtitle: Text(riderRequest.riderLocation ?? 'N/A'),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Google Map Display
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12), // Rounded map edges
+                  child: SizedBox(
+                    height: 200,
+                    width: double.infinity, // Ensure it fits properly
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(trip.startLocationLat, trip.startLocationLng),
+                        zoom: 8,
+                      ),
+                      markers: {
+                        Marker(
+                          markerId: MarkerId('driverLocation'),
+                          icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueGreen),
+                          position:
+                              LatLng(trip.startLocationLat, trip.startLocationLng),
+                          infoWindow: InfoWindow(title: '🚖 Driver Location'),
+                        ),
+                        Marker(
+                          markerId: MarkerId('riderLocation'),
+                          position: LatLng(riderRequest.riderLocationLat,
+                              riderRequest.riderLocationLng),
+                          infoWindow: InfoWindow(title: '📍 Rider Location'),
+                        ),
+                        Marker(
+                          markerId: MarkerId('destinationLocation'),
+                          icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueOrange),
+                          position: LatLng(trip.destinationLat, trip.destinationLng),
+                          infoWindow: InfoWindow(title: '🏁 Final Destination'),
+                        )
+                      },
+                      polylines: _polylines,
+                      onMapCreated: (GoogleMapController controller) {
+                        _mapController = controller;
+                        LatLngBounds bounds = GoogleMapsUtils().calculateBounds([
                           LatLng(trip.startLocationLat, trip.startLocationLng),
-                      zoom: 8,
+                          LatLng(trip.destinationLat, trip.destinationLng),
+                          LatLng(riderRequest.riderLocationLat,
+                              riderRequest.riderLocationLng)
+                        ]);
+                        _mapController!.animateCamera(
+                          CameraUpdate.newLatLngBounds(bounds, 50),
+                        );
+                      },
                     ),
-                    markers: {
-                      Marker(
-                        markerId: MarkerId('driverLocation'),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueGreen),
-                        position: LatLng(
-                            trip.startLocationLat, trip.startLocationLng),
-                        infoWindow: InfoWindow(title: 'Driver Location'),
-                      ),
-                      Marker(
-                        markerId: MarkerId('riderLocation'),
-                        position: LatLng(riderRequest.riderLocationLat,
-                            riderRequest.riderLocationLng),
-                        infoWindow: InfoWindow(title: 'Rider Location'),
-                      ),
-                      Marker(
-                        markerId: MarkerId('destinationLocation'),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueOrange),
-                        position:
-                            LatLng(trip.destinationLat, trip.destinationLng),
-                        infoWindow: InfoWindow(title: 'Final Destination'),
-                      )
-                    },
-                    // Generate polyline for the route
-                    polylines: _polylines,
-                    onMapCreated: (GoogleMapController controller) {
-                      _mapController = controller;
-                      LatLngBounds bounds = GoogleMapsUtils().calculateBounds([
-                        LatLng(trip.startLocationLat, trip.startLocationLng),
-                        LatLng(trip.destinationLat, trip.destinationLng),
-                        LatLng(riderRequest.riderLocationLat,
-                            riderRequest.riderLocationLng)
-                      ]);
-                      _mapController!.animateCamera(
-                        CameraUpdate.newLatLngBounds(bounds, 50),
-                      );
-                    },
                   ),
                 ),
               ],
             ),
-          );
-        });
-  }
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Accept Button
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await TripApi().acceptRideRequest(
+                          {"rideRequestId": riderRequest.id.toString()});
+
+                      setState(() {
+                        widget.trip.request = riderRequest;
+                        widget.trip.isFull = true;
+                      });
+
+                      Navigator.of(context).pop();
+                    },
+                    icon: Icon(Icons.check, color: Colors.white),
+                    label: Text("Accept"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 10), // Space between buttons
+
+                // Reject Button
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await TripApi().rejectRideRequest(
+                          {"rideRequestId": riderRequest.id.toString()});
+                      setState(() {
+                        // Remove the request from list of ride requests
+                      });
+
+                      Navigator.of(context).pop();
+                    },
+                    icon: Icon(Icons.close, color: Colors.white),
+                    label: Text("Reject"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      });
+}
+
+
 
   void _startTrip() async {
     print("Starting the trip");
@@ -432,18 +490,20 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
              // Text("Start Location: ${widget.trip.startLocation}"),
               ListTile(
                 title: Text(
-                    "📍 Start Location: ${widget.trip.startLocation}",
+                    "📍 Start Location: ",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14)),
+                        fontSize: 15)),
+                  subtitle: Text(widget.trip.startLocation),
               ),
              // Text("Destination: ${widget.trip.destination}"),
               ListTile(
                 title: Text(
-                    "🌇 Destination: ${widget.trip.destination}",
+                    "🌇 Destination: ",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14)),
+                        fontSize: 15)),
+                  subtitle: Text(widget.trip.destination),
               ),
               // Give the driver the ability to view a list of ride request
               if (widget.trip.request == null)
