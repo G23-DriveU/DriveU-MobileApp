@@ -123,16 +123,35 @@ class _RidesPageState extends State<RidesPage> {
           emptyText: "No upcoming trips planned",
           builder: (data) => ListView.builder(
               itemCount: data.length,
-              itemBuilder: (context, index) => ListTile(
-                    title: Text("Your Trip to ${data[index].destination}"),
-                    trailing: const Icon(Icons.money),
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return FutureTripPageDriver(
-                          trip: data[index],
-                          stage: getTripStage(data[index], null));
-                    })).then((result) =>
-                        result == "refresh" ? setState(() {}) : null),
+              itemBuilder: (context, index) => Container(
+                    decoration: BoxDecoration(
+                      color: isStarted(getTripStage(data[index], null))
+                          ? Colors.teal.shade50
+                          : null,
+                    ),
+                    child: ListTile(
+                      title: Text("Your Trip to ${data[index].destination}"),
+                      trailing: isStarted(getTripStage(data[index], null))
+                          ? const Icon(
+                              Icons.money,
+                              color: Colors.green,
+                            )
+                          : const Icon(Icons.money),
+                      shape: isStarted(getTripStage(data[index], null))
+                          ? RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Colors.teal.shade300, width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                          : null,
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return FutureTripPageDriver(
+                            trip: data[index],
+                            stage: getTripStage(data[index], null));
+                      })).then((result) =>
+                          result == "refresh" ? setState(() {}) : null),
+                    ),
                   )),
         );
       },
@@ -149,17 +168,36 @@ class _RidesPageState extends State<RidesPage> {
           emptyText: "No upcoming trips planned",
           builder: (data) => ListView.builder(
               itemCount: data.length,
-              itemBuilder: (context, index) => ListTile(
-                    title: Text(
-                        "${data[index].futureTrip!.driver?.name}'s Trip to ${data[index].futureTrip!.destination}"),
-                    trailing: const Icon(Icons.car_rental),
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return FutureTripPageRider(
-                          request: data[index],
-                          stage: getTripStage(null, data[index]));
-                    })).then((result) =>
-                        result == "refresh" ? setState(() {}) : null),
+              itemBuilder: (context, index) => Container(
+                    decoration: BoxDecoration(
+                      color: isStarted(getTripStage(null, data[index]))
+                          ? Colors.teal.shade50
+                          : null,
+                    ),
+                    child: ListTile(
+                      title: Text(
+                          "${data[index].futureTrip!.driver?.name}'s Trip to ${data[index].futureTrip!.destination}"),
+                      trailing: isStarted(getTripStage(null, data[index]))
+                          ? const Icon(
+                              Icons.car_rental,
+                              color: Colors.green,
+                            )
+                          : const Icon(Icons.car_rental),
+                      shape: isStarted(getTripStage(null, data[index]))
+                          ? RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Colors.teal.shade300, width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                          : null,
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return FutureTripPageRider(
+                            request: data[index],
+                            stage: getTripStage(null, data[index]));
+                      })).then((result) =>
+                          result == "refresh" ? setState(() {}) : null),
+                    ),
                   )),
         );
       },

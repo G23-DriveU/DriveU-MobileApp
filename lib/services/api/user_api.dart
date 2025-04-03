@@ -56,4 +56,19 @@ class UserApi {
       return null;
     }
   }
+
+  Future<void> editUserInfo(Map<String, String> queryParameters) async {
+    try {
+      final response =
+          await SingleClient().put(USER, queryParameters: queryParameters);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception("Error Editing info");
+      }
+    } on Exception catch (e) {
+      print(e.toString());
+    }
+  }
 }
