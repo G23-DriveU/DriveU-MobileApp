@@ -21,8 +21,6 @@ class _HomePageState extends State<HomePage> {
 
   var currentPage = 0;
 
-  // For some reason if there is a Firebase instance of the user but not Postgres
-  // then just log the user out. TODO: Put up a toast message.
   @override
   void initState() {
     super.initState();
@@ -36,17 +34,24 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: (value) => setState(() => currentPage = value),
         currentIndex: currentPage,
+        selectedItemColor: Colors.teal, // 🟢 Teal for selected items
+        unselectedItemColor: const Color.fromARGB(255, 113, 196, 186), // Light teal for unselected
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Keeps background neutral
+        selectedFontSize: 14,
+        unselectedFontSize: 14,
+        selectedIconTheme: const IconThemeData(size: 28),
+        unselectedIconTheme: const IconThemeData(size: 28),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.map),
+            icon: Icon(Icons.map, size: 28),
             label: "Search",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.car_rental),
+            icon: Icon(Icons.car_rental, size: 28),
             label: "My Rides",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person, size: 28),
             label: "Profile",
           ),
         ],
