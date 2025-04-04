@@ -11,62 +11,88 @@ class LocationSuggest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        Expanded(
-          child: TypeAheadField(
-            controller: _controller,
-            // hideOnEmpty: true,
-            builder: (context, controller, focusNode) => TextField(
-              controller: _controller,
-              focusNode: focusNode,
-              decoration: const InputDecoration(
-                hintText: 'Set your pick up spot...',
+        // Thick white rounded rectangular border overlay (non-blocking)
+        IgnorePointer(
+          ignoring: true, // Prevents blocking interaction with the search bar
+          child: Positioned(
+            left: 0,
+            right: 20,
+            child: Container(
+              width: double.infinity,
+              height: 60, // Adjust height
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10), // Rounded rectangular
+                border: Border.all(color: Colors.white, width: 6), // Thick white border
               ),
             ),
-            suggestionsCallback: (pattern) async {
-              // Call the Google Maps API to get the suggestions
-              return await GoogleMapsUtils().getLocations(pattern);
-            },
-            onSelected: (suggestion) async {
-              // Once a location is selected, call the Google Maps API to get the location details
-              final finalLoc = await GoogleMapsUtils()
-                  .getLocationDetails(suggestion['place_id']);
-
-              _controller.text = suggestion['description'].toString();
-
-              // Unfocus the text field
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
-            itemBuilder: (context, suggest) {
-              return ListTile(
-                title: GestureDetector(
-                  child: Text(suggest['description']),
-                  onTap: () async {
-                    final latlngLoc = await GoogleMapsUtils()
-                        .getLocationDetails(suggest['place_id']);
-
-                    // Set the start location
-                    if (latlngLoc != null) {
-                      Provider.of<MapState>(context, listen: false)
-                          .setStartLocation(
-                              LatLng(latlngLoc.latitude, latlngLoc.longitude));
-                    }
-
-                    // Unfocus the text field
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  },
-                ),
-              );
-            },
           ),
         ),
-        GestureDetector(
-          onTap: () => _controller.clear(),
-          child: const Icon(
-            Icons.clear,
-            color: Colors.black,
-          ),
+
+        // Search bar and suggestions (above the border)
+        Row(
+          children: [
+            Expanded(
+              child: TypeAheadField(
+                controller: _controller,
+                builder: (context, controller, focusNode) => TextField(
+                  decoration: InputDecoration(
+                    hintText: "Input your pickup location",
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.teal, width: 2),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 1))
+                  ),
+                  controller: _controller,
+                  focusNode: focusNode,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontSize: 16,
+                    ),
+                ),
+                suggestionsCallback: (pattern) async {
+                  return await GoogleMapsUtils().getLocations(pattern);
+                },
+                onSelected: (suggestion) async {
+                  final finalLoc = await GoogleMapsUtils()
+                      .getLocationDetails(suggestion['place_id']);
+
+                  _controller.text = suggestion['description'].toString();
+                  FocusScope.of(context).requestFocus(FocusNode());
+                },
+                itemBuilder: (context, suggest) {
+                  return ListTile(
+                    title: GestureDetector(
+                      child: Text(suggest['description']),
+                      onTap: () async {
+                        final latlngLoc = await GoogleMapsUtils()
+                            .getLocationDetails(suggest['place_id']);
+
+                        if (latlngLoc != null) {
+                          Provider.of<MapState>(context, listen: false)
+                              .setStartLocation(LatLng(
+                                  latlngLoc.latitude, latlngLoc.longitude));
+                        }
+
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _controller.clear(),
+              child: const Icon(
+                Icons.clear,
+                color: Color.fromARGB(255, 0, 0, 0),
+              ),
+            ),
+          ],
         ),
       ],
     );
