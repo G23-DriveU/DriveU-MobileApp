@@ -33,7 +33,6 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
       stage = TripStage.pickedUp;
     });
   }
-  
 
   // Used in tandem with the 'RefreshIndicator' to get updated
   // trip details when looking at a specific trip.
@@ -112,18 +111,9 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
     request = widget.request;
     stage = widget.stage;
   }
-/*
-child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),*/
+
   @override
   Widget build(BuildContext context) {
-    
     print("Trip status is $stage\n");
     // Build method to define the widget tree
     return Scaffold(
@@ -139,8 +129,8 @@ child: Container(
           ],
         )
       ],
-      
-body: Container(
+
+      body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
@@ -160,128 +150,116 @@ body: Container(
                       width: 120,
                       height: 120,
                       child: ImageFrame(
-                        firebaseUid: request.futureTrip?.driver?.firebaseUid ?? '',
+                        firebaseUid:
+                            request.futureTrip?.driver?.firebaseUid ?? '',
                       ),
                     ),
                   ),
                 ),
-              SizedBox(
-                  height:
-                      16), // Add space between profile picture and next section
+                SizedBox(
+                    height:
+                        16), // Add space between profile picture and next section
 
-              // Driver's name
-              /*
-              ListTile(
-                title: Text(request.futureTrip?.driver?.name ?? 'N/A',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize:
-                            14)), // Display driver's name or 'N/A' if null
-                subtitle: Text("🚗 Driver"),
-              ),
-*/
-              ListTile(
-                title: Text("🚗 Driver",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize:
-                            18)), // Display driver's name or 'N/A' if null
-                subtitle: Text(request.futureTrip?.driver?.name ?? 'N/A'),
-              ),
-              // Driver's rating
-              ListTile(
-                title: Text(
-                    "⭐ Driver Rating",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18)), 
-                subtitle: Text((request.futureTrip?.driver?.driverRating ?? 'N/A').toString()),
+                // Driver's name
+                ListTile(
+                  title: Text("🚗 Driver",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize:
+                              18)), // Display driver's name or 'N/A' if null
+                  subtitle: Text(request.futureTrip?.driver?.name ?? 'N/A'),
+                ),
+                // Driver's rating
+                ListTile(
+                  title: Text("⭐ Driver Rating",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text(
+                      (request.futureTrip?.driver?.driverRating ?? 'N/A')
+                          .toString()),
+                ),
+                // Start location of the trip
+                ListTile(
+                  title: Text("📍 Start Location",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text((request.futureTrip?.startLocation ??
+                      'N/A')), // Display start location or 'N/A'
+                ),
 
-              ),  
-              // Start location of the trip
-              ListTile(
-                title: Text(
-                    "📍 Start Location" ,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18)), 
-                subtitle: Text((request.futureTrip?.startLocation ?? 'N/A')),// Display start location or 'N/A'
-              ),
+                // Destination of the trip
+                ListTile(
+                  title: Text("📌 Destination ",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text((request.riderLocation ??
+                      'N/A')), // Display destination or 'N/A' \n${request.riderLocation ?? 'N/A'}
+                ),
+                // Pickup location for the rider
+                ListTile(
+                  title: Text("🛣️ Pickup Location: ",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
-              // Destination of the trip
-              ListTile(
-                title: Text("📌 Destination ", 
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18)),
-                subtitle: Text((request.riderLocation ?? 'N/A')), // Display destination or 'N/A' \n${request.riderLocation ?? 'N/A'}
-              ),
+                  subtitle: Text((request.riderLocation ??
+                      'N/A')), // Display rider's pickup location or 'N/A'
+                ),
 
-              // Pickup location for the rider
-              ListTile(
-                title: Text(
-                    "🛣️ Pickup Location: ",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize:
-                            18)),
-                            
-                subtitle: Text((request.riderLocation ?? 'N/A')), // Display rider's pickup location or 'N/A'
-              ),
+                // Estimated pickup time, converting Unix timestamp to readable format
+                ListTile(
+                  title: Text("⏰ Estimated Pickup Time",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text((request.pickupTime != null
+                      ? DateTime.fromMillisecondsSinceEpoch(
+                              widget.request.pickupTime! * 1000)
+                          .toString()
+                      : 'N/A')),
+                ),
 
-              // Estimated pickup time, converting Unix timestamp to readable format
-              ListTile(
-                title: Text(
-                    "⏰ Estimated Pickup Time",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                subtitle: Text((request.pickupTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.pickupTime! * 1000).toString() : 'N/A')),
-              ),
+                // Estimated dropoff time, converting Unix timestamp to readable format
+                ListTile(
+                  title: Text("🕗 Estimated Dropoff Time: ",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text((request.dropoffTime != null
+                      ? DateTime.fromMillisecondsSinceEpoch(
+                              widget.request.dropoffTime! * 1000)
+                          .toString()
+                      : 'N/A')),
+                ),
 
-              // Estimated dropoff time, converting Unix timestamp to readable format
-              ListTile(
-                title: Text(
-                    "🕗 Estimated Dropoff Time: ",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                // Car information including color, make, and model
+                ListTile(
+                  title: Text("🚙 Car: ",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text(
+                      "${request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}"),
+                ),
 
-                subtitle: Text((request.dropoffTime != null ? DateTime.fromMillisecondsSinceEpoch(widget.request.dropoffTime! * 1000).toString() : 'N/A')),
-              ),
+                // Rider's cost for the trip
+                ListTile(
+                    title: Text("💲 Cost: ",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18)),
+                    subtitle: Text(request.riderCost
+                        .toStringAsFixed(2)) // Format cost to 2 decimal places
+                    ),
 
-              // Car information including color, make, and model
-              ListTile(
-                title: Text(
-                    "🚙 Car: ",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                subtitle: Text("${request.futureTrip?.driver?.name ?? 'N/A'} will be driving a ${request.futureTrip?.driver?.carColor ?? 'N/A'} ${widget.request.futureTrip?.driver?.carMake ?? 'N/A'} ${widget.request.futureTrip?.driver?.carModel ?? 'N/A'}"),
-              ),
-
-              // Rider's cost for the trip
-              ListTile(
-                title: Text(
-                    "💲 Cost: ",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18)),
-                subtitle: Text("${request.riderCost.toStringAsFixed(2)}") // Format cost to 2 decimal places
-              ),
-
-              // Distance of the trip in miles
-              ListTile(
-                title: Text(
-                    "🗺️ Distance: ",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18)),
-                subtitle: Text("${request.distance.toStringAsFixed(2)} mi"),
-                   // Format distance to 2 decimal places
-              ),
-            ],
+                // Distance of the trip in miles
+                ListTile(
+                  title: Text("🗺️ Distance: ",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text("${request.distance.toStringAsFixed(2)} mi"),
+                  // Format distance to 2 decimal places
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 }

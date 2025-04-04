@@ -12,13 +12,17 @@ class PastTripPage extends StatefulWidget {
   final PastTrip trip;
   final LocationData? userPosition;
 
+
   const PastTripPage({super.key, required this.trip, required this.userPosition});
+
 
   @override
   State<PastTripPage> createState() => _PastTripPageState();
 }
 
+
 class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderStateMixin {
+
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   double _rating = 3;
@@ -147,7 +151,8 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -164,17 +169,21 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
                 const SizedBox(height: 15),
                 _buildInfoRow("👤 Driver:", trip.driver?.name ?? SingleUser().getUser()!.name),
                 _buildInfoRow("🚗 Car:", "${trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"),
+
                 const SizedBox(height: 15),
                 if (trip.driverId == SingleUser().getUser()!.id)
                   Column(
                     children: [
+
                       _buildInfoRow("💰 You made:", "\$${trip.driverPayout}"),
+
                       const SizedBox(height: 10),
                       Row(
                         children: [
                           Text(
                             "🚘 You Drove:",
-                            style: GoogleFonts.fredoka(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.fredoka(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 10),
                           ClipOval(
@@ -186,8 +195,10 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
                       )
                     ],
                   ),
+
                 if (trip.driverId != SingleUser().getUser()!.id)
                   _buildInfoRow("💳 This ride cost you:", "\$${trip.riderCost}"),
+
               ],
             ),
           ),

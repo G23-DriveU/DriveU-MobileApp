@@ -65,3 +65,8 @@ TripStage getStage(String status) {
       return TripStage.tripEnd;
   }
 }
+
+// If it is not one of these two status, then the trip has started.
+bool isStarted(TripStage status) {
+  return status != TripStage.notStarted;
+}
