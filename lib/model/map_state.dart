@@ -9,6 +9,7 @@ class MapState with ChangeNotifier {
   LatLng? _startLocation;
   LatLng? _endLocation;
   DateTime? _tripDateTime;
+  Set<Marker> _markers = {};
 
   get radius => _radius;
   setRadius(value) {
@@ -37,6 +38,17 @@ class MapState with ChangeNotifier {
   get tripDateTime => _tripDateTime;
   setTripDateTime(value) {
     _tripDateTime = value;
+    notifyListeners();
+  }
+
+  Set<Marker> get markers => _markers;
+  void addMarker(Marker marker) {
+    _markers.add(marker);
+    notifyListeners();
+  }
+
+  void setMarkers(Set<Marker> markers) {
+    _markers = markers;
     notifyListeners();
   }
 }

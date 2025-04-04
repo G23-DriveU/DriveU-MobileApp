@@ -1,7 +1,10 @@
+import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
 import 'package:driveu_mobile_app/services/google_maps_utils.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
+import 'package:driveu_mobile_app/widgets/driver_alert_dialog_future_trip.dart';
+import 'package:driveu_mobile_app/widgets/rider_alert_dialog_future_trip.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -23,7 +26,17 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _endController = TextEditingController();
 
-  Future<void> _selectDate(BuildContext context) async {
+  void showTripInfo(BuildContext context, FutureTrip trip) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return SingleUser().getUser()!.driver
+              ? DriverAlertDialogFutureTrip(trip: trip, userPosition: null)
+              : RiderAlertDialogFutureTrip(trip: trip, userPosition: null);
+        });
+  }
+
+  Future<void> selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -37,7 +50,7 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> selectTime(BuildContext context) async {
     final TimeOfDay now = TimeOfDay.now();
     final TimeOfDay? picked = await showTimePicker(
       initialEntryMode: TimePickerEntryMode.input,
@@ -57,7 +70,7 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
     }
   }
 
-  int? _secondsSinceEpoch() {
+  int? secondsSinceEpoch() {
     if (_selectedDate != null && _selectedTime != null) {
       final DateTime tse = DateTime(_selectedDate!.year, _selectedDate!.month,
           _selectedDate!.day, _selectedTime!.hour, _selectedTime!.minute);
@@ -66,16 +79,18 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
     return null;
   }
 
-  Widget _buildTypeAheadField(
+  Widget buildTypeAheadField(
       String hintText, TextEditingController controller, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0), // Spacing between inputs
+      padding:
+          const EdgeInsets.symmetric(vertical: 8.0), // Spacing between inputs
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12), // Inner padding
+        padding: const EdgeInsets.symmetric(
+            horizontal: 12, vertical: 12), // Inner padding
         child: TypeAheadField(
           controller: controller,
           builder: (context, textController, focusNode) => TextField(
@@ -92,6 +107,14 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
           onSelected: (suggestion) async {
             final finalLoc = await GoogleMapsUtils()
                 .getLocationDetails(suggestion['place_id']);
+            // Need access to our map state
+            final mapState = Provider.of<MapState>(context, listen: false);
+
+            if (hintText == 'Start Location') {
+              mapState.setStartLocation(finalLoc!);
+            } else {
+              mapState.setEndLocation(finalLoc!);
+            }
 
             controller.text = suggestion['description'].toString();
             FocusScope.of(context).requestFocus(FocusNode());
@@ -114,8 +137,8 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildTypeAheadField("Start Location", _startController, context),
-            _buildTypeAheadField("End Location", _endController, context),
+            buildTypeAheadField("Start Location", _startController, context),
+            buildTypeAheadField("End Location", _endController, context),
             SizedBox(height: 10), // Extra spacing
             ListTile(
               title: const Text("Select Date"),
@@ -123,14 +146,14 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
                   ? const Text("Select Date")
                   : Text(
                       "${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}"),
-              onTap: () => _selectDate(context),
+              onTap: () => selectDate(context),
             ),
             ListTile(
               title: const Text("Select Time"),
               trailing: _selectedTime == null
                   ? const Text("Select Time")
                   : Text("${_selectedTime!.hour}:${_selectedTime!.minute}"),
-              onTap: () => _selectTime(context),
+              onTap: () => selectTime(context),
             ),
             SizedBox(height: 10),
             CheckboxListTile(
@@ -188,7 +211,7 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
             if (_selectedDate == null || _selectedTime == null) {
               return;
             }
-            final int? epochSeconds = _secondsSinceEpoch();
+            final int? epochSeconds = secondsSinceEpoch();
 
             try {
               final response = await TripApi().createTrip({
@@ -218,7 +241,16 @@ class _CreateRideDialogState extends State<CreateRideDialog> {
                 'timeAtDestination': _duration.inSeconds.toString()
               });
 
-              Navigator.of(context).pop();
+              if (response != null) {
+                Provider.of<MapState>(context, listen: false).addMarker(Marker(
+                  markerId: MarkerId(response.id.toString()),
+                  icon: BitmapDescriptor.defaultMarker,
+                  position:
+                      LatLng(response.destinationLat, response.destinationLng),
+                  onTap: () => showTripInfo(context, response),
+                ));
+                Navigator.of(context).pop();
+              }
             } on Exception catch (e) {
               print("DEBUG: There was an error creating the trip $e");
             }

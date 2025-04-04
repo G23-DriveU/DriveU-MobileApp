@@ -100,18 +100,19 @@ class TripApi {
     }
   }
 
-  Future<void> createTrip(Map<String, String> queryParameters) async {
+  Future<FutureTrip?> createTrip(Map<String, String> queryParameters) async {
     try {
       final response = await SingleClient()
           .post(FUTURE_TRIPS_CRUD, queryParameters: queryParameters);
 
       if (response.statusCode == 201) {
-        return;
+        return FutureTrip.fromJson(jsonDecode(response.body)["item"]);
       } else {
         throw Exception();
       }
     } catch (e) {
       print(e.toString());
+      return null;
     }
   }
 

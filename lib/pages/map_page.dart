@@ -41,63 +41,67 @@ class MapPage extends StatelessWidget {
       body: Stack(
         children: [
           const ViewGoogleMap(),
-
-
-
-          Positioned(
-            top: 50,
-            left: 20,
-            right: 20,
-            child: Stack(
-              children: [
-                // White Border (Placed beneath the black border)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(5.0, 5.0, 15.0, 5.0), // Moves inward
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 5.0), // White border
-                    borderRadius: BorderRadius.circular(10), // Rectangular look
+          if (!SingleUser().getUser()!.driver)
+            Positioned(
+              top: 50,
+              left: 20,
+              right: 20,
+              child: Stack(
+                children: [
+                  // White Border (Placed beneath the black border)
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(
+                        5.0, 5.0, 15.0, 5.0), // Moves inward
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Colors.white, width: 5.0), // White border
+                      borderRadius:
+                          BorderRadius.circular(10), // Rectangular look
+                    ),
                   ),
-                ),
-
-                // Thicker Black Border (Placed over the white border and around the search bar)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(4.0, 4.0, 14.0, 4.0), // Moves inward
-                  decoration: BoxDecoration(
-                    //border: Border.all(color: Colors.black, width: 4.0), // Thicker black border
-                    borderRadius: BorderRadius.circular(8), // Slightly rectangular
+                  // Thicker Black Border (Placed over the white border and around the search bar)
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(
+                        4.0, 4.0, 14.0, 4.0), // Moves inward
+                    decoration: BoxDecoration(
+                      //border: Border.all(color: Colors.black, width: 4.0), // Thicker black border
+                      borderRadius:
+                          BorderRadius.circular(8), // Slightly rectangular
+                    ),
                   ),
-                ),
-
-                // Main Search Bar (LocationSuggest Widget)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Ensures full white background
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 1,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(3.0), // Pushes the inner container inward
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white, // Ensures full white overlay
-                        borderRadius: BorderRadius.circular(27), // Slightly smaller than outer
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0), // Adjust spacing inside
-                        child: LocationSuggest(),
+                  // Main Search Bar (LocationSuggest Widget)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Ensures full white background
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 1,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                          3.0), // Pushes the inner container inward
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white, // Ensures full white overlay
+                          borderRadius: BorderRadius.circular(
+                              27), // Slightly smaller than outer
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                              6.0), // Adjust spacing inside
+                          child: LocationSuggest(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

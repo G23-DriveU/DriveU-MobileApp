@@ -11,15 +11,13 @@ import 'package:provider/provider.dart';
 class RiderAlertDialogFutureTrip extends StatefulWidget {
   final FutureTrip trip;
   final LocationData? userPosition;
-  
-  const RiderAlertDialogFutureTrip({
-    super.key, 
-    required this.trip, 
-    required this.userPosition
-  });
+
+  const RiderAlertDialogFutureTrip(
+      {super.key, required this.trip, this.userPosition});
 
   @override
-  State<RiderAlertDialogFutureTrip> createState() => _RiderAlertDialogFutureTrip();
+  State<RiderAlertDialogFutureTrip> createState() =>
+      _RiderAlertDialogFutureTrip();
 }
 
 class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
@@ -34,7 +32,7 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
   @override
   Widget build(BuildContext context) {
     final mapState = Provider.of<MapState>(context);
-    
+
     return AlertDialog(
       title: Text(
         "🚗 ${widget.trip.driver!.name}'s Trip",
@@ -42,13 +40,15 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,  // Align left for clarity
+        crossAxisAlignment: CrossAxisAlignment.start, // Align left for clarity
         children: [
           _infoRow("📍 Destination:", widget.trip.destination),
           _infoRow("📌 Start Location:", widget.trip.startLocation),
           _infoRow("👨‍✈️ Driver:", widget.trip.driver!.name),
-          _infoRow("🚘 Car:", "${widget.trip.driver!.carMake} ${widget.trip.driver!.carModel}"),
-          _infoRow("💰 Estimated Cost:", "\$${widget.trip.request?.riderCost ?? 'N/A'}"),
+          _infoRow("🚘 Car:",
+              "${widget.trip.driver!.carMake} ${widget.trip.driver!.carModel}"),
+          _infoRow("💰 Estimated Cost:",
+              "\$${widget.trip.request?.riderCost ?? 'N/A'}"),
         ],
       ),
       actions: [
@@ -59,8 +59,8 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: TextButton.styleFrom(
-                  foregroundColor: const Color.fromARGB(255, 255, 255, 255), 
-                  minimumSize: const Size(double.infinity, 40), 
+                  foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                  minimumSize: const Size(double.infinity, 40),
                 ),
                 child: const Text('❌ Close', style: TextStyle(fontSize: 16)),
               ),
@@ -70,7 +70,8 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
               child: ElevatedButton(
                 onPressed: () async {
                   final payUrl = await PayPalApi().getPayUrl({
-                    "tripCost": widget.trip.request!.riderCost.toStringAsFixed(2)
+                    "tripCost":
+                        widget.trip.request!.riderCost.toStringAsFixed(2)
                   });
 
                   var authId;
@@ -95,7 +96,8 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
                     Navigator.of(context).pop();
                     print("✅ Successful Request Made");
                   } else {
-                    print("⚠️ Failed to get PayPal credentials, canceling transaction");
+                    print(
+                        "⚠️ Failed to get PayPal credentials, canceling transaction");
                   }
                 },
                 style: ElevatedButton.styleFrom(

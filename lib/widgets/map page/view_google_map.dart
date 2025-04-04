@@ -1,6 +1,7 @@
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/map_state.dart';
 import 'package:driveu_mobile_app/services/api/trip_api.dart';
+import 'package:driveu_mobile_app/services/google_maps_utils.dart';
 import 'package:driveu_mobile_app/services/single_user.dart';
 import 'package:driveu_mobile_app/widgets/driver_alert_dialog_future_trip.dart';
 import 'package:driveu_mobile_app/widgets/rider_alert_dialog_future_trip.dart';
@@ -91,7 +92,6 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
           : await TripApi().getTrips({
               'riderId': SingleUser().getUser()!.id.toString(),
               'radius': mapState.radius.toString(),
-              // TODO: Might need to change this to end location
               'lat': mapState.endLocation?.latitude.toString() ??
                   _center!.latitude.toString(),
               'lng': mapState.endLocation?.longitude.toString() ??
@@ -105,6 +105,7 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       if (_isMounted) {
         setState(() {
           _trips = markers;
+          mapState.setMarkers(markers);
         });
       }
     }
@@ -207,32 +208,44 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         : Scaffold(
             body: Consumer<MapState>(
               builder: (context, mapState, child) {
-                if (mapState.startLocation != null) {
-                  _trips?.add(Marker(
-                    markerId: const MarkerId('start'),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueGreen),
-                    position: mapState.startLocation!,
-                    infoWindow: const InfoWindow(title: 'Start Location'),
-                  ));
-                }
-                if (mapState.endLocation != null) {
-                  _trips?.add(Marker(
-                    markerId: const MarkerId('end'),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueOrange),
-                    position: mapState.endLocation!,
-                    infoWindow: const InfoWindow(title: 'End Location'),
-                  ));
+                if (!SingleUser().getUser()!.driver) {
+                  if (mapState.startLocation != null) {
+                    _trips?.add(Marker(
+                      markerId: const MarkerId('start'),
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                          BitmapDescriptor.hueGreen),
+                      position: mapState.startLocation!,
+                      infoWindow: const InfoWindow(title: 'Start Location'),
+                    ));
+                  }
+                  if (mapState.endLocation != null) {
+                    _trips?.add(Marker(
+                      markerId: const MarkerId('end'),
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                          BitmapDescriptor.hueOrange),
+                      position: mapState.endLocation!,
+                      infoWindow: const InfoWindow(title: 'End Location'),
+                    ));
+                  }
                 }
 
                 return GoogleMap(
-                  markers: _trips ?? {},
+                  markers: mapState.markers,
                   zoomControlsEnabled: false,
                   zoomGesturesEnabled: true,
                   initialCameraPosition: CameraPosition(
                       target: mapState.endLocation ?? _center!, zoom: 11),
-                  onMapCreated: _onMapCreated,
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+                    LatLngBounds bounds = GoogleMapsUtils().calculateBounds(
+                      mapState.markers
+                          .map((marker) => marker.position)
+                          .toList(),
+                    );
+                    mapController.animateCamera(
+                      CameraUpdate.newLatLngBounds(bounds, 50),
+                    );
+                  },
                   // Only the riders can change the start and end location by long pressing
                   onLongPress: SingleUser().getUser()!.driver
                       ? null

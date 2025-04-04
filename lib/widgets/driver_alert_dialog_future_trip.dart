@@ -7,17 +7,16 @@ class DriverAlertDialogFutureTrip extends StatefulWidget {
   final FutureTrip trip;
   final LocationData? userPosition;
 
-  const DriverAlertDialogFutureTrip({
-    super.key, 
-    required this.trip, 
-    required this.userPosition
-  });
+  const DriverAlertDialogFutureTrip(
+      {super.key, required this.trip, this.userPosition});
 
   @override
-  State<DriverAlertDialogFutureTrip> createState() => _DriverAlertDialogFutureTripState();
+  State<DriverAlertDialogFutureTrip> createState() =>
+      _DriverAlertDialogFutureTripState();
 }
 
-class _DriverAlertDialogFutureTripState extends State<DriverAlertDialogFutureTrip> {
+class _DriverAlertDialogFutureTripState
+    extends State<DriverAlertDialogFutureTrip> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
