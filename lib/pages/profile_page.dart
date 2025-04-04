@@ -365,132 +365,139 @@ class _ProfilePageState extends State<ProfilePage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(20),
-            constraints: const BoxConstraints(minHeight: 500),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: const LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 199, 255, 255),
-                  Color.fromARGB(255, 200, 236, 255),
-                  Color.fromARGB(255, 200, 222, 255),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  spreadRadius: 3,
-                )
-              ],
-            ),
-            padding: const EdgeInsets.all(25),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (currentUser != null) ...[
-                  Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.black, width: 2),
-                        ),
-                        child: ClipOval(
-                          child: SizedBox(
-                            width: 120,
-                            height: 120,
-                            child: ImageFrame(firebaseUid: currentUser.uid),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Profile Picture",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ).animate().fade(duration: 500.ms).slideY(),
-                  const SizedBox(height: 25),
-                ] else
-                  const CircularProgressIndicator(),
-                if (user != null)
-                  ...[
-                    _buildSectionTitle("User Information"),
-                    _buildInfoRow(context, "Name", user.name ?? 'Not provided'),
-                    _buildInfoRow(
-                        context, "Email", user.email ?? 'Not provided'),
-                    _buildInfoRow(
-                        context, "Phone", user.phoneNumber ?? 'Not provided'),
-                    const SizedBox(height: 25),
-                  ].animate().fade(duration: 600.ms),
-                if (user != null && user.driver == true)
-                  ...[
-                    _buildSectionTitle("Vehicle Details"),
-                    if (user.carMake != null)
-                      _buildInfoRow(context, "Make", user.carMake!),
-                    if (user.carModel != null)
-                      _buildInfoRow(context, "Model", user.carModel!),
-                    if (user.carPlate != null)
-                      _buildInfoRow(context, "Plate", user.carPlate!),
-                    if (user.carColor != null)
-                      _buildInfoRow(context, "Color", user.carColor!),
-                    const SizedBox(height: 25),
-                  ].animate().fade(duration: 700.ms),
-                ElevatedButton(
-                  onPressed: () => _handleRoleSwitch(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      side: const BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  child: Text(
-                    SingleUser().getUser()!.driver == true
-                        ? "Switch to Rider"
-                        : "Switch to Driver",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+        child: SingleChildScrollView(
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              constraints: const BoxConstraints(minHeight: 500),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color.fromARGB(255, 199, 255, 255),
+                    Color.fromARGB(255, 200, 236, 255),
+                    Color.fromARGB(255, 200, 222, 255),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () => AuthService().signOut(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      side: const BorderSide(color: Colors.white),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    spreadRadius: 3,
+                  )
+                ],
+              ),
+              padding: const EdgeInsets.all(25),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (currentUser != null) ...[
+                      Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.black, width: 2),
+                            ),
+                            child: ClipOval(
+                              child: SizedBox(
+                                width: 120,
+                                height: 120,
+                                child: ImageFrame(firebaseUid: currentUser.uid),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Profile Picture",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ).animate().fade(duration: 500.ms).slideY(),
+                      const SizedBox(height: 25),
+                    ] else
+                      const CircularProgressIndicator(),
+                    if (user != null)
+                      ...[
+                        _buildSectionTitle("User Information"),
+                        _buildInfoRow(
+                            context, "Name", user.name ?? 'Not provided'),
+                        _buildInfoRow(
+                            context, "Email", user.email ?? 'Not provided'),
+                        _buildInfoRow(context, "Phone",
+                            user.phoneNumber ?? 'Not provided'),
+                        const SizedBox(height: 25),
+                      ].animate().fade(duration: 600.ms),
+                    if (user != null && user.driver == true)
+                      ...[
+                        _buildSectionTitle("Vehicle Details"),
+                        if (user.carMake != null)
+                          _buildInfoRow(context, "Make", user.carMake!),
+                        if (user.carModel != null)
+                          _buildInfoRow(context, "Model", user.carModel!),
+                        if (user.carPlate != null)
+                          _buildInfoRow(context, "Plate", user.carPlate!),
+                        if (user.carColor != null)
+                          _buildInfoRow(context, "Color", user.carColor!),
+                        const SizedBox(height: 25),
+                      ].animate().fade(duration: 700.ms),
+                    ElevatedButton(
+                      onPressed: () => _handleRoleSwitch(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          side: const BorderSide(color: Colors.white),
+                        ),
+                      ),
+                      child: Text(
+                        SingleUser().getUser()!.driver == true
+                            ? "Switch to Rider"
+                            : "Switch to Driver",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "Sign Out",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ).animate().fade(duration: 800.ms).slideY(),
-                const SizedBox(height: 30),
-              ],
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: () => AuthService().signOut(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          side: const BorderSide(color: Colors.white),
+                        ),
+                      ),
+                      child: const Text(
+                        "Sign Out",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ).animate().fade(duration: 800.ms).slideY(),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
