@@ -48,29 +48,57 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
         request.pickupTime = updatedTrip.request!.pickupTime;
         stage = getTripStage(updatedTrip, null);
         // Pop out of a one-way trip
-        if (!request.roundTrip && stage == TripStage.endFirstLeg) {
-          Navigator.of(context).pop("refresh");
-        }
-        if (stage == TripStage.tripEnd) {
-          Navigator.of(context).pop("refresh");
-        }
       });
+      if (!request.roundTrip && stage == TripStage.endFirstLeg) {
+        Navigator.of(context).pop("refresh");
+      }
+      if (stage == TripStage.tripEnd) {
+        Navigator.of(context).pop("refresh");
+      }
     }
   }
 
   ElevatedButton tripStage(TripStage stage) {
     switch (stage) {
       case TripStage.notStarted:
-        return ElevatedButton(
-          onPressed: null,
-          style: ElevatedButton.styleFrom(
-            disabledBackgroundColor: Theme.of(context).disabledColor,
-          ),
-          child: Text("Picked Up",
+        // If it is 5 minuets before, the rider may cancel the request
+        if (widget.request.pickupTime != null &&
+            DateTime.fromMillisecondsSinceEpoch(
+                    widget.request.pickupTime! * 1000)
+                .isAfter(DateTime.now().add(Duration(minutes: 10)))) {
+          return ElevatedButton(
+            onPressed: () async {
+              // Logic to cancel the request
+              await TripApi()
+                  .cancelRideRequest({"rideRequestId": request.id.toString()});
+              Navigator.of(context).pop("refresh");
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, // Button color for cancel
+            ),
+            child: Text(
+              "Cancel Request",
               style: TextStyle(
-                  color: Colors.grey[700], // Adjust text color
-                  fontWeight: FontWeight.bold)), // Button label with bold text
-        );
+                color: Colors.white, // Adjust text color
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        } else {
+          return ElevatedButton(
+            onPressed: null,
+            style: ElevatedButton.styleFrom(
+              disabledBackgroundColor: Theme.of(context).disabledColor,
+            ),
+            child: Text(
+              "Picked Up",
+              style: TextStyle(
+                color: Colors.grey[700], // Adjust text color
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        }
       case TripStage.startedFirstLeg:
         return ElevatedButton(
           // 'Picked Up' button
@@ -159,7 +187,24 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
                 SizedBox(
                     height:
                         16), // Add space between profile picture and next section
-
+                // Hold the rider's status
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: request.status == "pending"
+                        ? const Color.fromARGB(255, 230, 190, 49)
+                        : Colors.green,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    request.status,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 // Driver's name
                 ListTile(
                   title: Text("🚗 Driver",
@@ -174,9 +219,9 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
                   title: Text("⭐ Driver Rating",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                  subtitle: Text(
-                      (request.futureTrip?.driver?.driverRating ?? 'N/A')
-                          .toString()),
+                  subtitle: Text((request.futureTrip?.driver!.driverRating
+                          ?.toStringAsFixed(2) ??
+                      'N/A')),
                 ),
                 // Start location of the trip
                 ListTile(
@@ -243,8 +288,8 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
                     title: Text("💲 Cost: ",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18)),
-                    subtitle: Text(request.riderCost
-                        .toStringAsFixed(2)) // Format cost to 2 decimal places
+                    subtitle: Text(
+                        "\$${request.riderCost.toStringAsFixed(2)}") // Format cost to 2 decimal places
                     ),
 
                 // Distance of the trip in miles

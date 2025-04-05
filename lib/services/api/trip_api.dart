@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:driveu_mobile_app/constants/api_path.dart';
 import 'package:driveu_mobile_app/model/future_trip.dart';
 import 'package:driveu_mobile_app/model/past_trip.dart';
@@ -280,6 +281,21 @@ class TripApi {
     } catch (e) {
       print("There was an error rating a user $e");
       return 500;
+    }
+  }
+
+  // Cancel a ride request for a rider
+  Future<void> cancelRideRequest(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .delete(DELETE_RIDE_REQUEST_RIDER, queryParameters: queryParameters);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception("Could not delete ride request");
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }
