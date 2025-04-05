@@ -25,7 +25,8 @@ class LocationSuggest extends StatelessWidget {
               height: 60, // Adjust height
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10), // Rounded rectangular
-                border: Border.all(color: Colors.white, width: 6), // Thick white border
+                border: Border.all(
+                    color: Colors.white, width: 6), // Thick white border
               ),
             ),
           ),
@@ -39,20 +40,20 @@ class LocationSuggest extends StatelessWidget {
                 controller: _controller,
                 builder: (context, controller, focusNode) => TextField(
                   decoration: InputDecoration(
-                    hintText: "Input your pickup location",
-                    hintStyle: TextStyle(color: Colors.grey[600]),
-focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.teal, width: 2),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white, width: 1))
-                  ),
+                      hintText: "Input your pickup location",
+                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.teal, width: 2),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 1))),
                   controller: _controller,
                   focusNode: focusNode,
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontSize: 16,
-                    ),
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 0, 0, 0),
+                    fontSize: 16,
+                  ),
                 ),
                 suggestionsCallback: (pattern) async {
                   return await GoogleMapsUtils().getLocations(pattern);
@@ -60,6 +61,8 @@ focusedBorder: OutlineInputBorder(
                 onSelected: (suggestion) async {
                   final finalLoc = await GoogleMapsUtils()
                       .getLocationDetails(suggestion['place_id']);
+
+                  Provider.of<MapState>(context).setStartLocation(finalLoc);
 
                   _controller.text = suggestion['description'].toString();
                   FocusScope.of(context).requestFocus(FocusNode());

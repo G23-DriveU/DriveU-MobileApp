@@ -41,7 +41,7 @@ class _FutureTripPageRiderState extends State<FutureTripPageRider> {
     FutureTrip? updatedTrip = await TripApi()
         .getFutureTrip({'futureTripId': request.futureTripId.toString()});
 
-    if (updatedTrip != null) {
+    if (updatedTrip != null && updatedTrip.request != null) {
       setState(() {
         // Only update if the request has been accepted
         // request = updatedTrip.request ?? request;
