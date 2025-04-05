@@ -238,9 +238,11 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
                   onMapCreated: (GoogleMapController controller) {
                     mapController = controller;
                     LatLngBounds bounds = GoogleMapsUtils().calculateBounds(
-                      mapState.markers
-                          .map((marker) => marker.position)
-                          .toList(),
+                      mapState.markers.isNotEmpty
+                          ? mapState.markers
+                              .map((marker) => marker.position)
+                              .toList()
+                          : [_center!],
                     );
                     mapController.animateCamera(
                       CameraUpdate.newLatLngBounds(bounds, 50),

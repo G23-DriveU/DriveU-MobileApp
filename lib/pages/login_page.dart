@@ -1,3 +1,4 @@
+import 'package:driveu_mobile_app/widgets/forgot_password_dialog.dart';
 import 'package:driveu_mobile_app/widgets/login/register/login_form.dart';
 import 'package:driveu_mobile_app/widgets/login/register/register_form_firebase.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,8 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
 
@@ -99,7 +101,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     child: const Text(
                       "Where carpooling is pleasure 😊🚗",
                       style: TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -112,7 +113,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     child: const Text(
                       "Welcome to DriveU!",
                       style: TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 18,
                         color: Colors.black87,
                       ),
@@ -124,7 +124,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     child: const Text(
                       "Please log in or sign up to get started!",
                       style: TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 18,
                         color: Colors.black87,
                       ),
@@ -143,10 +142,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          "Don't have an Account? ",
-                          style: TextStyle(
-                            fontFamily: 'Fredoka',
-                          ),
+                          "Don't Have an Account? ",
                         ),
                         GestureDetector(
                           onTap: () {
@@ -158,7 +154,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           child: const Text(
                             "Join",
                             style: TextStyle(
-                              fontFamily: 'Fredoka',
                               color: Colors.teal,
                               fontWeight: FontWeight.bold,
                             ),
@@ -166,9 +161,35 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         ),
                         const Text(
                           " DriveU-nation for FREE!",
-                          style: TextStyle(
-                            fontFamily: 'Fredoka',
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Forgot Password?",
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) => ForgotPasswordDialog());
+                          },
+                          child: const Text(
+                            " Reset ",
+                            style: TextStyle(
+                              color: Colors.teal,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
+                        ),
+                        const Text(
+                          "Your Password.",
                         )
                       ],
                     ),
