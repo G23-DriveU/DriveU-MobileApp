@@ -73,9 +73,12 @@ class _DriverAlertDialogFutureTripState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 2), // Space between title and value
-          Text(value ?? 'N/A', textAlign: TextAlign.left),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(title,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(value ?? 'N/A'),
+          ),
         ],
       ),
     );

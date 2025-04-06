@@ -116,18 +116,18 @@ class _RiderAlertDialogFutureTrip extends State<RiderAlertDialogFutureTrip> {
   }
 
   Widget _infoRow(String title, String? value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(value ?? 'N/A', softWrap: true),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(title,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(value ?? 'N/A', softWrap: true),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

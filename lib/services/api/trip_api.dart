@@ -298,4 +298,18 @@ class TripApi {
       print(e);
     }
   }
+
+  Future<void> deleteTrip(Map<String, String> queryParameters) async {
+    try {
+      final response = await SingleClient()
+          .delete(FUTURE_TRIPS_CRUD, queryParameters: queryParameters);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception("Could not delete trip");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 }

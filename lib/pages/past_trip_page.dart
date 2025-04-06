@@ -12,17 +12,15 @@ class PastTripPage extends StatefulWidget {
   final PastTrip trip;
   final LocationData? userPosition;
 
-
-  const PastTripPage({super.key, required this.trip, required this.userPosition});
-
+  const PastTripPage(
+      {super.key, required this.trip, required this.userPosition});
 
   @override
   State<PastTripPage> createState() => _PastTripPageState();
 }
 
-
-class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderStateMixin {
-
+class _PastTripPageState extends State<PastTripPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   double _rating = 3;
@@ -65,7 +63,7 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
     String rateeName = SingleUser().getUser()!.id == trip.driverId
         ? trip.rider!.name
         : trip.driver!.name;
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -97,7 +95,8 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
                     String ratee = SingleUser().getUser()!.id == trip.driverId
                         ? "rider"
                         : "driver";
-                    int rateeId = ratee == "driver" ? trip.driverId : trip.riderId;
+                    int rateeId =
+                        ratee == "driver" ? trip.driverId : trip.riderId;
 
                     int res = await TripApi().rateUser({
                       "${ratee}Id": rateeId.toString(),
@@ -132,7 +131,9 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
       persistentFooterButtons: [
         Center(
           child: ElevatedButton(
-            onPressed: _isRated() == false ? () => _rateUserDialog(context, trip) : null,
+            onPressed: _isRated() == false
+                ? () => _rateUserDialog(context, trip)
+                : null,
             style: ElevatedButton.styleFrom(
               disabledBackgroundColor: Theme.of(context).disabledColor,
             ),
@@ -166,17 +167,15 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
                 const SizedBox(height: 20),
                 _buildInfoRow("📍 Start Location:", trip.startLocation),
                 _buildInfoRow("🎯 Destination:", trip.destination),
-                const SizedBox(height: 15),
-                _buildInfoRow("👤 Driver:", trip.driver?.name ?? SingleUser().getUser()!.name),
-                _buildInfoRow("🚗 Car:", "${trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"),
-
-                const SizedBox(height: 15),
+                _buildInfoRow("👤 Driver:",
+                    trip.driver?.name ?? SingleUser().getUser()!.name),
+                _buildInfoRow("🚗 Car:",
+                    "${trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"),
                 if (trip.driverId == SingleUser().getUser()!.id)
                   Column(
                     children: [
-
-                      _buildInfoRow("💰 You made:", "\$${trip.driverPayout}"),
-
+                      _buildInfoRow("💰 You Made:",
+                          "\$${trip.driverPayout.toStringAsFixed(2)}"),
                       const SizedBox(height: 10),
                       Row(
                         children: [
@@ -195,10 +194,9 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
                       )
                     ],
                   ),
-
                 if (trip.driverId != SingleUser().getUser()!.id)
-                  _buildInfoRow("💳 This ride cost you:", "\$${trip.riderCost}"),
-
+                  _buildInfoRow("💳 This Ride Cost You:",
+                      "\$${trip.riderCost.toStringAsFixed(2)}"),
               ],
             ),
           ),
@@ -208,18 +206,18 @@ class _PastTripPageState extends State<PastTripPage> with SingleTickerProviderSt
   }
 
   Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: RichText(
-        text: TextSpan(
-          style: GoogleFonts.fredoka(fontSize: 18, color: Colors.black),
-          children: [
-            TextSpan(
-              text: "$label ",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            TextSpan(text: value),
-          ],
+    return ListTile(
+      title: Text(
+        label,
+        style: GoogleFonts.fredoka(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Text(
+        value,
+        style: GoogleFonts.fredoka(
+          fontSize: 16,
         ),
       ),
     );
