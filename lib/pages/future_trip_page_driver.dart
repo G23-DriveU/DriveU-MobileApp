@@ -635,6 +635,9 @@ class _FutureTripPageDriverState extends State<FutureTripPageDriver> {
                         },
                       ),
                     ),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

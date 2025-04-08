@@ -51,6 +51,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
         ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
+                _formKey.currentState!.save();
                 AuthService().resetPassword(_email!);
                 Navigator.of(context).pop();
               }

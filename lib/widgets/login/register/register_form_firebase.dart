@@ -142,6 +142,9 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                       return 'Please enter a valid email address';
                     }
+                    if (!value.endsWith('.edu')) {
+                      return 'Please enter your university assigned email address';
+                    }
                     if (_error == 'email-already-in-use') {
                       return 'Email already in use';
                     }
