@@ -17,7 +17,6 @@ class ViewGoogleMap extends StatefulWidget {
   State<ViewGoogleMap> createState() => _ViewGoogleMapState();
 }
 
-// TODO: Change the behvaior for both rider and driver.
 class _ViewGoogleMapState extends State<ViewGoogleMap> {
   // Manipulate the camera
   late GoogleMapController mapController;
@@ -39,17 +38,10 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
       final mapState = Provider.of<MapState>(context, listen: false);
 
       setState(() {
-        if (mapState.startLocation == null) {
-          // Set the start location (pickup location)
-          mapState.setStartLocation(position);
-          // Retrieve trips with updated pricing
-          _loadMarkers();
-        } else {
-          // Set the end location (used for the search radius circle)
-          mapState.setEndLocation(position);
-          // No need to reload trips, just update the circle
-          _updateSearchRadiusOverlay();
-        }
+        // Set the end location (used for the search radius circle)
+        mapState.setEndLocation(position);
+        // No need to reload trips, just update the circle
+        _updateSearchRadiusOverlay();
       });
     }
   }
@@ -143,7 +135,10 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
         _center = mapState.endLocation ??
             LatLng(userPostion.latitude!, userPostion.longitude!);
         mapState.setEndLocation(_center);
-        mapState.setStartLocation(_center);
+        // Only overwrite the start location if it is null
+        if (mapState.startLocation == null) {
+          mapState.setStartLocation(_center);
+        }
         _trips?.add(Marker(
           markerId: const MarkerId('user'),
           icon:
@@ -184,7 +179,12 @@ class _ViewGoogleMapState extends State<ViewGoogleMap> {
     // Add a listener to the MapState to reload markers when the radius changes
     _mapState = Provider.of<MapState>(context, listen: false);
     _mapState.addListener(() {
-      _loadMarkers();
+      // Determine if the set of markers really need to be updated
+      if (_mapState.notifyReason == 'radiusChanged' ||
+          _mapState.notifyReason == 'locationChanged' ||
+          _mapState.notifyReason == 'addedMarker') {
+        _loadMarkers();
+      }
       _updateSearchRadiusOverlay();
     });
   }
