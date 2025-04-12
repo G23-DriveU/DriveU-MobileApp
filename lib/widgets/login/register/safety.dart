@@ -7,19 +7,21 @@ class SafetyFeaturesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Safety Features"),
-      ),
       body: Container(
         // Use a BoxDecoration to ensure the gradient covers the entire screen
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 255, 255, 255), Color.fromARGB(255, 203, 232, 246), Color.fromARGB(255, 255, 255, 255)],
+            colors: [
+              Color.fromARGB(255, 255, 255, 255),
+              Color.fromARGB(255, 203, 232, 246),
+              Color.fromARGB(255, 255, 255, 255)
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SingleChildScrollView(  // Prevent overflow of right pixels
+        child: SingleChildScrollView(
+          // Prevent overflow of right pixels
 
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -27,15 +29,28 @@ class SafetyFeaturesPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildSectionTitle("In Case of Emergency"),
-                _buildInfoRow("🚨 911 Emergency", "Call if you're in immediate danger"),
-                _buildInfoRow("🛡️ Ride Dispute", "Call support for ride issues"),
-                _buildInfoRow("🚫 Harassment", "Report incidents to 1-800-799-SAFE"),
-                _buildInfoRow("🚑 Accident Support", "Call (850) 617-2000 for accident assistance"),
+                _buildInfoRow(
+                    "🚨 911 Emergency", "Call if you're in immediate danger"),
+                _buildInfoRow(
+                    "🛡️ Ride Dispute", "Call support for ride issues"),
+                _buildInfoRow(
+                    "🚫 Harassment", "Report incidents to 800-962-2873"),
+                _buildInfoRow("🚑 Medical Accident Support",
+                    "Call 1-800 ASK for accident assistance"),
                 const SizedBox(height: 25),
-                
+
                 _buildSectionTitle("Important Hotlines"),
-                _buildInfoRow("📞 Victim Services", "1-800-799-SAFE for support"),
-                _buildInfoRow("🆘 Rider Assistance", "1-800-555-HELP for ride problems"),
+                _buildInfoRow(
+                    "📞 Victim Services", "1-877-884-2846 for support"),
+                _buildInfoRow(
+                    "🆘 Mental Crisis Support", "1 (800) 945-1355 for support"),
+                const SizedBox(height: 25),
+
+                _buildSectionTitle("Important Hotlines"),
+                _buildInfoRow(
+                    "📞 Victim Services", "1-800-799-SAFE for support"),
+                _buildInfoRow(
+                    "🆘 Rider Assistance", "1-800-555-HELP for ride problems"),
                 const SizedBox(height: 25),
 
                 // Bold text instead of button
@@ -104,7 +119,8 @@ class SafetyFeaturesPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(  // Use Expanded to prevent overflow
+          Expanded(
+            // Use Expanded to prevent overflow
             child: Text(
               label,
               style: const TextStyle(
@@ -114,15 +130,16 @@ class SafetyFeaturesPage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),  // Add some spacing
-          Expanded(  // Use Expanded to prevent overflow
+          const SizedBox(width: 10), // Add some spacing
+          Expanded(
+            // Use Expanded to prevent overflow
             child: Text(
               value,
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.black54,
               ),
-              textAlign: TextAlign.end,  // Align text to the end
+              textAlign: TextAlign.end, // Align text to the end
             ),
           ),
         ],
