@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -84,8 +85,6 @@ class _ProfilePageState extends State<ProfilePage> {
   // isDriver == false => swap to driver
   void _swapRole(bool isDriver) {
     SingleUser().getUser()!.driver = isDriver;
-    // // Update with the fact that they want to s
-    // await UserApi().editUserInfo(queryParameters);
 
     setState(() {});
   }
@@ -351,6 +350,72 @@ class _ProfilePageState extends State<ProfilePage> {
     await UserApi().editUserInfo(newUserParams);
   }
 
+  void _showPhotoOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a Photo'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: source);
+
+    if (image != null) {
+      _uploadProfilePhoto(image);
+    }
+  }
+
+  Future<void> _uploadProfilePhoto(XFile image) async {
+    try {
+      // Convert the image to bytes
+      final bytes = await image.readAsBytes();
+      final base64Image = base64Encode(bytes);
+
+      // Call your API to upload the image
+      await UserApi().sendProfileImage(
+        FirebaseAuth.instance.currentUser!.uid,
+        base64Image,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile photo updated successfully!')),
+      );
+
+      // Update the UI
+      setState(() {
+        // Optionally refresh the user's profile photo
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update profile photo: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -406,11 +471,26 @@ class _ProfilePageState extends State<ProfilePage> {
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.black, width: 2),
                             ),
-                            child: ClipOval(
-                              child: SizedBox(
-                                width: 120,
-                                height: 120,
-                                child: ImageFrame(firebaseUid: currentUser.uid),
+                            child: GestureDetector(
+                              onTap: () => _showPhotoOptions(context),
+                              child: Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  ClipOval(
+                                    child: SizedBox(
+                                      width: 120,
+                                      height: 120,
+                                      child: ImageFrame(
+                                          firebaseUid: currentUser.uid),
+                                    ),
+                                  ),
+                                  CircleAvatar(
+                                    backgroundColor: Colors.teal,
+                                    radius: 20,
+                                    child: const Icon(Icons.camera_alt,
+                                        color: Colors.white),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

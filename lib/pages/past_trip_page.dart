@@ -128,6 +128,71 @@ class _PastTripPageState extends State<PastTripPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  MediaQuery.of(context).size.height, // Ensure full height
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20), // Add spacing if needed
+                  Center(
+                    child: ClipOval(
+                      child: ImageFrame(
+                        firebaseUid: FirebaseAuth.instance.currentUser!.uid,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInfoRow("📍 Start Location:", trip.startLocation),
+                  _buildInfoRow("🎯 Destination:", trip.destination),
+                  _buildInfoRow("👤 Driver:",
+                      trip.driver?.name ?? SingleUser().getUser()!.name),
+                  _buildInfoRow("🚗 Car:",
+                      "${trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"),
+                  if (trip.driverId == SingleUser().getUser()!.id)
+                    Column(
+                      children: [
+                        _buildInfoRow("💰 You Made:",
+                            "\$${trip.driverPayout.toStringAsFixed(2)}"),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Text(
+                              "🚘 You Drove:",
+                              style: GoogleFonts.fredoka(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 10),
+                            ClipOval(
+                              child: ImageFrame(
+                                firebaseUid: trip.rider!.firebaseUid!,
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  if (trip.driverId != SingleUser().getUser()!.id)
+                    _buildInfoRow("💳 This Ride Cost You:",
+                        "\$${trip.riderCost.toStringAsFixed(2)}"),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
       persistentFooterButtons: [
         Center(
           child: ElevatedButton(
@@ -141,67 +206,6 @@ class _PastTripPageState extends State<PastTripPage>
           ),
         )
       ],
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFE3F2FD), Color(0xFFF3E5F5)],
-          ),
-        ),
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: ClipOval(
-                    child: ImageFrame(
-                      firebaseUid: FirebaseAuth.instance.currentUser!.uid,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildInfoRow("📍 Start Location:", trip.startLocation),
-                _buildInfoRow("🎯 Destination:", trip.destination),
-                _buildInfoRow("👤 Driver:",
-                    trip.driver?.name ?? SingleUser().getUser()!.name),
-                _buildInfoRow("🚗 Car:",
-                    "${trip.driver?.carMake ?? SingleUser().getUser()!.carMake} ${trip.driver?.carModel ?? SingleUser().getUser()!.carModel}"),
-                if (trip.driverId == SingleUser().getUser()!.id)
-                  Column(
-                    children: [
-                      _buildInfoRow("💰 You Made:",
-                          "\$${trip.driverPayout.toStringAsFixed(2)}"),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Text(
-                            "🚘 You Drove:",
-                            style: GoogleFonts.fredoka(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(width: 10),
-                          ClipOval(
-                            child: ImageFrame(
-                              firebaseUid: trip.rider!.firebaseUid!,
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                if (trip.driverId != SingleUser().getUser()!.id)
-                  _buildInfoRow("💳 This Ride Cost You:",
-                      "\$${trip.riderCost.toStringAsFixed(2)}"),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 

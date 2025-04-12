@@ -36,16 +36,58 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
       _paypalError;
   bool _passwordsMatch = true, _isDriver = false, _isMounted = true;
   File? _profileImage;
+  String? _profileImageEncoded;
   Map<String, List<String>> _carData = {};
   Set<String> _uniData = {};
 
-  Future<void> _pickPhoto() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+  void _showPhotoOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a Photo'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: source);
+
+    if (image != null) {
       setState(() {
-        _profileImage = File(pickedFile.path);
+        _profileImage = File(image.path); // Update the profile image
       });
+      _uploadProfilePhoto(image);
     }
+  }
+
+  Future<void> _uploadProfilePhoto(XFile image) async {
+    // Convert the image to bytes
+    final bytes = await image.readAsBytes();
+    final base64Image = base64Encode(bytes);
+    // Save this for later
+    _profileImageEncoded = base64Image;
   }
 
   String? _encodeToBase64(File? image) {
@@ -254,7 +296,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                    onPressed: _pickPhoto,
+                    onPressed: () => _showPhotoOptions(context),
                     child: const Text("Upload Profile Picture")),
                 const SizedBox(height: 20),
                 Row(
@@ -375,7 +417,7 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
                         if (_profileImage != null) {
                           await UserApi().sendProfileImage(
                               FirebaseAuth.instance.currentUser!.uid,
-                              _encodeToBase64(_profileImage)!);
+                              _profileImageEncoded!);
                         }
 
                         _error = null;
