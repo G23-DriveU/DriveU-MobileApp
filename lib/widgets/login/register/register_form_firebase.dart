@@ -105,9 +105,11 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
 
   void _loadCarData() async {
     final carData = await loadCarData();
-    setState(() {
-      _carData = carData;
-    });
+    if (_isMounted) {
+      setState(() {
+        _carData = carData;
+      });
+    }
   }
 
   Future<Set<String>> loadSchoolData() async {
@@ -123,9 +125,11 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
 
   void _loadSchoolData() async {
     final uniData = await loadSchoolData();
-    setState(() {
-      _uniData = uniData;
-    });
+    if (_isMounted) {
+      setState(() {
+        _uniData = uniData;
+      });
+    }
   }
 
   @override
