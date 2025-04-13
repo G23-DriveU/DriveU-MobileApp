@@ -90,11 +90,6 @@ class _RegisterFormFirebaseState extends State<RegisterFormFirebase> {
     _profileImageEncoded = base64Image;
   }
 
-  String? _encodeToBase64(File? image) {
-    if (image == null) return null;
-    return base64Encode(image.readAsBytesSync());
-  }
-
   Future<Map<String, List<String>>> loadCarData() async {
     final String response =
         await rootBundle.loadString('assets/vehicle_models_cleaned.json');

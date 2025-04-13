@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:driveu_mobile_app/services/api/user_api.dart';
 import 'package:driveu_mobile_app/services/auth_service.dart';
@@ -19,6 +20,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  File? _newProfileImage;
   // Display an edit dialog to enable users to change their information
   void _displayEditDialog(BuildContext context, String title,
       String initialValue, Function(String, String) onSave) {
@@ -385,6 +387,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
+      setState(() {
+        _newProfileImage = File(image.path);
+      });
       _uploadProfilePhoto(image);
     }
   }
@@ -404,11 +409,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile photo updated successfully!')),
       );
-
-      // Update the UI
-      setState(() {
-        // Optionally refresh the user's profile photo
-      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update profile photo: $e')),
@@ -480,8 +480,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                     child: SizedBox(
                                       width: 120,
                                       height: 120,
-                                      child: ImageFrame(
-                                          firebaseUid: currentUser.uid),
+                                      child: _newProfileImage == null
+                                          ? ImageFrame(
+                                              firebaseUid: currentUser.uid)
+                                          : Image.file(_newProfileImage!),
                                     ),
                                   ),
                                   CircleAvatar(
